@@ -6,4 +6,3 @@ from django.http import HttpRequest, HttpResponse
 class HomeView(views.View):
     def get(self, request: HttpRequest) -> HttpResponse:
         return render(request, 'core/index.html')
-
