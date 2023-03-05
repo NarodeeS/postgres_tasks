@@ -42,6 +42,23 @@ services:
               sh -c " 
               python manage.py runserver 0.0.0.0:8000 "
     
+              
+    worker:
+        container_name: worker
+        restart: unless-stopped
+        build:
+            context: postgres_tasks/
+        depends_on:
+            - postgres
+        env_file:
+            - ./.env
+        volumes:
+            - ./postgres_tasks:/server
+        command: >
+            sh -c "
+            celery -A postgres_tasks worker -l INFO"
+    
+
     rabbitmq:
         image: rabbitmq:3-management
         container_name: rabbitmq
