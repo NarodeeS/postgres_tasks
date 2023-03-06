@@ -1,0 +1,35 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#app{
+}
+
+#main-part{
+    margin-top:10px;
+}
+
+#one-task-control{
+    margin: 7px;
+}
+
+#dilog-form{
+    top: 0;
+    bootom: 0;
+    right: 0;
+    left: 0;
+    background: rgba(0,0,0, 0.5);
+    position: fixed;
+    display: flex; 
+}
+
+#dialog-content{
+    margin: auto;
+    background: white;
+    border-radius: 20px;
+    min-high: 50px;
+    min-wight: 300px;
+    padding:20px;
+}
