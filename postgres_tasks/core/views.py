@@ -16,7 +16,7 @@ class HomeView(views.View):
 class DbViewCreate(views.APIView):
     def post(self, request: HttpRequest) -> Response:
         create_db.delay()
-        return Response({'detail': 'OK'}, status==status.HTTP_200_OK)
+        return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
 
 
 class DbViewDelete(views.APIView):

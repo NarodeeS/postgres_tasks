@@ -5,17 +5,17 @@ services:
         container_name: postgres_django
         image: postgres
         restart: unless-stopped
-        ports:
-            - 5432:5432
+        expose:
+            - 5432
         env_file:
             - ./.env
         
-    sendbox_postgres:
+    sandbox_postgres:
         container_name: sandbox_postgres
         image: postgres
         restart: unless-stopped
-        ports:
-            - 54321:5432
+        expose:
+            - 5432
         env_file:
             - ./.env
         
@@ -56,8 +56,8 @@ services:
     rabbitmq:
         image: rabbitmq:3-management
         container_name: rabbitmq
-        ports:
-            - 5672:5672
-            - 15672:15672
+        expose:
+            - 5672
+            - 15672
         env_file:
             - ./.env

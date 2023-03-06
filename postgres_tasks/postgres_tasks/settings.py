@@ -1,12 +1,9 @@
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv()  # до тех пор, пока не запустим в контейнере
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 DEBUG = bool(os.getenv("DEBUG"))
@@ -123,11 +120,9 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # настройки celery
-CELERY_BROKER_URL = f"amqp://{os.getenv('RABBITMQ_DEFAULT_USER')}:\
-    {os.getenv('RABBITMQ_DEFAULT_PASS')}@rabbitmq:5672"
+CELERY_BROKER_URL = f"amqp://{os.getenv('RABBITMQ_DEFAULT_USER')}"\
+    f":{os.getenv('RABBITMQ_DEFAULT_PASS')}@rabbitmq:5672"
 
-SANDBOX_CONNECTION_STRING = f'postgresql+psycopg2://{os.getenv("POSTGRES_USER")}:\
-    {os.getenv("POSTGRES_PASSWORD")}@sandbox_postgres:54321/sandbox'
 
 
 # REST_FRAMEWORK = {
