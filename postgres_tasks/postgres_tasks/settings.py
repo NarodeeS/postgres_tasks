@@ -61,24 +61,24 @@ WSGI_APPLICATION = "postgres_tasks.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "HOST": "postgres",
-        "PORT": "5432",
-        "USER": "adminka",
-        "PASSWORD": "qwerty",
-        "NAME": "geo",
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "HOST": "postgres",
+#         "PORT": "5432",
+#         "USER": os.getenv('POSTGRES_USER'),
+#         "PASSWORD": os.getenv('POSTGRES_PASSWORD'),
+#         "NAME": "postgres",
+#     }
+# }
 
 
 # Password validation
@@ -123,4 +123,16 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # настройки celery
-CELERY_BROKER_URL = "amqp://rabbit:5672"
+CELERY_BROKER_URL = f"amqp://{os.getenv('RABBITMQ_DEFAULT_USER')}:\
+    {os.getenv('RABBITMQ_DEFAULT_PASS')}@rabbitmq:5672"
+
+SANDBOX_CONNECTION_STRING = f'postgresql+psycopg2://{os.getenv("POSTGRES_USER")}:\
+    {os.getenv("POSTGRES_PASSWORD")}@sandbox_postgres:54321/sandbox'
+
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework.authentication.BasicAuthentication',
+#         'rest_framework.authentication.TokenAuthentication',
+#     ]
+# }
