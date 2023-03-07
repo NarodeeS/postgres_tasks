@@ -47,7 +47,6 @@ Vue.component('console', {
     template: `
     <div id="console-form">
       <div>
-
             <div class="modal fade" id="forceCloseModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -67,8 +66,6 @@ Vue.component('console', {
                 </div>
             </div>
     
-      
-   
         <div class="mb-3" >
           <label  for="exampleFormControlTextarea1" class="form-label">SQL code</label>
           <textarea v-model="command" class="form-control" id="exampleFormControlTextarea1" rows="3">
@@ -122,7 +119,6 @@ var main_component = new Vue({
     },
     mounted() {
         this.getTasks()
-
     },
     methods: {
         getTasks() {
@@ -134,17 +130,44 @@ var main_component = new Vue({
                 alert("Вы не еще завешили начатое задание")
                 return
             }
+
             this.selected_task_id = id
 
-            console.log("deploying task " + id)
-
+            axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+            axios.defaults.xsrfCookieName = "csrftoken";
+            axios.defaults.withCredentials = true;
+            axios({
+                method: "post",
+                url: "http://localhost:8000/db/"
+            })
+                .then(function() {
+                    console.log("deploying task " + id)
+                })
+                .catch(function(response) {
+                    console.log(response);
+                });
         },
         sendCommand(commnad) {
             console.log(commnad)
         },
         endTask() {
-            console.log("task " + this.selected_task_id + " has closed")
+            axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+            axios.defaults.xsrfCookieName = "csrftoken";
+            axios.defaults.withCredentials = true;
+            axios({
+                method: "delete",
+                url: "http://localhost:8000/db/test_db"
+            })
+                .then(function() {
+                    console.log("task " + this.selected_task_id + " has closed")
+                })
+                .catch(function(response) {
+                    console.log(response);
+                })
+
             this.selected_task_id = null
+
+
         }
     }
 })

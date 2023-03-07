@@ -17,7 +17,7 @@ body {
 
 #dilog-form{
     top: 0;
-    bootom: 0;
+    bottom: 0;
     right: 0;
     left: 0;
     background: rgba(0,0,0, 0.5);
@@ -29,7 +29,7 @@ body {
     margin: auto;
     background: white;
     border-radius: 20px;
-    min-high: 50px;
-    min-wight: 300px;
+    min-hight: 50px;
+    min-width: 300px;
     padding:20px;
 }

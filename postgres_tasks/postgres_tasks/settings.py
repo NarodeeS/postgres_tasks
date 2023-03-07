@@ -71,18 +71,18 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "HOST": "postgres_django",
         "PORT": "5432",
-        "USER": os.getenv('POSTGRES_USER'),
-        "PASSWORD": os.getenv('POSTGRES_PASSWORD'),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
         "NAME": "postgres",
     },
-    'sandbox_db': {
+    "sandbox_db": {
         "ENGINE": "django.db.backends.postgresql",
         "HOST": "sandbox_postgres",
         "PORT": "5432",
-        "USER": os.getenv('POSTGRES_USER'),
-        "PASSWORD": os.getenv('POSTGRES_PASSWORD'),
-        "NAME": os.getenv('POSTGRES_DB'),
-    }
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "NAME": os.getenv("POSTGRES_DB"),
+    },
 }
 
 
@@ -130,9 +130,10 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # настройки celery
-CELERY_BROKER_URL = f"amqp://{os.getenv('RABBITMQ_DEFAULT_USER')}"\
+CELERY_BROKER_URL = (
+    f"amqp://{os.getenv('RABBITMQ_DEFAULT_USER')}"
     f":{os.getenv('RABBITMQ_DEFAULT_PASS')}@rabbitmq:5672"
-
+)
 
 
 # REST_FRAMEWORK = {
