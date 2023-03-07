@@ -1,12 +1,9 @@
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv()  # до тех пор, пока не запустим в контейнере
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 DEBUG = bool(os.getenv("DEBUG"))
@@ -74,9 +71,17 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "HOST": "postgres_django",
         "PORT": "5432",
-        "USER": "adminka",
-        "PASSWORD": "qwerty",
-        "NAME": "django",
+        "USER": os.getenv('POSTGRES_USER'),
+        "PASSWORD": os.getenv('POSTGRES_PASSWORD'),
+        "NAME": "postgres",
+    },
+    'sandbox_db': {
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": "sandbox_postgres",
+        "PORT": "5432",
+        "USER": os.getenv('POSTGRES_USER'),
+        "PASSWORD": os.getenv('POSTGRES_PASSWORD'),
+        "NAME": os.getenv('POSTGRES_DB'),
     }
 }
 
@@ -125,4 +130,14 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # настройки celery
-CELERY_BROKER_URL = "amqp://rabbit:5672"
+CELERY_BROKER_URL = f"amqp://{os.getenv('RABBITMQ_DEFAULT_USER')}"\
+    f":{os.getenv('RABBITMQ_DEFAULT_PASS')}@rabbitmq:5672"
+
+
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework.authentication.BasicAuthentication',
+#         'rest_framework.authentication.TokenAuthentication',
+#     ]
+# }

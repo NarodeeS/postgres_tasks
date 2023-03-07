@@ -5,25 +5,19 @@ services:
         container_name: postgres_django
         image: postgres
         restart: unless-stopped
-        ports:
-            - 5432:5432
-        environment:
-            POSTGRES_USER: adminka
-            POSTGRES_PASSWORD: qwerty
-            POSTGRES_DB: django
-            PGDATA: /var/lib/postgresql/data/db/
+        expose:
+            - 5432
+        env_file:
+            - ./.env
         
-    sendbox_postgres:
-        container_name: sendbox_postgres
+    sandbox_postgres:
+        container_name: sandbox_postgres
         image: postgres
         restart: unless-stopped
-        ports:
-            - 54321:5432
-        environment:
-            POSTGRES_USER: adminka
-            POSTGRES_PASSWORD: qwerty
-            POSTGRES_DB: sandbox
-            PGDATA: /var/lib/postgresql/data/db/
+        expose:
+            - 5432
+        env_file:
+            - ./.env
         
     django:
         container_name: django
@@ -62,9 +56,8 @@ services:
     rabbitmq:
         image: rabbitmq:3-management
         container_name: rabbitmq
-        ports:
-            - 5672:5672
-            - 15672:15672
-        environment:
-            RABBITMQ_DEFAULT_USER: rabbit
-            RABBITMQ_DEFAULT_PASS: cool_rabbit
+        expose:
+            - 5672
+            - 15672
+        env_file:
+            - ./.env
