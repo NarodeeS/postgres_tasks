@@ -46,7 +46,12 @@ Vue.component('tasks-list-controler', {
 Vue.component('console', {
     template: `
     <div id="console-form">
-      <div>
+        <div v-if="db_is_starting === true">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    <div v-else>
             <div class="modal fade" id="forceCloseModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -77,6 +82,9 @@ Vue.component('console', {
         </div>
     </div>
     `,
+    props: {
+        db_is_starting: Boolean
+    },
     data: function() {
         return {
             command: ''
@@ -101,6 +109,7 @@ var main_component = new Vue({
             showForceClose: false,
             state: Object,
             selected_task_id: null,
+            db_is_starting: false,
             tasks: [
                 {
                     id: 1,
@@ -124,14 +133,55 @@ var main_component = new Vue({
         getTasks() {
             console.log("making request for tasks")
         },
-        deployTask(id) {
+        delay(milliseconds) {
+            return new Promise(resolve => {
+                setTimeout(resolve, milliseconds);
+            });
+        },
+        async checkIsDbStarted() {
+            await this.delay(1000);
 
+            let max_retries = 5;
+            let try_number = 0;
+            while (max_retries !== try_number || this.db_is_starting === false) {
+                try_number += 1;
+
+                let res = await axios.get(
+                    "http://localhost:8000/db/test_db/"
+                )
+                    .then(response => {
+                        if (response.data.status === "up") {
+                            this.db_is_starting = false;
+                            console.log("task has deployed ")
+                            return
+                        }
+                    })
+                    .catch(response => {
+                        console.log(response);
+                        this.selected_task_id = null
+                    })
+
+                if (this.db_is_starting === false) {
+                    console.log("has deployed 2")
+                    break
+                } else {
+                    await this.delay(1000);
+                }
+            }
+            if (this.db_is_starting === true) {
+                this.selected_task_id = null
+                this.db_is_starting === false
+            }
+
+        },
+
+        deployTask(id) {
             if (this.selected_task_id != null) {
                 alert("Вы не еще завешили начатое задание")
                 return
             }
-
             this.selected_task_id = id
+            this.db_is_starting = true
 
             axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
             axios.defaults.xsrfCookieName = "csrftoken";
@@ -141,22 +191,25 @@ var main_component = new Vue({
                 url: "http://localhost:8000/db/"
             })
                 .then(function() {
-                    console.log("deploying task " + id)
+                    console.log("start deploing task " + id)
                 })
                 .catch(function(response) {
                     console.log(response);
                 });
+            this.checkIsDbStarted()
         },
+
         sendCommand(commnad) {
             console.log(commnad)
         },
+
         endTask() {
             axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
             axios.defaults.xsrfCookieName = "csrftoken";
             axios.defaults.withCredentials = true;
             axios({
                 method: "delete",
-                url: "http://localhost:8000/db/test_db"
+                url: "http://localhost:8000/db/test_db/"
             })
                 .then(function() {
                     console.log("task " + this.selected_task_id + " has closed")
