@@ -48,7 +48,7 @@
                 </div>
                 <div v-if="selected_task_id != null" class="col-8">
                     <h3>Консоль:</h3>
-                    <console @send_command="sendCommand" @end_task="endTask"></console>
+                    <console @send_command="sendCommand" :db_is_starting="db_is_starting" @end_task="endTask"></console>
                 </div>
             </div>
         </div>
