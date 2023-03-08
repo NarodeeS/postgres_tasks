@@ -14,6 +14,8 @@ services:
         container_name: sandbox_postgres
         image: postgres
         restart: unless-stopped
+        ports:
+            - 5432:5432
         expose:
             - 5432
         env_file:
@@ -50,7 +52,7 @@ services:
             - ./postgres_tasks:/server
         command: >
             sh -c "
-            celery -A postgres_tasks worker -l INFO"
+            celery -A postgres_tasks worker -l INFO -f logs/celery.log"
     
 
     rabbitmq:
