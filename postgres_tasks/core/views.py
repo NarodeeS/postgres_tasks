@@ -60,12 +60,14 @@ class DbViewCommand(views.APIView):
         try:
             db_name = kwargs['db_name']
             sql_query = request.data['command']
-            result = send_sql_command(db_name, sql_query)
-            if (err_msg := result['error_message']) is not None:
-                return Response(data={'error': err_msg}, status=status.HTTP_400_BAD_REQUEST)
-            return Response(data={'status': result['status'], 
-                                  'result': result['result']}, 
-                            status=status.HTTP_200_OK)
             
         except KeyError as err:
             return Response(data={'error': str(err)}, status=status.HTTP_400_BAD_REQUEST)
+            
+        result = send_sql_command(db_name, sql_query)
+        if (err_msg := result['error_message']) is not None:
+            return Response(data={'error': err_msg}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={'status': result['status'], 
+                              'result': result['result'],
+                              'columns': result['columns']}, 
+                        status=status.HTTP_200_OK)
