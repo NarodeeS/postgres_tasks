@@ -20,7 +20,6 @@ Vue.component('one-task-controler', {
     },
 });
 
-
 Vue.component('tasks-list-controler', {
     template: `
         <div id="task-list">
@@ -42,25 +41,26 @@ Vue.component('tasks-list-controler', {
     },
 });
 
-// <thead>
-// <tr>
-//     <th scope="col">#</th>
-//     <th scope="col">First</th>
-// </tr>
-// </thead>
-
 Vue.component('table-result', {
     template: `
-    <table class="table">
+    <table v-if="data_colums != null" class="table">
+        <thead >
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col" v-for="column in data_colums">{{column}}</th>
+            </tr>
+        </thead> 
+
         <tbody>
-            <tr v-for="element in data">
+            <tr v-for="element in data_results">
             <td scope="col" v-for="raw_element in element">{{raw_element}}</td>
             </tr>
         </tbody>
     </table> 
     `,
     props: {
-        data: Array
+        data_results: Array,
+        data_colums: Array
     },
 });
 
@@ -100,13 +100,15 @@ Vue.component('console', {
         </div>
         
         <div>
-            <table-result :data="response_from_postgres.result"></table-result>
+            <table-result 
+                :data_results="response_from_postgres.result"
+                :data_colums="response_from_postgres.columns"
+            ></table-result>
         
             <blockquote class="blockquote">
                 <p>{{response_from_postgres.status}}</p>
             </blockquote>
             
-      
             <blockquote class="blockquote">
                 <p>{{response_from_postgres.error}}</p>
             </blockquote>
@@ -150,6 +152,7 @@ var main_component = new Vue({
             selected_task_id: null,
             postgres_response_on_command: {
                 "status": "",
+                "columns": null,
                 "result": [],
                 "error": ""
             },
@@ -250,15 +253,20 @@ var main_component = new Vue({
                 const response = await axios.post("http://localhost:8000/db/test_db/command/",
                     { "command": commnad }
                 )
+
                 this.postgres_response_on_command['status'] = response.data.status
                 this.postgres_response_on_command['result'] = response.data.result
+                this.postgres_response_on_command['columns'] = response.data.columns
                 let index = 1
-                this.postgres_response_on_command['result'].forEach(el => {
-                    el.unshift(index)
-                    index += 1
-                })
+                if (this.postgres_response_on_command['result'] != null) {
+                    this.postgres_response_on_command['result'].forEach(el => {
+                        el.unshift(index)
+                        index += 1
+                    })
+                }
             }
             catch (err) {
+                console.log(err)
                 if (typeof (err.response.data) != "undefined")
                     this.postgres_response_on_command['error'] = err.response.data.error
             }
@@ -277,7 +285,6 @@ var main_component = new Vue({
                 })
 
             this.selected_task_id = null
-
 
         }
     }
