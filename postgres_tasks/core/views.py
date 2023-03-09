@@ -62,8 +62,13 @@ class DbCommandView(views.APIView):
             
         except KeyError as err:
             return Response(data={'error': str(err)}, status=status.HTTP_400_BAD_REQUEST)
-            
-        result = send_sql_command(db_name, sql_query)
+        
+        try:
+            result = send_sql_command(db_name, sql_query)
+        except Exception:
+            return Response(data={'detail': 'error executing command'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
         if (err_msg := result['error_message']) is not None:
             return Response(data={'error': err_msg}, status=status.HTTP_400_BAD_REQUEST)
         return Response(data={'status': result['status'], 
@@ -80,7 +85,13 @@ class DbCheckView(views.APIView):
             return Response(data={'detail': 'Use db_name as path parameter'}, 
                             status=status.HTTP_404_NOT_FOUND)
         
-        success = check_task_completion(db_name)
+        try:
+            success = check_task_completion(db_name)
+        except Exception:
+            return Response(data={'detail': 'error checking task'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        
         if success:
             response_message = 'Task completed sucessfully'
             response_status = status.HTTP_200_OK

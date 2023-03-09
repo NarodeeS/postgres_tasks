@@ -1,7 +1,6 @@
 from typing import TypedDict
 
 import psycopg2
-from psycopg2 import errors
 
 from .utils.get_database_connection import get_database_connection, get_admin_connection
 from .utils.connection_manager import ConnectionManager
@@ -21,6 +20,8 @@ def send_sql_command(db_name: str, command: str) -> QueryResult:
     #  get from db
     username = 'test_user'
     password = 'test_password'
+    
+    # can raise operational error, if db or user don't exists
     connection = get_database_connection(db_name, username, password)
     with ConnectionManager(connection):
         with connection.cursor() as cursor:
@@ -41,7 +42,9 @@ def send_sql_command(db_name: str, command: str) -> QueryResult:
     
 
 def check_task_completion(db_name: str) -> bool:
-    with ConnectionManager(get_admin_connection(db_name)) as connection:
+    # can raise operational error, if db don't exists
+    connection = get_admin_connection(db_name)
+    with ConnectionManager(connection):
         with connection.cursor() as cursor:
             try:
                 # check logic
@@ -54,7 +57,7 @@ def check_task_completion(db_name: str) -> bool:
                 columns_names = [descr_row[0] for descr_row in cursor.description]
                 return (len(rows) == 2 and columns_names == columns)
             
-            except errors.Error as err:
+            except psycopg2.Error as err:
                 print(err.pgerror)
             
             return False
