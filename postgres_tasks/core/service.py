@@ -54,7 +54,7 @@ def check_task_completion(db_name: str) -> bool:
                 columns_names = [descr_row[0] for descr_row in cursor.description]
                 return (len(rows) == 2 and columns_names == columns)
             
-            except errors.SyntaxError as err:
-                print(err.pgerror)
+            except errors.Error as err:
+                print({err.pgerror})
             
             return False
