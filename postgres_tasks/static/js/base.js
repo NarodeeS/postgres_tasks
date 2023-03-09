@@ -42,6 +42,28 @@ Vue.component('tasks-list-controler', {
     },
 });
 
+// <thead>
+// <tr>
+//     <th scope="col">#</th>
+//     <th scope="col">First</th>
+// </tr>
+// </thead>
+
+Vue.component('table-result', {
+    template: `
+    <table class="table">
+        <tbody>
+            <tr v-for="element in data">
+            <td scope="col" v-for="raw_element in element">{{raw_element}}</td>
+            </tr>
+        </tbody>
+    </table> 
+    `,
+    props: {
+        data: Array
+    },
+});
+
 
 Vue.component('console', {
     template: `
@@ -76,14 +98,30 @@ Vue.component('console', {
           <textarea v-model="command" class="form-control" id="exampleFormControlTextarea1" rows="3">
           </textarea>
         </div>
+        
+        <div>
+            <table-result :data="response_from_postgres.result"></table-result>
+        
+            <blockquote class="blockquote">
+                <p>{{response_from_postgres.status}}</p>
+            </blockquote>
+            
+      
+            <blockquote class="blockquote">
+                <p>{{response_from_postgres.error}}</p>
+            </blockquote>
+        </div>
+        
         <button type="button" @click="sendCommand" class="btn btn-outline-success">Run</button>
         <button type="button" class="btn btn-outline-primary" 
             data-bs-toggle="modal" data-bs-target="#forceCloseModal">Сдать задание</button>
         </div>
+    
     </div>
     `,
     props: {
-        db_is_starting: Boolean
+        db_is_starting: Boolean,
+        response_from_postgres: Object | Array,
     },
     data: function() {
         return {
@@ -93,6 +131,7 @@ Vue.component('console', {
     methods: {
         sendCommand() {
             this.$emit('send_command', this.command)
+            this.command = ""
         },
         endTask() {
             this.$emit('end_task')
@@ -109,19 +148,18 @@ var main_component = new Vue({
             showForceClose: false,
             state: Object,
             selected_task_id: null,
+            postgres_response_on_command: {
+                "status": "",
+                "result": [],
+                "error": ""
+            },
             db_is_starting: false,
             tasks: [
                 {
                     id: 1,
-                    task_name: "task 1",
+                    task_name: "task1",
                     description: "Intersting decription",
                     complexity: "Hard"
-                },
-                {
-                    id: 2,
-                    task_name: "task 2",
-                    description: "Very intersting decription number two",
-                    complexity: "Insane"
                 },
             ]
         }
@@ -152,7 +190,6 @@ var main_component = new Vue({
                     .then(response => {
                         if (response.data.status === "up") {
                             this.db_is_starting = false;
-                            console.log("task has deployed ")
                             return
                         }
                     })
@@ -162,7 +199,6 @@ var main_component = new Vue({
                     })
 
                 if (this.db_is_starting === false) {
-                    console.log("has deployed 2")
                     break
                 } else {
                     await this.delay(1000);
@@ -172,7 +208,6 @@ var main_component = new Vue({
                 this.selected_task_id = null
                 this.db_is_starting === false
             }
-
         },
 
         deployTask(id) {
@@ -186,21 +221,47 @@ var main_component = new Vue({
             axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
             axios.defaults.xsrfCookieName = "csrftoken";
             axios.defaults.withCredentials = true;
+
+            let selected_task = this.tasks.find(x => x.id === this.selected_task_id)
             axios({
                 method: "post",
-                url: "http://localhost:8000/db/"
+                url: `http://localhost:8000/db/`,
+                data: { "task_name": selected_task.task_name }
             })
                 .then(function() {
                     console.log("start deploing task " + id)
                 })
                 .catch(function(response) {
-                    console.log(response);
+                    // console.log(response);
                 });
             this.checkIsDbStarted()
         },
 
-        sendCommand(commnad) {
-            console.log(commnad)
+        async sendCommand(commnad) {
+            axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+            axios.defaults.xsrfCookieName = "csrftoken";
+            axios.defaults.withCredentials = true;
+
+            this.postgres_response_on_command.status = ""
+            this.postgres_response_on_command.result = []
+            this.postgres_response_on_command.error = ""
+
+            try {
+                const response = await axios.post("http://localhost:8000/db/test_db/command/",
+                    { "command": commnad }
+                )
+                this.postgres_response_on_command['status'] = response.data.status
+                this.postgres_response_on_command['result'] = response.data.result
+                let index = 1
+                this.postgres_response_on_command['result'].forEach(el => {
+                    el.unshift(index)
+                    index += 1
+                })
+            }
+            catch (err) {
+                if (typeof (err.response.data) != "undefined")
+                    this.postgres_response_on_command['error'] = err.response.data.error
+            }
         },
 
         endTask() {
@@ -211,9 +272,6 @@ var main_component = new Vue({
                 method: "delete",
                 url: "http://localhost:8000/db/test_db/"
             })
-                .then(function() {
-                    console.log("task " + this.selected_task_id + " has closed")
-                })
                 .catch(function(response) {
                     console.log(response);
                 })
