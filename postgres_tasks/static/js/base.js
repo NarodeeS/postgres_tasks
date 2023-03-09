@@ -33,7 +33,7 @@ Vue.component('tasks-list-controler', {
         </div>
     `,
     props: {
-        task_list: Object
+        task_list: Array
     },
     methods: {
         deployTask(id) {
@@ -52,8 +52,6 @@ Vue.component('tasks-list-controler', {
 Vue.component('table-result', {
     template: `
     <table class="table">
-  
-    
         <tbody>
             <tr v-for="element in data">
             <td scope="col" v-for="raw_element in element">{{raw_element}}</td>
@@ -64,12 +62,6 @@ Vue.component('table-result', {
     props: {
         data: Array
     },
-
-    // data: function() {
-    //     return {
-    //         data: [[1, 'geoge'], [2, 'geoge']]
-    //     }
-    // }
 });
 
 
@@ -107,9 +99,9 @@ Vue.component('console', {
           </textarea>
         </div>
         
-        <table-result :data="response_from_postgres.result"></table-result>
-        
         <div>
+            <table-result :data="response_from_postgres.result"></table-result>
+        
             <blockquote class="blockquote">
                 <p>{{response_from_postgres.status}}</p>
             </blockquote>
@@ -133,8 +125,7 @@ Vue.component('console', {
     },
     data: function() {
         return {
-            command: '',
-            data: [[1, 'geoge'], [2, 'geoge']]
+            command: ''
         }
     },
     methods: {
@@ -261,6 +252,11 @@ var main_component = new Vue({
                 )
                 this.postgres_response_on_command['status'] = response.data.status
                 this.postgres_response_on_command['result'] = response.data.result
+                let index = 1
+                this.postgres_response_on_command['result'].forEach(el => {
+                    el.unshift(index)
+                    index += 1
+                })
             }
             catch (err) {
                 if (typeof (err.response.data) != "undefined")
