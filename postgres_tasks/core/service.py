@@ -1,8 +1,9 @@
 from typing import TypedDict
 
 import psycopg2
+from psycopg2 import errors
 
-from .utils.get_database_connection import get_database_connection
+from .utils.get_database_connection import get_database_connection, get_admin_connection
 from .utils.connection_manager import ConnectionManager
 
 
@@ -17,7 +18,6 @@ def send_sql_command(db_name: str, command: str) -> QueryResult:
     '''
     return command status and exception message
     '''
-    
     #  get from db
     username = 'test_user'
     password = 'test_password'
@@ -26,9 +26,8 @@ def send_sql_command(db_name: str, command: str) -> QueryResult:
         with connection.cursor() as cursor:
             try:
                 cursor.execute(command)
-                rows = cursor.fetchall()
+                result = cursor.fetchall()
                 column_names = [descr_row[0] for descr_row in cursor.description]
-                result = list(list(row) for row in zip(range(1, len(rows)+1), rows))
             except psycopg2.Error as exc:
                 return QueryResult(status=cursor.statusmessage,
                                    result=None,
@@ -41,5 +40,21 @@ def send_sql_command(db_name: str, command: str) -> QueryResult:
                                error_message=None)
     
 
-def check_task_completion(db_name: str):
-    pass
+def check_task_completion(db_name: str) -> bool:
+    with ConnectionManager(get_admin_connection(db_name)) as connection:
+        with connection.cursor() as cursor:
+            try:
+                # check logic
+                check_script = '''
+                    SELECT * FROM users;
+                '''
+                columns = ['name', 'surname', 'age']
+                cursor.execute(check_script)
+                rows = cursor.fetchall()
+                columns_names = [descr_row[0] for descr_row in cursor.description]
+                return (len(rows) == 2 and columns_names == columns)
+            
+            except errors.SyntaxError as err:
+                print(err.pgerror)
+            
+            return False
