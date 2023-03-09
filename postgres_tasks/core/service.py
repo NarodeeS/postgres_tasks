@@ -55,6 +55,6 @@ def check_task_completion(db_name: str) -> bool:
                 return (len(rows) == 2 and columns_names == columns)
             
             except errors.Error as err:
-                print({err.pgerror})
+                print(err.pgerror)
             
             return False
