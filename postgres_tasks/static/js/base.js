@@ -33,13 +33,43 @@ Vue.component('tasks-list-controler', {
         </div>
     `,
     props: {
-        task_list: Array
+        task_list: Object
     },
     methods: {
         deployTask(id) {
             this.$emit('deploy_task', id)
         }
     },
+});
+
+// <thead>
+// <tr>
+//     <th scope="col">#</th>
+//     <th scope="col">First</th>
+// </tr>
+// </thead>
+
+Vue.component('table-result', {
+    template: `
+    <table class="table">
+  
+    
+        <tbody>
+            <tr v-for="element in data">
+            <td scope="col" v-for="raw_element in element">{{raw_element}}</td>
+            </tr>
+        </tbody>
+    </table> 
+    `,
+    props: {
+        data: Array
+    },
+
+    // data: function() {
+    //     return {
+    //         data: [[1, 'geoge'], [2, 'geoge']]
+    //     }
+    // }
 });
 
 
@@ -77,16 +107,14 @@ Vue.component('console', {
           </textarea>
         </div>
         
+        <table-result :data="response_from_postgres.result"></table-result>
+        
         <div>
             <blockquote class="blockquote">
                 <p>{{response_from_postgres.status}}</p>
             </blockquote>
             
-            <div v-for="string in response_from_postgres.result">
-                <blockquote class="blockquote">
-                <p>{{string}}</p>
-                </blockquote>
-            </div>
+      
             <blockquote class="blockquote">
                 <p>{{response_from_postgres.error}}</p>
             </blockquote>
@@ -101,11 +129,12 @@ Vue.component('console', {
     `,
     props: {
         db_is_starting: Boolean,
-        response_from_postgres: Object,
+        response_from_postgres: Object | Array,
     },
     data: function() {
         return {
-            command: ''
+            command: '',
+            data: [[1, 'geoge'], [2, 'geoge']]
         }
     },
     methods: {
