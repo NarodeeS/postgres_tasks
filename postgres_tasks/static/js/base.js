@@ -41,6 +41,25 @@ Vue.component('tasks-list-controler', {
     },
 });
 
+Vue.component('sucses-alert', {
+    template: `
+    <div class="alert alert-success" role="alert">
+      <h4 class="alert-heading">Well done!</h4>
+      <p>Aww yeah, you successfully pass the task.</p>
+      <hr>
+      <p class="mb-0">You can try to pass it again.</p>
+    </div>
+    `
+});
+
+Vue.component('error-alert', {
+    template: `
+    <div class="alert alert-danger" role="alert">
+        You have error in data base, check it and try again !
+    </div>
+    `,
+})
+
 Vue.component('table-result', {
     template: `
     <table v-if="data_colums != null" class="table">
@@ -150,6 +169,8 @@ var main_component = new Vue({
             showForceClose: false,
             state: Object,
             selected_task_id: null,
+            task_is_passed: false,
+            task_passed_with_eror: false,
             postgres_response_on_command: {
                 "status": "",
                 "columns": null,
@@ -161,7 +182,7 @@ var main_component = new Vue({
                 {
                     id: 1,
                     task_name: "task1",
-                    description: "Intersting decription",
+                    description: "Создать таблицу user с полями name, surname, age и внести в нее 2 строки",
                     complexity: "Hard"
                 },
             ]
@@ -248,7 +269,7 @@ var main_component = new Vue({
             this.postgres_response_on_command.status = ""
             this.postgres_response_on_command.result = []
             this.postgres_response_on_command.error = ""
-
+            this.task_passed_with_eror = false
             try {
                 const response = await axios.post("http://localhost:8000/db/test_db/command/",
                     { "command": commnad }
@@ -272,19 +293,21 @@ var main_component = new Vue({
             }
         },
 
-        endTask() {
+        async endTask() {
             axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
             axios.defaults.xsrfCookieName = "csrftoken";
             axios.defaults.withCredentials = true;
-            axios({
-                method: "delete",
-                url: "http://localhost:8000/db/test_db/"
-            })
-                .catch(function(response) {
-                    console.log(response);
-                })
 
-            this.selected_task_id = null
+            try {
+                const response = await axios.post("http://localhost:8000/db/test_db/check/")
+                this.selected_task_id = null
+                this.task_is_passed = true
+
+            }
+            catch (err) {
+                console.log(err)
+                this.task_passed_with_eror = true
+            }
 
         }
     }
