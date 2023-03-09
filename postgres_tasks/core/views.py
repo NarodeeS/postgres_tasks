@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django import views
 from rest_framework import views
-from rest_framework.request import HttpRequest
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import generics
@@ -9,7 +8,7 @@ from rest_framework import generics
 from .tasks import create_db, delete_db
 from .models import DatabaseInfo
 from .serializers import DatabaseInfoSerializer
-from .service import send_sql_command
+from .service import send_sql_command, check_task_completion
 
 
 class HomeView(views.View):
@@ -17,7 +16,7 @@ class HomeView(views.View):
         return render(request, 'core/index.html')
 
 
-class DbViewCreate(views.APIView):
+class DbCreateView(views.APIView):
     def post(self, request, *args, **kwargs) -> Response:
         task_name = request.data.get('task_name')
         db_name = 'test_db'  # generate based on username and task name
@@ -36,7 +35,7 @@ class DbViewCreate(views.APIView):
         return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
 
 
-class DbViewGetDelete(generics.RetrieveDestroyAPIView):
+class DbGetDeleteView(generics.RetrieveDestroyAPIView):
     queryset = DatabaseInfo.objects.all()
     serializer_class = DatabaseInfoSerializer
     lookup_field = 'db_name'
@@ -51,11 +50,11 @@ class DbViewGetDelete(generics.RetrieveDestroyAPIView):
             return Response({'detail': 'No such db'}, 
                             status=status.HTTP_404_NOT_FOUND)
 
-        delete_db.delay(kwargs['db_name'])
+        delete_db.delay(db_name)
         return Response({'detail': 'OK'}, status=status.HTTP_200_OK)
 
 
-class DbViewCommand(views.APIView):
+class DbCommandView(views.APIView):
     def post(self, request, *args, **kwargs):
         try:
             db_name = kwargs['db_name']
@@ -71,3 +70,25 @@ class DbViewCommand(views.APIView):
                               'result': result['result'],
                               'columns': result['columns']}, 
                         status=status.HTTP_200_OK)
+
+
+class DbCheckView(views.APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            db_name = kwargs['db_name']
+        except KeyError:
+            return Response(data={'detail': 'Use db_name as path parameter'}, 
+                            status=status.HTTP_404_NOT_FOUND)
+        
+        success = check_task_completion(db_name)
+        if success:
+            response_message = 'Task completed sucessfully'
+            response_status = status.HTTP_200_OK
+            
+            delete_db.delay(db_name)
+        else:
+            response_message = 'Check error'
+            response_status = status.HTTP_400_BAD_REQUEST
+        
+        return Response(data={'detail': response_message}, 
+                        status=response_status)
