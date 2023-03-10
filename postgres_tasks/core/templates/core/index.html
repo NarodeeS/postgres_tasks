@@ -52,9 +52,9 @@
                     </div>
                     <div v-if="selected_task_id != null">
                         <h3>Консоль:</h3>
-                        <console @send_command="sendCommand" :db_is_starting="db_is_starting"
-                            :task_passed_with_eror="task_passed_with_eror"
-                            :response_from_postgres="postgres_response_on_command" @end_task="endTask"></console>
+                        <console @send_command="sendCommand" @end_task="endTask" @close_task="closeTask"
+                            :db_is_starting="db_is_starting" :task_passed_with_eror="task_passed_with_eror"
+                            :response_from_postgres="postgres_response_on_command"></console>
                     </div>
                     <div v-else-if="task_is_passed === true">
                         <sucses-alert></sucses-alert>

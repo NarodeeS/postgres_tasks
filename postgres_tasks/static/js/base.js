@@ -132,10 +132,10 @@ Vue.component('console', {
                 <p>{{response_from_postgres.error}}</p>
             </blockquote>
         </div>
-        
-        <button type="button" @click="sendCommand" class="btn btn-outline-success">Run</button>
-        <button type="button" class="btn btn-outline-primary" 
-            data-bs-toggle="modal" data-bs-target="#forceCloseModal">Сдать задание</button>
+            <button type="button" @click="sendCommand" class="btn btn-outline-success">Run</button>
+            <button type="button" class="btn btn-outline-primary" 
+                data-bs-toggle="modal" data-bs-target="#forceCloseModal">Сдать задание</button>
+            <button type="button" @click="closeTask" id="btn_close_task" class="btn btn-outline-danger">Delete database</button>
         </div>
     
     </div>
@@ -150,6 +150,9 @@ Vue.component('console', {
         }
     },
     methods: {
+        closeTask() {
+            this.$emit('close_task')
+        },
         sendCommand() {
             this.$emit('send_command', this.command)
             this.command = ""
@@ -195,6 +198,31 @@ var main_component = new Vue({
         getTasks() {
             console.log("making request for tasks")
         },
+
+        closeTask() {
+            axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+            axios.defaults.xsrfCookieName = "csrftoken";
+            axios.defaults.withCredentials = true;
+            axios({
+                method: "delete",
+                url: "http://localhost:8000/db/test_db/"
+            })
+                .catch(function(response) {
+                    console.log(response);
+                })
+
+            this.selected_task_id = null
+
+            this.task_is_passed = false
+            this.task_passed_with_eror = false
+
+            this.postgres_response_on_command.status = ""
+            this.postgres_response_on_command.result = []
+            this.postgres_response_on_command.columns = null
+            this.postgres_response_on_command.error = ""
+
+        },
+
         delay(milliseconds) {
             return new Promise(resolve => {
                 setTimeout(resolve, milliseconds);
@@ -241,6 +269,8 @@ var main_component = new Vue({
             }
             this.selected_task_id = id
             this.db_is_starting = true
+            this.task_is_passed = false
+            this.task_passed_with_eror = false
 
             axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
             axios.defaults.xsrfCookieName = "csrftoken";
