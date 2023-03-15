@@ -46,10 +46,20 @@
                     <h3>Задания:</h3>
                     <tasks-list-controler :task_list="tasks" @deploy_task="deployTask"></tasks-list-controler>
                 </div>
-                <div v-if="selected_task_id != null" class="col-8">
-                    <h3>Консоль:</h3>
-                    <console @send_command="sendCommand" :db_is_starting="db_is_starting"
-                        :response_from_postgres="postgres_response_on_command" @end_task="endTask"></console>
+                <div class="col-8">
+                    <div v-if="task_passed_with_eror === true">
+                        <error-alert></error-alert>
+                    </div>
+                    <div v-if="selected_task_id != null">
+                        <h3>Консоль:</h3>
+                        <console @send_command="sendCommand" @end_task="sendTaskForChecking"
+                            @close_task="endTaskWithoutChecking" :db_is_starting="db_is_starting"
+                            :task_passed_with_eror="task_passed_with_eror"
+                            :response_from_postgres="postgres_response_on_command"></console>
+                    </div>
+                    <div v-else-if="task_is_passed === true">
+                        <sucses-alert></sucses-alert>
+                    </div>
                 </div>
             </div>
         </div>

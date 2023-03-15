@@ -41,6 +41,25 @@ Vue.component('tasks-list-controler', {
     },
 });
 
+Vue.component('sucses-alert', {
+    template: `
+    <div class="alert alert-success" role="alert">
+      <h4 class="alert-heading">Well done!</h4>
+      <p>Aww yeah, you successfully pass the task.</p>
+      <hr>
+      <p class="mb-0">You can try to pass it again.</p>
+    </div>
+    `
+});
+
+Vue.component('error-alert', {
+    template: `
+    <div class="alert alert-danger" role="alert">
+        You have error in data base, check it and try again !
+    </div>
+    `,
+})
+
 Vue.component('table-result', {
     template: `
     <table v-if="data_colums != null" class="table">
@@ -113,10 +132,10 @@ Vue.component('console', {
                 <p>{{response_from_postgres.error}}</p>
             </blockquote>
         </div>
-        
-        <button type="button" @click="sendCommand" class="btn btn-outline-success">Run</button>
-        <button type="button" class="btn btn-outline-primary" 
-            data-bs-toggle="modal" data-bs-target="#forceCloseModal">Сдать задание</button>
+            <button type="button" @click="sendCommand" class="btn btn-outline-success">Run</button>
+            <button type="button" class="btn btn-outline-primary" 
+                data-bs-toggle="modal" data-bs-target="#forceCloseModal">Сдать задание</button>
+            <button type="button" @click="closeTask" id="btn_close_task" class="btn btn-outline-danger">Delete database</button>
         </div>
     
     </div>
@@ -131,6 +150,9 @@ Vue.component('console', {
         }
     },
     methods: {
+        closeTask() {
+            this.$emit('close_task')
+        },
         sendCommand() {
             this.$emit('send_command', this.command)
             this.command = ""
@@ -150,6 +172,8 @@ var main_component = new Vue({
             showForceClose: false,
             state: Object,
             selected_task_id: null,
+            task_is_passed: false,
+            task_passed_with_eror: false,
             postgres_response_on_command: {
                 "status": "",
                 "columns": null,
@@ -161,24 +185,66 @@ var main_component = new Vue({
                 {
                     id: 1,
                     task_name: "task1",
-                    description: "Intersting decription",
+                    description: "Создать таблицу user с полями name, surname, age и внести в нее 2 строки",
                     complexity: "Hard"
                 },
             ]
         }
     },
     mounted() {
+        axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+        axios.defaults.xsrfCookieName = "csrftoken";
+        axios.defaults.withCredentials = true;
         this.getTasks()
     },
+
     methods: {
-        getTasks() {
-            console.log("making request for tasks")
-        },
         delay(milliseconds) {
             return new Promise(resolve => {
                 setTimeout(resolve, milliseconds);
             });
         },
+
+        clearPostgresResponseFields() {
+            this.postgres_response_on_command.status = ""
+            this.postgres_response_on_command.result = []
+            this.postgres_response_on_command.error = ""
+            this.postgres_response_on_command.columns = null
+        },
+
+        getTasks() {
+            console.log("making request for tasks")
+        },
+
+        clearFieldsAfterEndTaskWithoutChecking() {
+            this.selected_task_id = null
+            this.task_is_passed = false
+            this.task_passed_with_eror = false
+        },
+
+        async endTaskWithoutChecking() {
+            try {
+                await axios.delete("http://localhost:8000/db/test_db/")
+            } catch (err) {
+                console.log(err);
+                return
+            }
+            this.clearFieldsAfterEndTaskWithoutChecking()
+            this.clearPostgresResponseFields()
+        },
+        async isDbStartedRequest() {
+            try {
+                const response = await axios.get("http://localhost:8000/db/test_db/")
+                if (response.data.status === "up") {
+                    this.db_is_starting = false;
+                }
+            }
+            catch (err) {
+                console.log(err);
+                this.selected_task_id = null
+            }
+        },
+
         async checkIsDbStarted() {
             await this.delay(1000);
 
@@ -186,106 +252,85 @@ var main_component = new Vue({
             let try_number = 0;
             while (max_retries !== try_number || this.db_is_starting === false) {
                 try_number += 1;
-
-                let res = await axios.get(
-                    "http://localhost:8000/db/test_db/"
-                )
-                    .then(response => {
-                        if (response.data.status === "up") {
-                            this.db_is_starting = false;
-                            return
-                        }
-                    })
-                    .catch(response => {
-                        console.log(response);
-                        this.selected_task_id = null
-                    })
+                await this.isDbStartedRequest()
 
                 if (this.db_is_starting === false) {
-                    break
+                    return
                 } else {
-                    await this.delay(1000);
+                    console.log("db dont started")
                 }
-            }
-            if (this.db_is_starting === true) {
-                this.selected_task_id = null
-                this.db_is_starting === false
             }
         },
 
-        deployTask(id) {
+        prepareFieldsBeforeDeployingTask(id) {
+            this.selected_task_id = id
+            this.db_is_starting = true
+            this.task_is_passed = false
+            this.task_passed_with_eror = false
+        },
+
+        async deployTask(id) {
             if (this.selected_task_id != null) {
                 alert("Вы не еще завешили начатое задание")
                 return
             }
-            this.selected_task_id = id
-            this.db_is_starting = true
-
-            axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-            axios.defaults.xsrfCookieName = "csrftoken";
-            axios.defaults.withCredentials = true;
-
+            this.prepareFieldsBeforeDeployingTask(id)
             let selected_task = this.tasks.find(x => x.id === this.selected_task_id)
-            axios({
-                method: "post",
-                url: `http://localhost:8000/db/`,
-                data: { "task_name": selected_task.task_name }
-            })
-                .then(function() {
-                    console.log("start deploing task " + id)
-                })
-                .catch(function(response) {
-                    // console.log(response);
-                });
+
+            try {
+                await axios.post(`http://localhost:8000/db/`,
+                    { "task_name": selected_task.task_name })
+
+            } catch (err) {
+                console.error(err);
+            }
             this.checkIsDbStarted()
         },
 
+        updatePostgresResponseFields(response) {
+            this.postgres_response_on_command['status'] = response.data.status
+            this.postgres_response_on_command['result'] = response.data.result
+            this.postgres_response_on_command['columns'] = response.data.columns
+        },
+        updatePostgresResponseColumnsFields() {
+            let index = 1
+            if (this.postgres_response_on_command['result'] != null) {
+                this.postgres_response_on_command['result'].forEach(el => {
+                    el.unshift(index)
+                    index += 1
+                })
+            }
+        },
         async sendCommand(commnad) {
-            axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-            axios.defaults.xsrfCookieName = "csrftoken";
-            axios.defaults.withCredentials = true;
-
-            this.postgres_response_on_command.status = ""
-            this.postgres_response_on_command.result = []
-            this.postgres_response_on_command.error = ""
+            this.clearPostgresResponseFields()
+            this.task_passed_with_eror = false
 
             try {
                 const response = await axios.post("http://localhost:8000/db/test_db/command/",
                     { "command": commnad }
                 )
-
-                this.postgres_response_on_command['status'] = response.data.status
-                this.postgres_response_on_command['result'] = response.data.result
-                this.postgres_response_on_command['columns'] = response.data.columns
-                let index = 1
-                if (this.postgres_response_on_command['result'] != null) {
-                    this.postgres_response_on_command['result'].forEach(el => {
-                        el.unshift(index)
-                        index += 1
-                    })
-                }
+                this.updatePostgresResponseFields(response)
+                this.updatePostgresResponseColumnsFields()
             }
             catch (err) {
-                console.log(err)
                 if (typeof (err.response.data) != "undefined")
                     this.postgres_response_on_command['error'] = err.response.data.error
             }
         },
 
-        endTask() {
-            axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-            axios.defaults.xsrfCookieName = "csrftoken";
-            axios.defaults.withCredentials = true;
-            axios({
-                method: "delete",
-                url: "http://localhost:8000/db/test_db/"
-            })
-                .catch(function(response) {
-                    console.log(response);
-                })
-
+        updateFieldsAfterSucses() {
             this.selected_task_id = null
-
+            this.task_is_passed = true
+        },
+        async sendTaskForChecking() {
+            try {
+                await axios.post("http://localhost:8000/db/test_db/check/")
+                this.clearPostgresResponseFields()
+                this.updateFieldsAfterSucses()
+            }
+            catch (err) {
+                this.task_passed_with_eror = true
+            }
         }
     }
 })
