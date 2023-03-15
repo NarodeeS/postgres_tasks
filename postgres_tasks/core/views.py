@@ -63,12 +63,12 @@ class DbCommandView(views.APIView):
         except KeyError as err:
             return Response(data={'error': str(err)}, status=status.HTTP_400_BAD_REQUEST)
         
-        try:
-            result = send_sql_command(db_name, sql_query)
-        except Exception:
-            return Response(data={'detail': 'error executing command'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        
+        if not DatabaseInfo.objects.filter(db_name=db_name).exists():
+            return Response(data={'detail': "db don't exists"},
+                            status=status.HTTP_404_NOT_FOUND)
+            
+        result = send_sql_command(db_name, sql_query)
+
         if (err_msg := result['error_message']) is not None:
             return Response(data={'error': err_msg}, status=status.HTTP_400_BAD_REQUEST)
         return Response(data={'status': result['status'], 
@@ -85,12 +85,11 @@ class DbCheckView(views.APIView):
             return Response(data={'detail': 'Use db_name as path parameter'}, 
                             status=status.HTTP_404_NOT_FOUND)
         
-        try:
-            success = check_task_completion(db_name)
-        except Exception:
-            return Response(data={'detail': 'error checking task'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        
+        if not DatabaseInfo.objects.filter(db_name=db_name).exists():
+            return Response(data={'detail': "db don't exists"},
+                            status=status.HTTP_404_NOT_FOUND)
+            
+        success = check_task_completion(db_name)
         
         if success:
             response_message = 'Task completed sucessfully'
