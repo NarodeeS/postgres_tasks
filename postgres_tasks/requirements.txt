@@ -25,3 +25,4 @@ types-PyYAML==6.0.12.8
 typing_extensions==4.5.0
 vine==5.0.0
 wcwidth==0.2.6
+Pillow==9.4.0
