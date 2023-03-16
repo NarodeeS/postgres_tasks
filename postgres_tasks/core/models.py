@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.db import models
 from django.utils.timezone import now
 
@@ -9,6 +7,7 @@ from .utils.database_status import DatabaseStatus
 class Task(models.Model):
     title = models.CharField(max_length=50)
     description = models.TextField()
+    difficulty = models.IntegerField()
     creation_script = models.FileField(upload_to='creation_scripts')
     check_script = models.FileField(upload_to='check_scripts')
     db_structure = models.ImageField(upload_to='dbs_structure')

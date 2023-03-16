@@ -1,19 +1,12 @@
-from django.shortcuts import render
-from django import views
 from rest_framework import views
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import generics
 
-from .tasks import create_db, delete_db
-from .models import DatabaseInfo
-from .serializers import DatabaseInfoSerializer
-from .service import send_sql_command, check_task_completion
-
-
-class HomeView(views.View):
-    def get(self, request):
-        return render(request, 'core/index.html')
+from core.tasks import create_db, delete_db
+from core.models import DatabaseInfo
+from core.serializers import DatabaseInfoSerializer
+from core.service import send_sql_command, check_task_completion
 
 
 class DbCreateView(views.APIView):
