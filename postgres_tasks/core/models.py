@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.timezone import now
 
-from .utils.database_status import DatabaseStatus
+from .service.database_status import DatabaseStatus
 
 
 class Task(models.Model):
@@ -29,6 +29,7 @@ class UserTask(models.Model):
     completed = models.BooleanField(default=False)
     
     active_task = models.ForeignKey(ActiveTask, on_delete=models.CASCADE)
+    # user
     
     def __str__(self) -> str:
         return self.active_task.task.title
@@ -40,5 +41,11 @@ class DatabaseInfo(models.Model):
     
     user_task = models.ForeignKey(UserTask, on_delete=models.DO_NOTHING)
 
+    def get_task(self):
+        return self.user_task.active_task.task
+    
+    def get_user(self):
+        pass
+        
     def __str__(self) -> str:
         return self.db_name

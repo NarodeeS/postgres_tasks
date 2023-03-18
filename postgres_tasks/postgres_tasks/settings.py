@@ -127,7 +127,6 @@ CELERY_BROKER_URL = (
     f":{os.getenv('RABBITMQ_DEFAULT_PASS')}@rabbitmq:5672"
 )
 
-
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # REST_FRAMEWORK = {
