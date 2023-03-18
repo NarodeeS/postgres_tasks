@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import DatabaseInfo, Task, ActiveTask
+from .models import DatabaseInfo, Task, ActiveTask, UserTask
 
 
 class DatabaseInfoSerializer(serializers.ModelSerializer):
@@ -26,3 +26,9 @@ class ActiveTaskSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 1
 
+
+class UserTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserTask
+        fields = '__all__'
+        read_only_fields = ['completed']
