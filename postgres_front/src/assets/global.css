@@ -4,16 +4,12 @@ body {
   padding: 0;
 }
 
-#app{
-}
 
 #main-part{
     margin-top:10px;
 }
 
-#one-task-control{
-    margin: 7px;
-}
+
 
 #dilog-form{
     top: 0;
@@ -22,7 +18,7 @@ body {
     left: 0;
     background: rgba(0,0,0, 0.5);
     position: fixed;
-    display: flex; 
+    display: flex;
 }
 
 #dialog-content{
@@ -34,7 +30,3 @@ body {
     padding:20px;
 }
 
-#btn_close_task{
-    position: absolute;
-    right: 15px;
-}
