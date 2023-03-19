@@ -10,12 +10,6 @@ from .models import DatabaseInfo
 from .serializers import DatabaseInfoSerializer
 from .service import send_sql_command, check_task_completion
 
-
-class HomeView(views.View):
-    def get(self, request):
-        return render(request, 'core/index.html')
-
-
 class DbCreateView(views.APIView):
     def post(self, request, *args, **kwargs) -> Response:
         task_name = request.data.get('task_name')
