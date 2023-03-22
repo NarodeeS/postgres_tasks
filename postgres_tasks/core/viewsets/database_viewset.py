@@ -18,10 +18,10 @@ class DatabaseViewSet(viewsets.ModelViewSet):
     
     def create(self, request, *args, **kwargs):
         task_name = request.data.get('task_name')
-        db_name = task_name  # generate based on username and task name
+        db_name = '_'.join(task_name.lower().split())  # generate based on username and task name
         
         if (err_info := check_db_creation_ability(db_name, task_name)) is None:
-            create_db.delay(db_name)
+            create_db.delay(db_name, task_name)
             return Response(data={'detail': 'OK', 'db_name': db_name}, 
                             status=status.HTTP_200_OK)
         
@@ -73,7 +73,8 @@ class DatabaseViewSet(viewsets.ModelViewSet):
             return Response(data={'detail': 'Use db_name as path parameter'}, 
                             status=status.HTTP_404_NOT_FOUND)
         
-        if not DatabaseInfo.objects.filter(db_name=db_name).exists():
+        db_info = DatabaseInfo.objects.filter(db_name=db_name).first()
+        if not db_info:
             return Response(data={'detail': "db don't exists"},
                             status=status.HTTP_404_NOT_FOUND)
             
@@ -82,8 +83,10 @@ class DatabaseViewSet(viewsets.ModelViewSet):
         if success:
             response_message = 'Task completed sucessfully'
             response_status = status.HTTP_200_OK
-            
+            db_info.user_task.completed = True
+            db_info.user_task.save()
             delete_db.delay(db_name)
+            
         else:
             response_message = 'Check error'
             response_status = status.HTTP_400_BAD_REQUEST

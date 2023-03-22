@@ -28,7 +28,11 @@ class ActiveTaskSerializer(serializers.ModelSerializer):
 
 
 class UserTaskSerializer(serializers.ModelSerializer):
+    active_task = ActiveTaskSerializer()
+    
     class Meta:
         model = UserTask
         fields = '__all__'
         read_only_fields = ['completed']
+        depth = 1
+
