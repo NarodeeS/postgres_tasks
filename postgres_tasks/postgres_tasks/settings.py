@@ -92,15 +92,7 @@ DATABASES = {
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
         "NAME": "postgres",
-    },
-    "sandbox_db": {
-        "ENGINE": "django.db.backends.postgresql",
-        "HOST": "sandbox_postgres",
-        "PORT": "5432",
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "NAME": os.getenv("POSTGRES_DB"),
-    },
+    }
 }
 
 
@@ -153,6 +145,7 @@ CELERY_BROKER_URL = (
     f":{os.getenv('RABBITMQ_DEFAULT_PASS')}@rabbitmq:5672"
 )
 
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # REST_FRAMEWORK = {
 #     'DEFAULT_AUTHENTICATION_CLASSES': [

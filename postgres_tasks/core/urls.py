@@ -1,11 +1,16 @@
 from django.urls import path
+from rest_framework import routers
 
-from core import views
+from core.viewsets.database_viewset import DatabaseViewSet
+from core.viewsets.task_viewset import TaskViewSet
+from core.viewsets.active_task_viewset import ActiveTaskViewSet
+from core.viewsets.user_tasks_viewset import UserTasksViewSet
 
 
-urlpatterns = [
-    path('db/', views.DbCreateView.as_view()),
-    path('db/<str:db_name>/', views.DbGetDeleteView.as_view()),
-    path('db/<str:db_name>/command/', views.DbCommandView.as_view()),
-    path('db/<str:db_name>/check/', views.DbCheckView.as_view()),
-]
+router = routers.DefaultRouter()
+router.register('databases', DatabaseViewSet)
+router.register('tasks', TaskViewSet)
+router.register('active-tasks', ActiveTaskViewSet)
+router.register('user-tasks', UserTasksViewSet)
+
+urlpatterns = router.urls

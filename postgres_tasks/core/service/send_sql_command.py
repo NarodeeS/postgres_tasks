@@ -2,8 +2,9 @@ from typing import TypedDict
 
 import psycopg2
 
-from .utils.get_database_connection import get_database_connection, get_admin_connection
-from .utils.connection_manager import ConnectionManager
+from core.utils.get_database_connection import get_database_connection
+from core.utils.connection_manager import ConnectionManager
+from core.models import DatabaseInfo
 
 
 class QueryResult(TypedDict):
@@ -18,11 +19,15 @@ def send_sql_command(db_name: str, command: str) -> QueryResult:
     return command status and exception message
     '''
     #  get from db
+    db_info = DatabaseInfo.objects.filter(db_name=db_name).first()
+    task = db_info.get_task()  # type: ignore
+    
     username = 'test_user'
     password = 'test_password'
     
     # can raise operational error, if db or user don't exists
     connection = get_database_connection(db_name, username, password)
+    
     with ConnectionManager(connection):
         with connection.cursor() as cursor:
             try:
@@ -39,25 +44,3 @@ def send_sql_command(db_name: str, command: str) -> QueryResult:
                                result=result, 
                                columns=column_names,
                                error_message=None)
-    
-
-def check_task_completion(db_name: str) -> bool:
-    # can raise operational error, if db don't exists
-    connection = get_admin_connection(db_name)
-    with ConnectionManager(connection):
-        with connection.cursor() as cursor:
-            try:
-                # check logic
-                check_script = '''
-                    SELECT * FROM users;
-                '''
-                columns = ['name', 'surname', 'age']
-                cursor.execute(check_script)
-                rows = cursor.fetchall()
-                columns_names = [descr_row[0] for descr_row in cursor.description]
-                return (len(rows) == 2 and columns_names == columns)
-            
-            except psycopg2.Error as err:
-                print(err.pgerror)
-            
-            return False
