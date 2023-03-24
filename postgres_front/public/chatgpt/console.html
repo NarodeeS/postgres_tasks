@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PostgreSQL Input Console</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<style>
+		body {
+			background-color: #1c1c1c;
+			color: #fff;
+			font-family: "Courier New", Courier, monospace;
+		}
+		.container {
+			margin-top: 50px;
+		}
+		.input-console {
+			background-color: #333;
+			padding: 20px;
+			border: none;
+			box-shadow: 0px 0px 10px #888;
+		}
+		.input-console h3 {
+			margin-top: 0;
+			margin-bottom: 20px;
+		}
+		.input-console pre {
+			color: #fff;
+			font-size: 18px;
+			font-family: "Courier New", Courier, monospace;
+			white-space: pre-wrap;
+			word-wrap: break-word;
+		}
+		.input-console form {
+			margin-top: 20px;
+		}
+		.input-console textarea {
+			background-color: transparent;
+			color: #fff;
+			border: none;
+			outline: none;
+			padding: 20px;
+			font-size: 18px;
+			font-family: "Courier New", Courier, monospace;
+			width: 100%;
+			height: 150px;
+			resize: none;
+		}
+		.input-console button {
+			margin-top: 20px;
+			padding: 10px 20px;
+			font-size: 18px;
+			font-weight: bold;
+			border-radius: 5px;
+			background-color: #007bff;
+			color: #fff;
+			border: none;
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body>
+
+	<!-- Input Console -->
+	<div class="container">
+		<div class="input-console">
+			<h3>Enter SQL Command</h3>
+			<pre>> SELECT * FROM users;</pre>
+			<form>
+				<div class="form-group">
+					<textarea class="form-control" placeholder="Enter SQL command..." rows="5"></textarea>
+				</div>
+				<button type="submit" class="btn btn-primary">Execute</button>
+			</form>
+		</div>
+	</div>
+
+</body>
+</html>
