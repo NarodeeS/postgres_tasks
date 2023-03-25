@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, mixins
 from rest_framework.response import Response
 
 from core.models import UserTask
@@ -6,7 +6,10 @@ from core.serializers import UserTaskSerializer
 from core.permissions import IsOwner
 
 
-class UserTasksViewSet(viewsets.ModelViewSet):
+class UserTasksViewSet(mixins.CreateModelMixin,
+                       mixins.ListModelMixin,
+                       mixins.RetrieveModelMixin, 
+                       viewsets.GenericViewSet):
     queryset = UserTask.objects.all()
     serializer_class = UserTaskSerializer
     lookup_field = 'id'

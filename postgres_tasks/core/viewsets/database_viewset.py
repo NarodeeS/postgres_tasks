@@ -1,5 +1,5 @@
-from rest_framework import (viewsets, status, 
-                            permissions)
+from rest_framework import (viewsets, mixins, 
+                            status, permissions)
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -15,7 +15,11 @@ from core.service.utils.get_user_task import get_user_task
 from core.utils.check_db_creation_ability import check_db_creation_ability
 
 
-class DatabaseViewSet(viewsets.ModelViewSet):
+class DatabaseViewSet(mixins.CreateModelMixin,
+                      mixins.RetrieveModelMixin,
+                      mixins.ListModelMixin,
+                      mixins.DestroyModelMixin, 
+                      viewsets.GenericViewSet):
     queryset = DatabaseInfo.objects.all()
     serializer_class = DatabaseInfoSerializer
     lookup_field = 'db_name'
