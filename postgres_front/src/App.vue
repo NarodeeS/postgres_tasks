@@ -1,235 +1,56 @@
 <template>
 
-
-  <div id="main-part" class="container-fluid">
-            <div class="row">
-                <div class="col-4">
-                    <h3>Задания:</h3>
-                  <TaskListControlerComponent
-                  :task_list="tasks" 
-                  @deploy_task="deployTask"></TaskListControlerComponent>  
-                </div>
-              <div class="col-8">
-              <div v-if="task_controler.selected_task_id != null">
-                <div v-if="task_controler.task_passed_with_eror === true">
-                <ErrorAlertComponent></ErrorAlertComponent>
-                </div>  
-                
-                <h3>Консоль:</h3>
-                  <ConsoleComponent 
-                        @send_command="sendCommand"
-                        @end_task="sendTaskForChecking"
-                        @close_task="endTaskWithoutChecking" 
-                        :db_is_starting="db_is_starting"
-                        :task_passed_with_eror="task_controler.task_passed_with_eror"
-                        :response_from_postgres="postgres_response_on_command"></ConsoleComponent>
-                </div>
-                <div v-else-if="task_controler.task_is_passed === true">
-                    <SucessAlertComponent></SucessAlertComponent>
-                    </div>
-              </div>
-          </div>
+<div class="layout">
+  <NavBarComponent :is_authenticated="is_auntificated" @logout="Logout" @login="ToLoginPage"></NavBarComponent>
+      <main class="layout-content">
+        <router-view  @login="Login"/>
+      </main>
   </div>
+
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import axios, {AxiosResponse}  from 'axios'
-import Task from "./types/Task";
-import TaskControler from "./types/TaskControler";
-
-import TaskListControlerComponent from "./components/TaskListControlerComponent.vue";
-import PostgresCommandResponse from "./types/PostgresCommandResponse";
-import ConsoleComponent from "./components/ConsoleComponent.vue";
-import SucessAlertComponent from "./components/SucessAlertComponent.vue";
-import ErrorAlertComponent from "./components/ErrorAlertComponent.vue";
+import { useCookie } from  'vue-cookie-next'
+import NavBarComponent from "./components/NavBarComponent.vue";
+import router from "./router";
 
 export default defineComponent({
-  name: "App",
-  components: { TaskListControlerComponent, ConsoleComponent, SucessAlertComponent, ErrorAlertComponent},
-  mounted() {
-      axios.defaults.baseURL = `http://${process.env.VUE_APP_BASE_URL}:8000/`
-      axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-      axios.defaults.xsrfCookieName = "csrftoken";
-      axios.defaults.withCredentials = true;
-  }, 
-  setup() {
-      const db_is_starting = ref(false);
-      const task_controler = ref<TaskControler>({
-        showForceClose: false,
-        selected_task_id: null,
-        task_is_passed: false,
-        task_passed_with_eror: false,
-      });
-      const postgres_response_on_command = ref<PostgresCommandResponse>({
-        status: "",
-        results: [],
-        columns: null,
-        error: "",
-      });
+  components: {
+    NavBarComponent
+    },
 
-      const tasks = ref<Task[]>([
-        {
-          id: 1,
-          task_name: "task1",
-          description:
-            "Создать таблицу user с полями name, surname, age и внести в нее 2 строки",
-          complexity: "Hard",
-        },
-      ]);
-  
+    setup() {
+        const cookie = useCookie()
 
-      function delay(milliseconds: number) {
-              return new Promise(resolve => {
-                  setTimeout(resolve, milliseconds);
-            });
-      }
-
-      async function endTaskWithoutChecking() {
-              try {
-                  await axios.delete("/db/test_db/")
-              } catch (err) {
-                  console.log(err);
-                  return
-              }
-              clearFieldsAfterEndTaskWithoutChecking()
-              clearPostgresResponseFields()
-          }
-
-      function clearPostgresResponseFields() {
-              postgres_response_on_command.value.status = ""
-              postgres_response_on_command.value.results = []
-              postgres_response_on_command.value.error = ""
-              postgres_response_on_command.value.columns = null
-        }
-      function clearFieldsAfterEndTaskWithoutChecking() {
-              task_controler.value.selected_task_id = null
-              task_controler.value.task_is_passed = false
-              task_controler.value.task_passed_with_eror = false
-      }
-
-      async function deployTask(id: number) {
-              if (task_controler.value.selected_task_id != null) {
-                  alert("Вы не еще завешили начатое задание")
-                  return
-              }
-              prepareFieldsBeforeDeployingTask(id)
-              let selected_task = tasks.value.find(x => x.id === task_controler.value.selected_task_id)
-
-              if (typeof selected_task === 'undefined'){
-                return
-              }
-              try {
-                  await axios.post(`/db/`,
-                  {"task_name": selected_task.task_name,},
-                        )
-
-              } catch (err) {
-                  console.error(err);
-              }
-              checkIsDbStarted()
-      }
-      function prepareFieldsBeforeDeployingTask(id: number) {
-              task_controler.value.selected_task_id = id
-              db_is_starting.value = true
-              task_controler.value.task_is_passed = false
-              task_controler.value.task_passed_with_eror = false
-          }
-
-
-      async function checkIsDbStarted() {
-              await delay(1000);
-
-              let max_retries = 5;
-              let try_number = 0;
-              while (max_retries !== try_number || db_is_starting.value === false) {
-                  try_number += 1;
-                  await isDbStartedRequest()
-
-                  if (db_is_starting.value === false) {
-                      return
-                  } else {
-                      console.log("db dont started")
-                  }
-              }
-          }
-
-      async function isDbStartedRequest() {
-            try {
-                const response = await axios.get("/db/test_db/")
-                if (response.data.status === "up") {
-                    db_is_starting.value = false;
-                }
-            }
-            catch (err) {
-                console.log(err);
-                task_controler.value.selected_task_id = null
-            }
+        const token = ref(cookie.getCookie("token"))
+        let is_auntificated = ref(false);
+        if (token.value == null) {
+            is_auntificated.value = false
+        } else {
+            is_auntificated.value = true
         }
 
-      function updatePostgresResponseFields(response: AxiosResponse) {
-            let index = 1
-            postgres_response_on_command.value.status = response.data.status
-            response.data.result.forEach(function(el: any){
-                  let raw = {
-                    id : index,
-                    data : el
-                  } 
-                  postgres_response_on_command.value.results.push(raw)
-                  index += 1
-                })
-  
-            postgres_response_on_command.value.columns = response.data.columns
+        function Logout(){
+            cookie.removeCookie("token")
+            router.push({name: 'mainPage'})
+            is_auntificated.value = false
         }
-  
-      async function sendCommand(commnad: string) {
-          clearPostgresResponseFields()
-          task_controler.value.task_passed_with_eror = false
+        function ToLoginPage(){
+          router.push({name: 'login'})
+        }
 
-          try {
-              const response = await axios.post("/db/test_db/command/",
-                  { "command": commnad }
-              )
-              updatePostgresResponseFields(response)
-          }
-          catch (err: any) {
-              if (err !instanceof TypeError){
-                return
-              }
-              else {
-                if (typeof (err.response.data) != "undefined")
-                    postgres_response_on_command.value.error = err.response.data.error
-               } 
+        function Login(){
+          router.push({name: 'account'})
+          cookie.setCookie("token", 'some_token')
+          is_auntificated.value = true
         }
-      }
-      
-      async function sendTaskForChecking() {
-          try {
-              await axios.post("/db/test_db/check/")
-              clearPostgresResponseFields()
-              updateFieldsAfterSucses()
-          }
-          catch (err) {
-              task_controler.value.task_passed_with_eror = true
-          }
-      }
-      function updateFieldsAfterSucses() {
-          task_controler.value.selected_task_id = null
-          task_controler.value.task_is_passed = true
-      }
-  
-    return {
-      db_is_starting,
-      task_controler,
-      postgres_response_on_command,
-      tasks,
-      deployTask,
-      sendCommand,
-      sendTaskForChecking,
-      endTaskWithoutChecking
-    };
-  },
+
+        return {Logout, Login, ToLoginPage, is_auntificated}
+    }
 });
 </script>
 
-<style></style>
+<style>
+
+</style>
