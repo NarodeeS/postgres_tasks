@@ -1,4 +1,5 @@
 from rest_framework import viewsets, permissions
+from rest_framework.response import Response
 
 from core.models import UserTask
 from core.serializers import UserTaskSerializer
@@ -13,3 +14,9 @@ class UserTasksViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        task_id = request.data['task']
+        if UserTask.objects.filter(task__id=task_id).exists():
+            return Response(data={'error': 'Such task already assigned to this user'})
+        return super().create(request, *args, **kwargs)

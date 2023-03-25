@@ -28,7 +28,8 @@ class DatabaseViewSet(viewsets.ModelViewSet):
         user_task_id = request.data.get('user_task')
         user = request.user
         
-        if (err_info := check_db_creation_ability(user_task_id)) is None:
+        if (err_info := check_db_creation_ability(user_task_id, 
+                                                  user.id)) is None:
             try:
                 user_task = get_user_task(user_task_id)
                 db_name = f"{user.username}_{'_'.join(user_task.task.title.split(' ')).lower()}"
