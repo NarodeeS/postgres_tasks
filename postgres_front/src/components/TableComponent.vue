@@ -1,8 +1,8 @@
 <template>
-       <table v-if="dataColumns != null" class="table">
+       <table v-if="dataColumns != null" class="table table-output">
         <thead >
             <tr>
-                <th scope="col">#</th>
+                <th class="table-output" scope="col">#</th>
                 <th scope="col" v-for="(column, index) in dataColumns" :key="index">{{column}}</th>
             </tr>
         </thead>
@@ -33,3 +33,10 @@ export default defineComponent({
     }, 
 })
 </script>
+
+<style>
+.table-output {
+  color: #fff;
+}
+
+</style>
