@@ -1,5 +1,5 @@
 from rest_framework import (viewsets, status, 
-                            permissions, authentication)
+                            permissions)
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -11,8 +11,8 @@ from core.service.send_sql_command import send_sql_command
 from core.service.check_task import check_task
 from core.service.errors import NoSuchDbError, NoSuchUserTask
 from core.service.utils.finish_task import finish_task
-from core.utils.check_db_creation_ability import check_db_creation_ability
 from core.service.utils.get_user_task import get_user_task
+from core.utils.check_db_creation_ability import check_db_creation_ability
 
 
 class DatabaseViewSet(viewsets.ModelViewSet):
@@ -20,7 +20,6 @@ class DatabaseViewSet(viewsets.ModelViewSet):
     serializer_class = DatabaseInfoSerializer
     lookup_field = 'db_name'
     permission_classes = [IsOwner & permissions.IsAuthenticated]
-    authentication_classes = [authentication.TokenAuthentication]
     
     def get_queryset(self):
         return self.queryset.filter(user_task__user=self.request.user)
