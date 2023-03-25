@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, authentication
+from rest_framework import viewsets, permissions
 
 from core.models import UserTask
 from core.serializers import UserTaskSerializer
@@ -10,7 +10,6 @@ class UserTasksViewSet(viewsets.ModelViewSet):
     serializer_class = UserTaskSerializer
     lookup_field = 'id'
     permission_classes = [IsOwner & permissions.IsAuthenticated]
-    authentication_classes = [authentication.TokenAuthentication]
     
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
