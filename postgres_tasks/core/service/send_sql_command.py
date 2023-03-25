@@ -4,7 +4,7 @@ import psycopg2
 
 from core.utils.get_database_connection import get_database_connection
 from core.utils.connection_manager import ConnectionManager
-from core.models import DatabaseInfo
+from .utils.get_db_info import get_db_info
 
 
 class QueryResult(TypedDict):
@@ -16,17 +16,14 @@ class QueryResult(TypedDict):
 
 def send_sql_command(db_name: str, command: str) -> QueryResult:
     '''
-    return command status and exception message
+    Allow to send SQL-commands to db. Can raise NoSuchDbError
     '''
-    #  get from db
-    db_info = DatabaseInfo.objects.filter(db_name=db_name).first()
-    task = db_info.get_task()  # type: ignore
+    db_info = get_db_info(db_name)
+        
+    db_username =  db_info.get_user().username
+    db_password = db_info.db_password
     
-    username = 'test_user'
-    password = 'test_password'
-    
-    # can raise operational error, if db or user don't exists
-    connection = get_database_connection(db_name, username, password)
+    connection = get_database_connection(db_name, db_username, db_password)
     
     with ConnectionManager(connection):
         with connection.cursor() as cursor:
@@ -34,11 +31,11 @@ def send_sql_command(db_name: str, command: str) -> QueryResult:
                 cursor.execute(command)
                 result = cursor.fetchall()
                 column_names = [descr_row[0] for descr_row in cursor.description]
-            except psycopg2.Error as exc:
+            except psycopg2.Error as error:
                 return QueryResult(status=cursor.statusmessage,
                                    result=None,
                                    columns=None,
-                                   error_message=exc.pgerror)
+                                   error_message=error.pgerror)
             
             return QueryResult(status=cursor.statusmessage, 
                                result=result, 

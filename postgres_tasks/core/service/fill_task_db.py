@@ -3,14 +3,15 @@ import psycopg2
 from core.utils.get_database_connection import get_admin_connection
 from .database_status import DatabaseStatus
 from core.utils.connection_manager import ConnectionManager
-from core.models import DatabaseInfo
 from core.utils.load_script import load_script
+from .utils.get_db_info import get_db_info
 
 
 def fill_task_db(db_name: str, username: str, password: str):
-    db_info: DatabaseInfo = (DatabaseInfo.objects
-                                         .filter(db_name=db_name)
-                                         .first()) # type: ignore
+    '''
+    Filling db based on task. Can raise NoSuchDbError
+    '''
+    db_info = get_db_info(db_name)
         
     task = db_info.get_task()
     filling_command = load_script(task.creation_script.path)
@@ -31,8 +32,8 @@ def fill_task_db(db_name: str, username: str, password: str):
                 cursor.execute(filling_command)
                 cursor.execute(user_creation_command)
                 db_info.status = DatabaseStatus.UP.value
-            except psycopg2.Error as err:
-                print(err.pgerror)
+            except psycopg2.Error as error:
+                print(error.pgerror)
                 db_info.status = DatabaseStatus.ERROR.value
                 
             db_info.save()
