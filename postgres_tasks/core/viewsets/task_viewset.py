@@ -1,10 +1,17 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 
 from core.models import Task
-from core.serializers import TaskSerializer
+from core.permissions import ReadOnly
+from core.serializers import TaskGetSerializer, TaskCreateSerializer
 
 
-class TaskViewSet(viewsets.ReadOnlyModelViewSet):
+class TaskViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated & (ReadOnly | permissions.IsAdminUser)]
     queryset = Task.objects.all()
-    serializer_class = TaskSerializer
     lookup_field = 'id'
+    
+    def get_serializer_class(self):
+        if self.action in ('retrieve', 'list'):
+            return TaskGetSerializer
+        
+        return TaskCreateSerializer

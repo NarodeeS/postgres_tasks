@@ -1,38 +1,35 @@
 from rest_framework import serializers
 
-from .models import DatabaseInfo, Task, ActiveTask, UserTask
+from .models import DatabaseInfo, Task, UserTask
 
 
 class DatabaseInfoSerializer(serializers.ModelSerializer):
-    task_name = serializers.CharField(max_length=255, write_only=True)
-    
     class Meta:
         model = DatabaseInfo
-        fields = ['id', 'db_name', 'status', 'task_name']
+        exclude = ['db_password']
         read_only_fields = ['id', 'db_name', 'status']
 
 
-class TaskSerializer(serializers.ModelSerializer):
+class TaskGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ['id', 'title', 'description', 'difficulty']
+        
 
-
-class ActiveTaskSerializer(serializers.ModelSerializer):
-    task = TaskSerializer()
+class TaskCreateSerializer(serializers.ModelSerializer):
+    creation_script = serializers.FileField()
+    check_script = serializers.FileField()
+    db_structure = serializers.ImageField()
     
     class Meta:
-        model = ActiveTask
+        model = Task
         fields = '__all__'
-        depth = 1
 
 
 class UserTaskSerializer(serializers.ModelSerializer):
-    active_task = ActiveTaskSerializer()
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     
     class Meta:
         model = UserTask
         fields = '__all__'
-        read_only_fields = ['completed']
-        depth = 1
-
+        read_only_fields = ['id', 'completed']
