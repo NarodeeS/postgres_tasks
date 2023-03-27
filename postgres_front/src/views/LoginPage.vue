@@ -21,32 +21,47 @@
               <button 
               type="submit"
                   @click="Login"
-                  class="btn btn-custom-green btn-success btn-block">Login</button>
+                  class="btn btn-custom-green btn-block">Login</button>
             </form>
+      
           </div>
+
+          <div v-if="error !== null" class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Error:</strong> {{error}}
+          </div>
+
           <div class="card-footer bg-dark text-white">
             <p class="mb-0">Don't have an account? <a href="#" class="text-success-custom">Register here</a></p>
           </div>
         </div>
       </div>
     </div>
+    
   </div>
 </section>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref, PropType} from 'vue'
 
 export default defineComponent({
   emits:{
       login: (login: string, password: string) => true
   },
+  props: {
+    error: {
+      type:  null as unknown as PropType<string | null>,
+      required: true
+    }
+  },
   setup(_, { emit }) {
-      const login = ''
-      const password = ''
+      const login  = ref('')
+      const password  = ref('')
       
       function Login() {
-       emit('login', login, password)
+       emit('login', login.value, password.value)
+
+        password.value = ''
       }
       return {Login, login, password}
   },

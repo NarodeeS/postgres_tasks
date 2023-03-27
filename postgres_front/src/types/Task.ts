@@ -1,8 +1,8 @@
 interface Task {
   id: number,
-  task_name: string,
+  title: string,
   description: string,
-  complexity: string
+  difficulty: string
 }
 
 export default Task
