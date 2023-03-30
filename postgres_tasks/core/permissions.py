@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from .models import DatabaseInfo, UserTask
+from .models import DatabaseInfo, CompletedTask
 
 
 class ReadOnly(permissions.BasePermission):
@@ -10,13 +10,4 @@ class ReadOnly(permissions.BasePermission):
 
 class IsOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        request_user = request.user
-        
-        if isinstance(obj, DatabaseInfo):
-            print('here')
-            return obj.user_task.user == request_user
-        elif isinstance(obj, UserTask):
-            print('here')
-            return obj.user == request_user
-        else:
-            return False
+        return obj.user == request.user

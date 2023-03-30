@@ -12,7 +12,7 @@ def check_task(db_name: str) -> bool:
     '''
     db_info = get_db_info(db_name)
     
-    check_script_path = db_info.user_task.get_check_script().path
+    check_script_path = db_info.task.check_script.path
     check_script = load_script(check_script_path)
     
     connection = get_admin_connection(db_name)
