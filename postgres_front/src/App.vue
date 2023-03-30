@@ -12,7 +12,7 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { useCookie } from  'vue-cookie-next';
-import axios, {AxiosError}  from 'axios';
+import axios from 'axios';
 import NavBarComponent from "./components/NavBarComponent.vue";
 import router from "./router";
 

@@ -39,8 +39,8 @@
     import axios, {AxiosResponse}  from 'axios';
     import { useCookie } from 'vue-cookie-next'
     
-    import Task from "@/types/Task";
-    import TaskControler from "@/types/TaskControler";
+    import type Task from "@/types/Task";
+    import type TaskControler from "@/types/TaskControler";
     
     import TaskListControlerComponent from "@/components/TaskListControlerComponent.vue";
     import PostgresCommandResponse from "@/types/PostgresCommandResponse";

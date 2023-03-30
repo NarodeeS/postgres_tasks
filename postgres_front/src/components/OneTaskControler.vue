@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import Task from '@/types/Task'
+import type Task from '@/types/Task'
 
 export default defineComponent({
     props: {

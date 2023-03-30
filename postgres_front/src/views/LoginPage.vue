@@ -1,48 +1,42 @@
 <template>
     <!-- Login Section -->
-<section class="bg-dark text-white py-5">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-6 offset-md-3">
-        <div class="card">
-          <div class="card-header  text-white">
-            <h4>Login to your account</h4>
-          </div>
-          <div class="card-body">
-            <form @submit.prevent>
-              <div class="form-group">
-                <label for="email">Email address</label>
-                <input type="text" class="form-control" v-model="login" id="email" placeholder="Enter email">
-              </div>
-              <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" class="form-control" v-model="password" id="password" placeholder="Password">
-              </div>
-              <button 
-              type="submit"
-                  @click="Login"
-                  class="btn btn-custom-green btn-block">Login</button>
-            </form>
-      
-          </div>
-
-          <div v-if="error !== null" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <div class="container">
+        <div class="form-container">
+            <h2>  Login to Your Account</h2>
+              <form>
+                <div class="form-group">
+                  <label for="email">Email</label>
+                  <input
+                   type="text"
+                    id="email" name="email" v-model="login" required>
+                </div>
+                <div class="form-group">
+                  <label for="password">Password</label>
+                  <input type="password" id="password" name="password" v-model="password" required>
+                </div>
+                  <div class="form-group">
+                      <div class="custom-control custom-checkbox">
+                          <input type="checkbox" class="custom-control-input" id="remember">
+                          <label class="custom-control-label" for="remember">Remember me</label>
+                      </div>
+                  </div>
+                  <div v-if="error !== null" class="alert alert-danger alert-dismissible fade show" role="alert">
               <strong>Error:</strong> {{error}}
           </div>
+                  <input type="submit" @click="Login" value="Login">
 
-          <div class="card-footer bg-dark text-white">
-            <p class="mb-0">Don't have an account? <a href="#" class="text-success-custom">Register here</a></p>
+                  <div class="forgot-password">
+                                <a href="#" @click="ToLoginPage">Have no accout?</a>
+                            </div>  
+              </form>
           </div>
-        </div>
       </div>
-    </div>
-    
-  </div>
-</section>
+
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, PropType} from 'vue'
+import router from '../router'
 
 export default defineComponent({
   emits:{
@@ -57,23 +51,40 @@ export default defineComponent({
   setup(_, { emit }) {
       const login  = ref('')
       const password  = ref('')
+
+      function ToLoginPage() {
+        router.push({name: 'registration'})
+    }      
       
       function Login() {
+        if (login.value === '' || password.value === '') {
+          return
+        }
        emit('login', login.value, password.value)
 
         password.value = ''
       }
-      return {Login, login, password}
+      return {Login, ToLoginPage,  login, password}
   },
 })
 </script>
 
 <style>
 
-.card-header {
-  background-color: #1abc9c;
+.forgot-password {
+            text-align: right;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+.forgot-password a {
+    color: #1abc9c;
+    font-weight: bold;
 }
-.text-success-custom{
-  color: #1abc9c;
-}
+
+.forgot-password a:hover {
+        text-decoration: none;
+        color: #148f77;
+    }
+ 
 </style>
