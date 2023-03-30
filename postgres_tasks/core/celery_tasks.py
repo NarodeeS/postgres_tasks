@@ -13,7 +13,7 @@ from .utils.connection_manager import ConnectionManager
 @app.task
 def create_db(user_id: int, task_id: int, db_name: str) -> None:
     user: User = User.objects.filter(id=user_id).first() # type: ignore
-    db_username = user.username
+    db_username = user.get_db_username()
     db_password = user.password[:10]
     task: Task = Task.objects.filter(id=task_id).first() # type: ignore
     
@@ -40,7 +40,7 @@ def create_db(user_id: int, task_id: int, db_name: str) -> None:
 @app.task
 def delete_db(db_name: str) -> None:
     db_info = get_db_info(db_name)
-    db_username = db_info.user.username
+    db_username = db_info.user.get_db_username()
     
     admin_db_name: str = os.getenv('POSTGRES_DB')  # type: ignore
     

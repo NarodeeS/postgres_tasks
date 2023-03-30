@@ -20,7 +20,7 @@ def send_sql_command(db_name: str, command: str) -> QueryResult:
     '''
     db_info = get_db_info(db_name)
         
-    db_username =  db_info.user.username
+    db_username =  db_info.user.get_db_username()
     db_password = db_info.db_password
     
     connection = get_database_connection(db_name, db_username, db_password)

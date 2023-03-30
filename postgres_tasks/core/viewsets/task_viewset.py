@@ -52,7 +52,7 @@ class TaskViewSet(viewsets.ViewSet):
         raise_if_not_exists(task, 'No such task')
         
         if (err_info := check_db_creation_ability(user.id)) is None:
-            db_name = f"{user.username}_{'_'.join(task.title.split(' ')).lower()}"
+            db_name = f"{'_'.join(task.title.split(' ')).lower()}_{user.id}"
             create_db.delay(request.user.id, task.id, db_name)
             
             return Response(data={'detail': 'OK', 'db_name': db_name}, 

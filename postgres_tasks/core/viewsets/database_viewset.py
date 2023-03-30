@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from core.serializers import DatabaseInfoSerializer
-from core.models import DatabaseInfo, CompletedTask
+from core.models import DatabaseInfo
 from core.permissions import IsOwner
 from core.celery_tasks import delete_db
 from core.service.send_sql_command import send_sql_command

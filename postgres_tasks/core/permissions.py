@@ -1,7 +1,5 @@
 from rest_framework import permissions
 
-from .models import DatabaseInfo, CompletedTask
-
 
 class ReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
