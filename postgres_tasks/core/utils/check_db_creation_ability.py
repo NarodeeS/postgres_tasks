@@ -1,17 +1,15 @@
-from core.models import DatabaseInfo, UserTask
-from .web_error_data import WebErrorData
+from typing import TypedDict
+
+from core.models import DatabaseInfo
 
 
-def check_db_creation_ability(user_task_id: int, user_id: int) -> WebErrorData | None:
-    if not user_task_id:  
-        return WebErrorData(data={'detail': 'Need to specify user_task_id'}, 
-                            status=400)
-    
-    if DatabaseInfo.objects.filter(user_task__id=user_task_id).exists():
-        return WebErrorData(data={'detail': 'Db for this task already exists'}, 
-                            status=400)
-    
-    if DatabaseInfo.objects.filter(user_task__user__id=user_id).exists():
-        return WebErrorData(data={'detail': 'Active Db already exists'}, 
+class WebErrorData(TypedDict):
+    data: dict
+    status: int
+
+
+def check_db_creation_ability(user_id: int) -> WebErrorData | None:
+    if DatabaseInfo.objects.filter(user__id=user_id).exists():
+        return WebErrorData(data={'detail': 'Active database already exists'}, 
                             status=400)
     return None

@@ -13,7 +13,7 @@ def fill_task_db(db_name: str, username: str, password: str):
     '''
     db_info = get_db_info(db_name)
         
-    task = db_info.get_task()
+    task = db_info.task
     filling_command = load_script(task.creation_script.path)
     
     user_creation_command = f'''

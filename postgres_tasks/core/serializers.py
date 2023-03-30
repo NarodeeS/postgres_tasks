@@ -1,35 +1,22 @@
 from rest_framework import serializers
+from djoser.serializers import UserCreateSerializer
 
-from .models import DatabaseInfo, Task, UserTask
+from .models import DatabaseInfo, Task
 
 
 class DatabaseInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = DatabaseInfo
-        exclude = ['db_password']
+        exclude = ['db_password', 'task', 'user']
         read_only_fields = ['id', 'db_name', 'status']
 
 
-class TaskGetSerializer(serializers.ModelSerializer):
+class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ['id', 'title', 'description', 'difficulty']
-        
-
-class TaskCreateSerializer(serializers.ModelSerializer):
-    creation_script = serializers.FileField()
-    check_script = serializers.FileField()
-    db_structure = serializers.ImageField()
-    
-    class Meta:
-        model = Task
-        fields = '__all__'
 
 
-class UserTaskSerializer(serializers.ModelSerializer):
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    
-    class Meta:
-        model = UserTask
-        fields = '__all__'
-        read_only_fields = ['id', 'completed']
+class UserRegistrationSerializer(UserCreateSerializer):
+    class Meta(UserCreateSerializer.Meta):
+        fields = ('name', 'surname', 'student_group', 'email', 'password')

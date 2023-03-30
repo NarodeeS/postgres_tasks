@@ -1,10 +1,28 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
 from .service.database_status import DatabaseStatus
 
 
+class User(AbstractUser):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=50)
+    surname = models.CharField(max_length=50)
+    student_group = models.CharField(max_length=10)
+    email = models.EmailField(unique=True)
+
+    REQUIRED_FIELDS = ['name', 'surname', 'student_group', 'username']
+    USERNAME_FIELD = 'email'
+    
+    def get_db_username(self):
+        return self.email.split('@')[0]
+    
+    def __str__(self) -> str:
+        return f'{self.name} {self.surname}'
+
+
 class Task(models.Model):
+    id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=50, unique=True)
     description = models.TextField()
     difficulty = models.IntegerField()
@@ -16,9 +34,9 @@ class Task(models.Model):
         return self.title
 
 
-class UserTask(models.Model):
-    completed = models.BooleanField(default=False)
-    
+class CompletedTask(models.Model):
+    id = models.AutoField(primary_key=True)
+        
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     
@@ -26,21 +44,18 @@ class UserTask(models.Model):
         return self.task.check_script
     
     def __str__(self) -> str:
-        return f"task '{self.task.title}' for user '{self.user.username}'"
+        return f"Completed task '{self.task.title}'" \
+                "for user '{self.user.username}'"
 
 
 class DatabaseInfo(models.Model):
+    id = models.AutoField(primary_key=True)
     db_name = models.CharField(max_length=50, unique=True)
     status = models.CharField(max_length=10, default=DatabaseStatus.DOWN.value)
     db_password = models.CharField(max_length=10)
     
-    user_task = models.ForeignKey(UserTask, on_delete=models.DO_NOTHING)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    def get_task(self):
-        return self.user_task.task
-    
-    def get_user(self):
-        return self.user_task.user
-        
     def __str__(self) -> str:
         return self.db_name

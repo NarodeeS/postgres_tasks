@@ -156,3 +156,11 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ]
 }
+
+AUTH_USER_MODEL = 'core.User'
+
+DJOSER = {
+    'SERIALIZERS': {
+         'user_create': 'core.serializers.UserRegistrationSerializer'
+    }
+}
