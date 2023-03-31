@@ -39,8 +39,8 @@
     import axios, {AxiosResponse}  from 'axios';
     import { useCookie } from 'vue-cookie-next'
     
-    import Task from "@/types/Task";
-    import TaskControler from "@/types/TaskControler";
+    import type Task from "@/types/Task";
+    import type TaskControler from "@/types/TaskControler";
     
     import TaskListControlerComponent from "@/components/TaskListControlerComponent.vue";
     import PostgresCommandResponse from "@/types/PostgresCommandResponse";
@@ -69,6 +69,7 @@
     
           if (token) {
               this.is_auntificated = true;
+              this.GeyTasks()
           } 
           else {
               this.is_auntificated = false;
@@ -77,7 +78,9 @@
       }, 
       setup() {
           const cookie = useCookie()
-    
+          
+          let token = cookie.getCookie("token")
+     
           const is_auntificated = ref(false);
           const db_is_starting = ref(false);
           const task_controler = ref<TaskControler>({
@@ -96,13 +99,28 @@
           const tasks = ref<Task[]>([
             {
               id: 1,
-              task_name: "Task1",
+              title: "Task1",
               description:
                 "Создать таблицу user с полями name, surname, age и внести в нее 2 строки",
-              complexity: "Hard",
+              difficulty: "Hard",
             },
           ]);
       
+
+          async function GeyTasks() {
+            try {
+              const response = await axios.get("api/tasks/", 
+              {   headers: {
+                'Authorization': 'Token ' + token
+              }});
+              response.data.forEach((element: Task) => {
+                tasks.value.push(element);
+              });
+            } catch (err) {
+              router.push({name: "login"})
+            }
+          }
+
           function delay(milliseconds: number) {
                   return new Promise(resolve => {
                       setTimeout(resolve, milliseconds);
@@ -145,7 +163,7 @@
                   }
                   try {
                       await axios.post(`/db/`,
-                      {"task_name": selected_task.task_name,},
+                      {"task_name": selected_task.title,},
                             )
     
                   } catch (err) {
@@ -251,7 +269,8 @@
           deployTask,
           sendCommand,
           sendTaskForChecking,
-          endTaskWithoutChecking
+          endTaskWithoutChecking,
+          GeyTasks,
         };
       },
     });

@@ -26,59 +26,57 @@
             </div>
 
 
-  <div class="row">
-    <div class="col-12 mb-3">
-      <div class="console-header">
-        <i class="fas fa-terminal"></i> PostgreSQL Console
-      </div>
-    </div>
-    <div class="col-12">
-    
-      <div class="console-body">
-        <div class="console-line" v-if="previous_command !== ''">
-          <strong><span class="console-prompt">postgres=#</span> {{ previous_command}}</strong>
-        </div>
-        <TableComponent id="console-table"
-                    :dataResults="response_from_postgres.results"
-                    :dataColumns="response_from_postgres.columns"
-                ></TableComponent>
-        <blockquote class="blockquote">
-            <p>{{response_from_postgres.status}}</p>
-        </blockquote>
-
-        <blockquote class="blockquote">
-            <p>{{response_from_postgres.error}}</p>
-        </blockquote> 
-   
-      </div>
-    </div>
-    <div class="col-12 mt-3">
-      <form>
-        <div class="input-group">
-          <span class="input-group-text"><i class="fas fa-angle-right"></i></span>
-          <input type="text" v-model="command" class="form-control console-input" placeholder="Enter command...">
-        </div>
-      </form>
-      <div class="terminal-input">
-            <button type="button" @click="sendCommand" ><i class="fas fa-play"></i> Execute</button>
-            <button type="button"  data-bs-toggle="modal" data-bs-target="#forceCloseModal" ><i class="fas fa-check"></i> Pass Task</button>
-            <button type="button" @click="closeTask"><i class="fas fa-trash"></i> Delete Task</button>
+      <div class="row">
+        <div class="col-12 mb-3">
+          <div class="console-header">
+            <i class="fas fa-terminal"></i> PostgreSQL Console
           </div>
+        </div>
+        <div class="col-12">
+        
+          <div class="console-body">
+            <div class="console-line" v-if="previous_command !== ''">
+              <strong><span class="console-prompt">postgres=#</span> {{ previous_command}}</strong>
+            </div>
+            <TableComponent id="console-table"
+                        :dataResults="response_from_postgres.results"
+                        :dataColumns="response_from_postgres.columns"
+                    ></TableComponent>
+            <blockquote class="blockquote">
+                <p>{{response_from_postgres.status}}</p>
+            </blockquote>
+
+            <blockquote class="blockquote">
+                <p>{{response_from_postgres.error}}</p>
+            </blockquote> 
+      
+          </div>
+        </div>
+        <div class="col-12 mt-3">
+          <form>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-angle-right"></i></span>
+              <input type="text" v-model="command" class="form-control console-input" placeholder="Enter command...">
+            </div>
+          </form>
+          <div class="terminal-input">
+                <button type="button" @click="sendCommand" ><i class="fas fa-play"></i> Execute</button>
+                <button type="button"  data-bs-toggle="modal" data-bs-target="#forceCloseModal" ><i class="fas fa-check"></i> Pass Task</button>
+                <button type="button" @click="closeTask"><i class="fas fa-trash"></i> Delete Task</button>
+              </div>
+        </div>
+      </div>
     </div>
-  </div>
 </div>
-
-
-    </div>
-
 
     
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref } from 'vue'
-import PostgersCommandResponse from '@/types/PostgresCommandResponse';
-import TableComponent from './TableComponent.vue';
+import { defineComponent, ref } from 'vue'
+import type { PropType } from 'vue'
+import type PostgersCommandResponse from '@/types/PostgresCommandResponse';
+import TableComponent from '@/components/TableComponent.vue';
 
 export default defineComponent({
     components: {

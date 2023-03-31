@@ -1,8 +1,8 @@
 <template>
     <div class="card-task mb-3 bg-dark border-success">
         <div class="card-body">
-            <h5 class="card-title custom-text">{{task.task_name}}</h5>
-            <p class="card-text text-white">{{task.complexity}}</p>
+            <h5 class="card-title custom-text">{{task.title}}</h5>
+            <p class="card-text text-white">{{task.difficulty}}</p>
             <p class="card-text text-white">{{task.description}}</p>
             <div class="row justify-content-between align-items-center">
                 <div class="col-6">
@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import Task from '@/types/Task'
+import type Task from '@/types/Task'
 
 export default defineComponent({
     props: {
