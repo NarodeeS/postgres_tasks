@@ -39,7 +39,7 @@
               <strong><span class="console-prompt">postgres=#</span> {{ previous_command}}</strong>
             </div>
             <TableComponent id="console-table"
-                        :dataResults="response_from_postgres.results"
+                        :dataResults="response_from_postgres.result"
                         :dataColumns="response_from_postgres.columns"
                     ></TableComponent>
             <blockquote class="blockquote">
@@ -47,10 +47,12 @@
             </blockquote>
 
             <blockquote class="blockquote">
-                <p>{{response_from_postgres.error}}</p>
+                <p>{{response_from_postgres.error_message}}</p>
             </blockquote> 
-      
+  
           </div>
+
+
         </div>
         <div class="col-12 mt-3">
           <form>
@@ -132,8 +134,9 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   overflow: auto;
-  /* background-color: #1a1a1a; */
+  background-color: #1a1a1a;
   border-radius: 5px;
+  border: 1px solid #1abc9c;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   padding: 20px;
 }
@@ -231,5 +234,6 @@ export default defineComponent({
 .terminal-input button:hover {
   background-color: #126958;
 }
-    
+   
+   
 </style>

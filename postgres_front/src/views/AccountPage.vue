@@ -78,9 +78,13 @@
       }, 
       setup() {
           const cookie = useCookie()
-          
+          const headers = {
+            Authorization: 'Token ' + cookie.getCookie("token")
+          }          
+
           let token = cookie.getCookie("token")
      
+          const dbName = ref<null | string>(null);
           const is_auntificated = ref(false);
           const db_is_starting = ref(false);
           const task_controler = ref<TaskControler>({
@@ -91,28 +95,18 @@
           });
           const postgres_response_on_command = ref<PostgresCommandResponse>({
             status: "",
-            results: [],
+            result: [],
             columns: null,
-            error: "",
+            error_message: "",
           });
     
-          const tasks = ref<Task[]>([
-            {
-              id: 1,
-              title: "Task1",
-              description:
-                "Создать таблицу user с полями name, surname, age и внести в нее 2 строки",
-              difficulty: "Hard",
-            },
-          ]);
+          const tasks = ref<Task[]>([]);
       
 
           async function GeyTasks() {
             try {
               const response = await axios.get("api/tasks/", 
-              {   headers: {
-                'Authorization': 'Token ' + token
-              }});
+              {headers: headers});
               response.data.forEach((element: Task) => {
                 tasks.value.push(element);
               });
@@ -129,7 +123,7 @@
     
           async function endTaskWithoutChecking() {
                   try {
-                      await axios.delete("/db/test_db/")
+                    await axios.delete(`api/databases/${dbName.value}/` , {headers: headers})
                   } catch (err) {
                       console.log(err);
                       return
@@ -140,8 +134,8 @@
     
           function clearPostgresResponseFields() {
                   postgres_response_on_command.value.status = ""
-                  postgres_response_on_command.value.results = []
-                  postgres_response_on_command.value.error = ""
+                  postgres_response_on_command.value.result = []
+                  postgres_response_on_command.value.error_message = ""
                   postgres_response_on_command.value.columns = null
             }
           function clearFieldsAfterEndTaskWithoutChecking() {
@@ -162,9 +156,10 @@
                     return
                   }
                   try {
-                      await axios.post(`/db/`,
-                      {"task_name": selected_task.title,},
-                            )
+                      const response = await axios.post(`/api/tasks/`,
+                      {"task_id": selected_task.id,},
+                      {headers: headers})
+                        dbName.value = response.data.db_name
     
                   } catch (err) {
                       console.error(err);
@@ -190,15 +185,13 @@
     
                       if (db_is_starting.value === false) {
                           return
-                      } else {
-                          console.log("db dont started")
-                      }
+                      } 
                   }
               }
     
           async function isDbStartedRequest() {
                 try {
-                    const response = await axios.get("/db/test_db/")
+                    const response = await axios.get(`api/databases/${dbName.value}/`, {headers: headers})
                     if (response.data.status === "up") {
                         db_is_starting.value = false;
                     }
@@ -210,18 +203,20 @@
             }
     
           function updatePostgresResponseFields(response: AxiosResponse) {
+            
                 let index = 1
                 postgres_response_on_command.value.status = response.data.status
+                postgres_response_on_command.value.error_message = response.data.error_message
+                postgres_response_on_command.value.columns = response.data.columns
+
                 response.data.result.forEach(function(el: any){
                       let raw = {
                         id : index,
                         data : el
                       } 
-                      postgres_response_on_command.value.results.push(raw)
+                      postgres_response_on_command.value.result.push(raw)
                       index += 1
                     })
-      
-                postgres_response_on_command.value.columns = response.data.columns
             }
       
           async function sendCommand(commnad: string) {
@@ -229,9 +224,11 @@
               task_controler.value.task_passed_with_eror = false
     
               try {
-                  const response = await axios.post("/db/test_db/command/",
-                      { "command": commnad }
+                  const response = await axios.post(`/api/databases/${dbName.value}/command/`,
+                      { "command": commnad }, 
+                      {headers: headers}
                   )
+                  console.log(response)
                   updatePostgresResponseFields(response)
               }
               catch (err: any) {
@@ -240,14 +237,14 @@
                   }
                   else {
                     if (typeof (err.response.data) != "undefined")
-                        postgres_response_on_command.value.error = err.response.data.error
+                        postgres_response_on_command.value.error_message = err.response.data.error
                    } 
-            }
+              }
           }
           
           async function sendTaskForChecking() {
               try {
-                  await axios.post("/db/test_db/check/")
+                  await axios.post(`/api/databases/${dbName.value}/check/`, {}, {headers: headers})
                   clearPostgresResponseFields()
                   updateFieldsAfterSucses()
               }

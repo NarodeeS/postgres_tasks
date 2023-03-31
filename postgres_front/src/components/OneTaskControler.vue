@@ -2,6 +2,7 @@
     <div class="card-task mb-3 bg-dark border-success">
         <div class="card-body">
             <h5 class="card-title custom-text">{{task.title}}</h5>
+            <p class="card-text text-white">{{task.completed}}</p>
             <p class="card-text text-white">{{task.difficulty}}</p>
             <p class="card-text text-white">{{task.description}}</p>
             <div class="row justify-content-between align-items-center">

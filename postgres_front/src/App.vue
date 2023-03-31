@@ -1,9 +1,9 @@
 <template>
 
 <div class="layout">
-  <NavBarComponent :is_authenticated="is_auntificated" @logout="Logout" @login="ToLoginPage"></NavBarComponent>
+  <NavBarComponent :is_authenticated="is_auntificated" @logout="Logout" ></NavBarComponent>
       <main class="layout-content">
-        <router-view :error="errorInLogin" @login="Login"/>
+        <router-view :error="errorInLogin"  @login="Login"/>
       </main>
   </div>
 
@@ -41,6 +41,7 @@ export default defineComponent({
         } else {
             is_auntificated.value = true
         }
+        
 
         async function Logout(){
           const token = cookie.getCookie("token")
@@ -65,20 +66,17 @@ export default defineComponent({
           }
             is_auntificated.value = false
         }
-        function ToLoginPage(){
-          router.push({name: 'login'})
-        }
-
-        async function Login(login: string, password: string){
+    
+        async function Login(email: string, password: string){
           errorInLogin.value = null
-          if (login == '' || password == ''){
+          if (email == '' || password == ''){
             errorInLogin.value = "Login or password is empty"
             return
           }
 
           try{
             const response = await axios.post('api/auth/token/login/', {
-              username: login,
+              email: email,
               password: password 
             })
 
@@ -89,12 +87,13 @@ export default defineComponent({
             }
           }
           catch (error : any) {
+            console.log(error)
             errorInLogin.value =error.response.data.non_field_errors[0] 
             return 
           }
         }
 
-        return {Logout, Login, ToLoginPage, errorInLogin, is_auntificated}
+        return {Logout, Login,  errorInLogin, is_auntificated}
     }
 });
 </script>

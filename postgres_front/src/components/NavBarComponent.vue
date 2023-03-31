@@ -19,16 +19,16 @@
             <a class="nav-link" href="#">Tutorials</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Community</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link" href="#">About</a>
+          </li>
+          <li class="nav-item" v-if="is_authenticated == false" >
+            <a class="nav-link" href="#" @click="$router.push({name: 'registration'})">Registration</a>
           </li>
           <li v-if="is_authenticated == true" class="nav-item">
             <a class="nav-link" @click="Logout">Logout</a>
           </li>
           <li v-else class="nav-item">
-            <a class="nav-link" @click="Login">Login</a>
+            <a class="nav-link" @click="$router.push({name: 'login'})">Login</a>
           </li>
         </ul>
       </div>
@@ -37,6 +37,7 @@
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
+import router from '../router'
 
 export default defineComponent({
   props: {
@@ -54,10 +55,7 @@ export default defineComponent({
     function Logout() {
       emit('logout')
     }
-    function Login() {
-      emit('login')
-    }
-    return {Login, Logout }
+    return { Logout }
   },
 })
 </script>

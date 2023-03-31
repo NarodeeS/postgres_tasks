@@ -8,7 +8,7 @@
                   <label for="email">Email</label>
                   <input
                    type="text"
-                    id="email" name="email" v-model="login" required>
+                    id="email" name="email" v-model="email" required>
                 </div>
                 <div class="form-group">
                   <label for="password">Password</label>
@@ -40,7 +40,7 @@ import router from '../router'
 
 export default defineComponent({
   emits:{
-      login: (login: string, password: string) => true
+      login: (email: string, password: string) => true
   },
   props: {
     error: {
@@ -49,7 +49,7 @@ export default defineComponent({
     }
   },
   setup(_, { emit }) {
-      const login  = ref('')
+      const email = ref('')
       const password  = ref('')
 
       function ToLoginPage() {
@@ -57,14 +57,14 @@ export default defineComponent({
     }      
       
       function Login() {
-        if (login.value === '' || password.value === '') {
+        if (email.value === '' || password.value === '') {
           return
         }
-       emit('login', login.value, password.value)
+       emit('login', email.value, password.value)
 
         password.value = ''
       }
-      return {Login, ToLoginPage,  login, password}
+      return {Login, ToLoginPage,  email, password}
   },
 })
 </script>
