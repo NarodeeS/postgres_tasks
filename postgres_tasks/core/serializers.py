@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from djoser.serializers import UserCreateSerializer
+from djoser.serializers import UserCreateSerializer as BaseUserRegistrationSerializer
 
-from .models import DatabaseInfo, Task
+from .models import DatabaseInfo, Task, User
 
 
 class DatabaseInfoSerializer(serializers.ModelSerializer):
@@ -17,6 +17,7 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'difficulty']
 
 
-class UserRegistrationSerializer(UserCreateSerializer):
-    class Meta(UserCreateSerializer.Meta):
-        fields = ('name', 'surname', 'student_group', 'email', 'password')
+class UserRegistrationSerializer(BaseUserRegistrationSerializer):
+    class Meta(BaseUserRegistrationSerializer.Meta):
+        model = User
+        fields = ('first_name', 'last_name', 'student_group', 'email', 'password')

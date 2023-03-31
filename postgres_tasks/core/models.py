@@ -2,23 +2,31 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 from .service.database_status import DatabaseStatus
+from .managers import UserManager
 
 
 class User(AbstractUser):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50)
-    surname = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=150)
     student_group = models.CharField(max_length=10)
     email = models.EmailField(unique=True)
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        blank=True, 
+        null=True
+    )
+    objects = UserManager()
 
-    REQUIRED_FIELDS = ['name', 'surname', 'student_group', 'username']
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'student_group']
     USERNAME_FIELD = 'email'
     
     def get_db_username(self):
         return self.email.split('@')[0]
     
     def __str__(self) -> str:
-        return f'{self.name} {self.surname}'
+        return f'{self.first_name} {self.last_name}'
 
 
 class Task(models.Model):
