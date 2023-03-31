@@ -162,5 +162,8 @@ AUTH_USER_MODEL = 'core.User'
 DJOSER = {
     'SERIALIZERS': {
         'user_create': 'core.serializers.UserRegistrationSerializer',
+    },
+    'PERMISSIONS': {
+        'user_delete': ['rest_framework.permissions.IsAdminUser'],
     }
 }
