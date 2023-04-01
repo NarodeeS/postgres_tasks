@@ -1,18 +1,26 @@
 <template>
-    <div class="card-task mb-3 bg-dark border-success">
+    <div class="card-task mb-3">
         <div class="card-body">
-            <h5 class="card-title custom-text">{{task.title}}</h5>
+            <div class="row justify-content-between ">
+                <div class="col-8">
+                    <h5 class="card-title custom-text">{{task.title}}</h5>
+                </div>
+                <div class="col-3" v-if="task.completed === true">
+                    <span class="badge rounded-pill text-bg-success">Passed</span>
+                </div>
+            </div>
             <p class="card-text text-white">{{task.difficulty}}</p>
             <p class="card-text text-white">{{task.description}}</p>
             <div class="row justify-content-between align-items-center">
-                <div class="col-6">
+                <div class="col-8">
                     <p class="card-text text-muted">Due Date: 12/31/2023</p>
                 </div>
-                <div class="col-6 text-end">
+                <div class="col-4 text-end">
                     <button class="btn btn-custom-green " @click="deployTask">Start task</button>
                 </div>
             </div>
         </div>
+        
     </div>
 </template>
 
@@ -44,6 +52,7 @@ export default defineComponent({
 .card-task {
   border-radius: 15px;
   box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid #1abc9c;
 }
 
 .card-title {
@@ -61,5 +70,9 @@ export default defineComponent({
   color: #1abc9c;
 }
 
+.badge{
+    color: black;
+  background-color: #ffc107;
+}
 
 </style>

@@ -1,3 +1,8 @@
+body {
+    background-color: #1c1e26;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
 
 #dilog-form{
     top: 0;
@@ -28,12 +33,6 @@
     background-color: #126958;
   }
 
-
-body {
-    background-color: #1c1e26;
-    color: #fff;
-    font-family: Arial, sans-serif;
-}
 
 .form-container {
     max-width: 400px;

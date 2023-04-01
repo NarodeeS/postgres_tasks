@@ -3,20 +3,18 @@
     
         <div id="main-part" class="container-fluid" v-if="is_auntificated === true">
                   <div class="row">
-                      <div class="col-4">
+                      <div class="col-4 tasks-control">
                           <h3>Задания:</h3>
                         <TaskListControlerComponent
                         :task_list="tasks" 
                         @deploy_task="deployTask"></TaskListControlerComponent>  
                       </div>
-                    <div class="col-8">
+                    <div class="col-8 console-control">
                     <div v-if="task_controler.selected_task_id != null">
                       <div v-if="task_controler.task_passed_with_eror === true">
                       <ErrorAlertComponent></ErrorAlertComponent>
                       </div>  
-                      
-                      <h3>Консоль:</h3>
-                        <ConsoleComponent 
+                        <ConsoleComponent
                               @send_command="sendCommand"
                               @end_task="sendTaskForChecking"
                               @close_task="endTaskWithoutChecking" 
@@ -78,9 +76,12 @@
       }, 
       setup() {
           const cookie = useCookie()
-          
+          const headers = {
+            Authorization: 'Token ' + cookie.getCookie("token")
+          }          
+
           let token = cookie.getCookie("token")
-     
+          const dbName = ref<null | string>(null);
           const is_auntificated = ref(false);
           const db_is_starting = ref(false);
           const task_controler = ref<TaskControler>({
@@ -91,28 +92,18 @@
           });
           const postgres_response_on_command = ref<PostgresCommandResponse>({
             status: "",
-            results: [],
+            result: [],
             columns: null,
-            error: "",
+            error_message: "",
           });
     
-          const tasks = ref<Task[]>([
-            {
-              id: 1,
-              title: "Task1",
-              description:
-                "Создать таблицу user с полями name, surname, age и внести в нее 2 строки",
-              difficulty: "Hard",
-            },
-          ]);
+          const tasks = ref<Task[]>([]);
       
 
           async function GeyTasks() {
             try {
               const response = await axios.get("api/tasks/", 
-              {   headers: {
-                'Authorization': 'Token ' + token
-              }});
+              {headers: headers});
               response.data.forEach((element: Task) => {
                 tasks.value.push(element);
               });
@@ -129,7 +120,7 @@
     
           async function endTaskWithoutChecking() {
                   try {
-                      await axios.delete("/db/test_db/")
+                    await axios.delete(`api/databases/${dbName.value}/` , {headers: headers})
                   } catch (err) {
                       console.log(err);
                       return
@@ -140,8 +131,8 @@
     
           function clearPostgresResponseFields() {
                   postgres_response_on_command.value.status = ""
-                  postgres_response_on_command.value.results = []
-                  postgres_response_on_command.value.error = ""
+                  postgres_response_on_command.value.result = []
+                  postgres_response_on_command.value.error_message = ""
                   postgres_response_on_command.value.columns = null
             }
           function clearFieldsAfterEndTaskWithoutChecking() {
@@ -157,14 +148,14 @@
                   }
                   prepareFieldsBeforeDeployingTask(id)
                   let selected_task = tasks.value.find(x => x.id === task_controler.value.selected_task_id)
-    
                   if (typeof selected_task === 'undefined'){
                     return
                   }
                   try {
-                      await axios.post(`/db/`,
-                      {"task_name": selected_task.title,},
-                            )
+                      const response = await axios.post(`/api/tasks/`,
+                      {"task_id": selected_task.id,},
+                      {headers: headers})
+                        dbName.value = response.data.db_name
     
                   } catch (err) {
                       console.error(err);
@@ -190,15 +181,13 @@
     
                       if (db_is_starting.value === false) {
                           return
-                      } else {
-                          console.log("db dont started")
-                      }
+                      } 
                   }
               }
     
           async function isDbStartedRequest() {
                 try {
-                    const response = await axios.get("/db/test_db/")
+                    const response = await axios.get(`api/databases/${dbName.value}/`, {headers: headers})
                     if (response.data.status === "up") {
                         db_is_starting.value = false;
                     }
@@ -210,18 +199,20 @@
             }
     
           function updatePostgresResponseFields(response: AxiosResponse) {
+            
                 let index = 1
                 postgres_response_on_command.value.status = response.data.status
+                postgres_response_on_command.value.error_message = response.data.error_message
+                postgres_response_on_command.value.columns = response.data.columns
+
                 response.data.result.forEach(function(el: any){
                       let raw = {
                         id : index,
                         data : el
                       } 
-                      postgres_response_on_command.value.results.push(raw)
+                      postgres_response_on_command.value.result.push(raw)
                       index += 1
                     })
-      
-                postgres_response_on_command.value.columns = response.data.columns
             }
       
           async function sendCommand(commnad: string) {
@@ -229,8 +220,9 @@
               task_controler.value.task_passed_with_eror = false
     
               try {
-                  const response = await axios.post("/db/test_db/command/",
-                      { "command": commnad }
+                  const response = await axios.post(`/api/databases/${dbName.value}/command/`,
+                      { "command": commnad }, 
+                      {headers: headers}
                   )
                   updatePostgresResponseFields(response)
               }
@@ -240,15 +232,21 @@
                   }
                   else {
                     if (typeof (err.response.data) != "undefined")
-                        postgres_response_on_command.value.error = err.response.data.error
+                        postgres_response_on_command.value.error_message = err.response.data.error
                    } 
-            }
+              }
           }
           
           async function sendTaskForChecking() {
               try {
-                  await axios.post("/db/test_db/check/")
+                  const response = await axios.post(`/api/databases/${dbName.value}/check/`, {}, {headers: headers})
+                  if (response.data.detail === "Check error") {
+                      task_controler.value.task_passed_with_eror = true
+                      return
+                  }
                   clearPostgresResponseFields()
+                  let selected_task = tasks.value.find(x => x.id === task_controler.value.selected_task_id)!
+                  selected_task.completed = true
                   updateFieldsAfterSucses()
               }
               catch (err) {
@@ -275,8 +273,19 @@
       },
     });
     </script>
-    
-    <style>
-    
-    </style>
-    
+
+<style>
+.tasks-control{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.console-control{
+    flex-direction: column;
+    align-items: center; 
+    margin-top: 60px;
+}
+</style>
