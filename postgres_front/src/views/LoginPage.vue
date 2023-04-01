@@ -17,7 +17,7 @@
                   <div class="form-group">
                       <div class="custom-control custom-checkbox">
                           <input type="checkbox" class="custom-control-input" id="remember">
-                          <label class="custom-control-label" for="remember">Remember me</label>
+                          <!-- <label class="custom-control-label" for="remember">Remember me</label> -->
                       </div>
                   </div>
                   <div v-if="error !== null" class="alert alert-danger alert-dismissible fade show" role="alert">

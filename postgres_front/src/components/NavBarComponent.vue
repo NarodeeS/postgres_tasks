@@ -27,6 +27,9 @@
           <li v-if="is_authenticated == true" class="nav-item">
             <a class="nav-link" @click="Logout">Logout</a>
           </li>
+          <li v-if="is_authenticated == true" class="nav-item">
+            <a class="nav-link" @click="$router.push({name: 'account'})">Account</a>
+          </li>
           <li v-else class="nav-item">
             <a class="nav-link" @click="$router.push({name: 'login'})">Login</a>
           </li>

@@ -3,20 +3,18 @@
     
         <div id="main-part" class="container-fluid" v-if="is_auntificated === true">
                   <div class="row">
-                      <div class="col-4">
+                      <div class="col-4 tasks-control">
                           <h3>Задания:</h3>
                         <TaskListControlerComponent
                         :task_list="tasks" 
                         @deploy_task="deployTask"></TaskListControlerComponent>  
                       </div>
-                    <div class="col-8">
+                    <div class="col-8 console-control">
                     <div v-if="task_controler.selected_task_id != null">
                       <div v-if="task_controler.task_passed_with_eror === true">
                       <ErrorAlertComponent></ErrorAlertComponent>
                       </div>  
-                      
-                      <h3>Консоль:</h3>
-                        <ConsoleComponent 
+                        <ConsoleComponent
                               @send_command="sendCommand"
                               @end_task="sendTaskForChecking"
                               @close_task="endTaskWithoutChecking" 
@@ -83,7 +81,6 @@
           }          
 
           let token = cookie.getCookie("token")
-     
           const dbName = ref<null | string>(null);
           const is_auntificated = ref(false);
           const db_is_starting = ref(false);
@@ -151,7 +148,6 @@
                   }
                   prepareFieldsBeforeDeployingTask(id)
                   let selected_task = tasks.value.find(x => x.id === task_controler.value.selected_task_id)
-    
                   if (typeof selected_task === 'undefined'){
                     return
                   }
@@ -228,7 +224,6 @@
                       { "command": commnad }, 
                       {headers: headers}
                   )
-                  console.log(response)
                   updatePostgresResponseFields(response)
               }
               catch (err: any) {
@@ -244,8 +239,14 @@
           
           async function sendTaskForChecking() {
               try {
-                  await axios.post(`/api/databases/${dbName.value}/check/`, {}, {headers: headers})
+                  const response = await axios.post(`/api/databases/${dbName.value}/check/`, {}, {headers: headers})
+                  if (response.data.detail === "Check error") {
+                      task_controler.value.task_passed_with_eror = true
+                      return
+                  }
                   clearPostgresResponseFields()
+                  let selected_task = tasks.value.find(x => x.id === task_controler.value.selected_task_id)!
+                  selected_task.completed = true
                   updateFieldsAfterSucses()
               }
               catch (err) {
@@ -272,8 +273,19 @@
       },
     });
     </script>
-    
-    <style>
-    
-    </style>
-    
+
+<style>
+.tasks-control{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.console-control{
+    flex-direction: column;
+    align-items: center; 
+    margin-top: 60px;
+}
+</style>
