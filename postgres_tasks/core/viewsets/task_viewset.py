@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from core.models import Task, CompletedTask
 from core.serializers import TaskSerializer
 from core.utils.raise_if_not_exsts import raise_if_not_exists
-from core.utils.check_db_creation_ability import check_db_creation_ability
+from core.utils.database_exists import database_exists
 from core.celery_tasks import create_db
 
 
@@ -50,12 +50,10 @@ class TaskViewSet(viewsets.ViewSet):
         user = request.user
         task: Task = Task.objects.filter(id=task_id).first() # type: ignore
         raise_if_not_exists(task, 'No such task')
-        
-        if (err_info := check_db_creation_ability(user.id)) is None:
-            db_name = f"{'_'.join(task.title.split(' ')).lower()}_{user.id}"
+
+        db_name = f"{'_'.join(task.title.split(' ')).lower()}_{user.id}"
+        if not database_exists(user.id):
             create_db.delay(request.user.id, task.id, db_name)
             
-            return Response(data={'detail': 'OK', 'db_name': db_name}, 
-                            status=status.HTTP_200_OK)
-    
-        return Response(**err_info)
+        return Response(data={'detail': 'OK', 'db_name': db_name}, 
+                        status=status.HTTP_200_OK)
