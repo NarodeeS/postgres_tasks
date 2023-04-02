@@ -48,7 +48,7 @@ import router from '../router';
 export default defineComponent({
     emits:{
       login: (email: string, password: string) => true
-  },
+      },
 
     setup(_, { emit }) {
         const errorInRegistrartion = ref<null | string>(null)
@@ -62,7 +62,7 @@ export default defineComponent({
         })
         
         function CheckFields(): boolean {
-            if (accountForm.value.first_name === '' || accountForm.value.last_name === '' || accountForm.value.group === '' || accountForm.value.email === '' || accountForm.value.password === '' || accountForm.value.repeat_password === '') {
+            if (accountForm.value.first_name === '' || accountForm.value.last_name === '' || accountForm.value.student_group === '' || accountForm.value.email === '' || accountForm.value.password === '' || accountForm.value.repeat_password === ''){
                return false
             }
             if (accountForm.value.password !== accountForm.value.repeat_password) {
