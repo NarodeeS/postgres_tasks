@@ -2,6 +2,7 @@
 FROM node:lts-alpine as build-stage
 WORKDIR /app
 ENV NODE_MODE=production
+ENV VUE_APP_BASE_URL=localhost:8080
 COPY package*.json ./
 RUN npm install
 COPY . .
