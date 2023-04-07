@@ -5,7 +5,8 @@ interface PostgersCommandResponse {
   status: string,
   columns: string[] | null,
   result: PostgresResultResponse[],
-  error_message: string
+  error_message: string,
+  command: string
 }
 
 export default  PostgersCommandResponse

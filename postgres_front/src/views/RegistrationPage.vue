@@ -81,14 +81,12 @@ export default defineComponent({
             if (!CheckFields()) {
                 return
             }
-            console.log(accountForm.value)
             try{
                 const response = await axios.post('api/auth/users/', accountForm.value)
                 emit('login', accountForm.value.email, accountForm.value.password)
                 router.push({name: 'account'})
             }
             catch (error : any) {
-                console.log(error)
                 if (error.response.data.password !== undefined) {
                     errorInRegistrartion.value =error.response.data.password[0]
                     return

@@ -34,25 +34,27 @@
             <div>PostgreSQL Terminal</div>
             <div><i class="fas fa-power-off"></i></div>
           </div>
-          <div class="terminal-body">
-            <p>Welcome to PostgreSQL Terminal!</p>
-            <p><span class="terminal-prompt">$</span> <span class="user-input"></span></p>
+          <div class="terminal-body" 
+           id="terminal">
+            <p v-if="response_from_postgres_list.length === 0" >Welcome to PostgreSQL Terminal!</p>
+            <p v-if="response_from_postgres_list.length === 0"><span class="terminal-prompt">$</span> <span class="user-input"></span></p>
 
-            <div class="console-line" v-if="previous_command !== ''">
-              <strong><span class="console-prompt">postgres=#</span> {{ previous_command}}</strong>
+            <div v-for="one_commnad in response_from_postgres_list" v-bind:key="one_commnad.status">
+              <div class="console-line" >
+                <strong><span class="console-prompt">postgres=#</span> {{ one_commnad.command}}</strong>
+              </div>
+              <TableComponent v-if="one_commnad.columns !== null" id="console-table"
+                          :dataResults="one_commnad.result"
+                          :dataColumns="one_commnad.columns"
+                      ></TableComponent>
+              <blockquote class="blockquote">
+                  <p>{{one_commnad.status}}</p>
+              </blockquote>
+
+              <blockquote class="blockquote">
+                  <p>{{one_commnad.error_message}}</p>
+              </blockquote> 
             </div>
-            <TableComponent id="console-table"
-                        :dataResults="response_from_postgres.result"
-                        :dataColumns="response_from_postgres.columns"
-                    ></TableComponent>
-            <blockquote class="blockquote">
-                <p>{{response_from_postgres.status}}</p>
-            </blockquote>
-
-            <blockquote class="blockquote">
-                <p>{{response_from_postgres.error_message}}</p>
-            </blockquote> 
-
           </div >
             <div class="input-container">
               <label for="input-field" class="input-label">Input:</label>
@@ -72,7 +74,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent,nextTick, ref } from 'vue'
 import type { PropType } from 'vue'
 import type PostgersCommandResponse from '@/types/PostgresCommandResponse';
 import TableComponent from '@/components/TableComponent.vue';
@@ -86,27 +88,35 @@ export default defineComponent({
             required: true,
             type: Boolean
         },
-        response_from_postgres: {
+        response_from_postgres_list: {
             required: true,
-            type : Object as PropType<PostgersCommandResponse> 
+            type : Object as PropType<PostgersCommandResponse[]> 
         },
     },
+    watch:{
+      response_from_postgres_list:{
+        handler:async function (val, oldVal) {
+          var element = document.getElementById("terminal")!;
+          await nextTick()
+          element.scrollTop = element.scrollHeight;
+      },
+      deep: true
+      } 
+    },
+
     emits:{
         close_task: () => true,
         end_task: () => true,
         send_command: (command: string) => true
     },
-    
     setup(_, {emit}) {
-
-        const previous_command = ref("")
+  
         const command = ref("")
         function closeTask() {
             emit('close_task')
         }
         function sendCommand() {
             emit('send_command', command.value)
-            previous_command.value = command.value
             command.value = ""
         }
 
@@ -116,7 +126,6 @@ export default defineComponent({
 
         return {
             command,
-            previous_command,
             closeTask,
             sendCommand,
              endTask
@@ -152,6 +161,7 @@ export default defineComponent({
   padding: 10px;
   overflow-y: scroll;
   height: 300px;
+  display: block;
   resize: vertical;
   overflow: auto;
 }
