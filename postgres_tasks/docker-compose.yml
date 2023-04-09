@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  django:
+      container_name: django
+      restart: unless-stopped
+      build: postgres_tasks
+      env_file:
+        - ./.env
+      volumes:
+        - ./postgres_tasks:/server  # remove in prod
+      ports:
+        - 8000:8000
+      networks:
+        - backend-network
+      command: python manage.py runserver 0.0.0.0:8000
+
+  celery:
+      container_name: worker
+      restart: unless-stopped
+      build: postgres_tasks
+      env_file:
+        - ./.env
+      volumes:
+        - ./postgres_tasks:/server  # remove in prod
+        - ./postgres_tasks/supervisor/supervisord.conf:/etc/supervisor/supervisord.conf
+        - ./postgres_tasks/supervisor/logs:/var/log
+      ports:
+        - 5555:5555
+      networks:
+        - rabbit-network
+        - backend-network
+      command: supervisord
+
+networks:
+  monitoring-network:
+  rabbit-network:
+  backend-network:
+  frontend-network:
