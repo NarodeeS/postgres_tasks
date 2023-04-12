@@ -22,7 +22,8 @@ export default defineComponent({
     },
 
     mounted(){
-        axios.defaults.baseURL = `http://localhost:8000/`
+
+        axios.defaults.baseURL = `http://localhost:80/`
         axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
         axios.defaults.xsrfCookieName = "csrftoken";
         axios.defaults.withCredentials = true;    

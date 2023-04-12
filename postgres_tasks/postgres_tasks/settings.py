@@ -14,9 +14,9 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
     'rest_framework.authtoken',
     "django.contrib.auth",
+    "django.contrib.admin",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
@@ -56,6 +56,8 @@ ROOT_URLCONF = "postgres_tasks.urls"
 #     "http://localhost:8000",
 #     "http://localhost:8080",
 # ]
+CSRF_TRUSTED_ORIGINS = ['http://localhost', 'https://localhost']
+
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
@@ -79,7 +81,7 @@ WSGI_APPLICATION = "postgres_tasks.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django_prometheus.db.backends.postgresql",
+        "ENGINE": "django.db.backends.postgresql",
         "HOST": "postgres_django",
         "PORT": "5432",
         "USER": os.getenv("POSTGRES_USER"),
@@ -123,8 +125,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "/static/"
-
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
+STATIC_ROOT = BASE_DIR / 'static'
+# STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

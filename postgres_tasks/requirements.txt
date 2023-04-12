@@ -30,3 +30,4 @@ Pillow==9.4.0
 djoser==2.1.0
 django-prometheus==2.2.0
 prometheus-client==0.16.0
+supervisor==4.2.5
