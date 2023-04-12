@@ -20,7 +20,7 @@
                               @close_task="endTaskWithoutChecking" 
                               :db_is_starting="db_is_starting"
                               :task_passed_with_eror="task_controler.task_passed_with_eror"
-                              :response_from_postgres="postgres_response_on_command"></ConsoleComponent>
+                              :response_from_postgres_list="postgresResponseHistory"></ConsoleComponent>
                       </div>
                       <div v-else-if="task_controler.task_is_passed === true">
                           <SucessAlertComponent></SucessAlertComponent>
@@ -56,6 +56,7 @@
           ErrorAlertComponent,
         },
       mounted() {
+
           axios.defaults.baseURL = `http://localhost:80/`
           axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
           axios.defaults.xsrfCookieName = "csrftoken";
@@ -90,12 +91,7 @@
             task_is_passed: false,
             task_passed_with_eror: false,
           });
-          const postgres_response_on_command = ref<PostgresCommandResponse>({
-            status: "",
-            result: [],
-            columns: null,
-            error_message: "",
-          });
+          const postgresResponseHistory = ref<PostgresCommandResponse[]>([]);
     
           const tasks = ref<Task[]>([]);
       
@@ -121,20 +117,13 @@
           async function endTaskWithoutChecking() {
                   try {
                     await axios.delete(`api/databases/${dbName.value}/` , {headers: headers})
+                    postgresResponseHistory.value = []
                   } catch (err) {
-                      console.log(err);
                       return
                   }
                   clearFieldsAfterEndTaskWithoutChecking()
-                  clearPostgresResponseFields()
               }
-    
-          function clearPostgresResponseFields() {
-                  postgres_response_on_command.value.status = ""
-                  postgres_response_on_command.value.result = []
-                  postgres_response_on_command.value.error_message = ""
-                  postgres_response_on_command.value.columns = null
-            }
+  
           function clearFieldsAfterEndTaskWithoutChecking() {
                   task_controler.value.selected_task_id = null
                   task_controler.value.task_is_passed = false
@@ -158,7 +147,8 @@
                         dbName.value = response.data.db_name
     
                   } catch (err) {
-                      console.error(err);
+                     alert("Ошибка при создании базы данных")
+                     return
                   }
                   checkIsDbStarted()
           }
@@ -168,7 +158,6 @@
                   task_controler.value.task_is_passed = false
                   task_controler.value.task_passed_with_eror = false
               }
-    
     
           async function checkIsDbStarted() {
                   await delay(1000);
@@ -198,42 +187,43 @@
                 }
             }
     
-          function updatePostgresResponseFields(response: AxiosResponse) {
-            
+          function updatePostgresResponseFields(response: AxiosResponse, command: string) {
                 let index = 1
-                postgres_response_on_command.value.status = response.data.status
-                postgres_response_on_command.value.error_message = response.data.error_message
-                postgres_response_on_command.value.columns = response.data.columns
+                let new_response: PostgresCommandResponse = {
+                  status: response.data.status,
+                  result: [],
+                  error_message: response.data.error_message,
+                  columns: response.data.columns,
+                  command: command
+                }
 
-                response.data.result.forEach(function(el: any){
+                if(response.data.result !== null){
+                  response.data.result.forEach(function(el: any){
                       let raw = {
                         id : index,
                         data : el
                       } 
-                      postgres_response_on_command.value.result.push(raw)
+                      new_response.result.push(raw)
                       index += 1
                     })
+                }
+            
+                postgresResponseHistory.value.push(new_response)
             }
       
-          async function sendCommand(commnad: string) {
-              clearPostgresResponseFields()
+          async function sendCommand(command: string) {
               task_controler.value.task_passed_with_eror = false
     
               try {
                   const response = await axios.post(`/api/databases/${dbName.value}/command/`,
-                      { "command": commnad }, 
+                      { "command": command }, 
                       {headers: headers}
                   )
-                  updatePostgresResponseFields(response)
+                  updatePostgresResponseFields(response, command)
               }
               catch (err: any) {
-                  if (err !instanceof TypeError){
-                    return
-                  }
-                  else {
-                    if (typeof (err.response.data) != "undefined")
-                        postgres_response_on_command.value.error_message = err.response.data.error
-                   } 
+                  alert("Ошибка при выполнении команды")
+                  return
               }
           }
           
@@ -244,7 +234,7 @@
                       task_controler.value.task_passed_with_eror = true
                       return
                   }
-                  clearPostgresResponseFields()
+                  postgresResponseHistory.value = []
                   let selected_task = tasks.value.find(x => x.id === task_controler.value.selected_task_id)!
                   selected_task.completed = true
                   updateFieldsAfterSucses()
@@ -262,7 +252,7 @@
           is_auntificated,
           db_is_starting,
           task_controler,
-          postgres_response_on_command,
+          postgresResponseHistory,
           tasks,
           deployTask,
           sendCommand,
@@ -278,8 +268,8 @@
 .tasks-control{
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    /* align-items: center;
+    justify-content: center; */
     margin-top: 20px;
 }
 
