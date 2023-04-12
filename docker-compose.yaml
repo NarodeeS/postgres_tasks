@@ -49,8 +49,7 @@ services:
             - ./.env
         build:
             context: postgres_front/
-        ports:
-            - 8080:8080
+        ports: ['192.168.43.248:8000:8000']
         volumes:
             - ./postgres_front:/app
 
