@@ -14,9 +14,9 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
     'rest_framework.authtoken',
     "django.contrib.auth",
+    "django.contrib.admin",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
@@ -79,7 +79,7 @@ WSGI_APPLICATION = "postgres_tasks.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django_prometheus.db.backends.postgresql",
+        "ENGINE": "django.db.backends.postgresql",
         "HOST": "postgres_django",
         "PORT": "5432",
         "USER": os.getenv("POSTGRES_USER"),
