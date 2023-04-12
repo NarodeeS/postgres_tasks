@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  postgres:
+    container_name: postgres_django
+    image: postgres
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    networks:
+      - backend-network
+    env_file:
+      - ./.env
+
+  sandbox_postgres:
+    container_name: sandbox_postgres
+    image: postgres
+    restart: unless-stopped
+    ports:
+      - 54321:5432
+    networks:
+      - backend-network
+    env_file:
+      - ./.env
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    networks:
+      - rabbit-network
+      - monitoring-network
+    ports:
+      - 15672:15672
+      - 15692:15692
+    env_file:
+      - ./.env
+
+networks:
+  monitoring-network:
+  rabbit-network:
+  backend-network:
+  frontend-network:

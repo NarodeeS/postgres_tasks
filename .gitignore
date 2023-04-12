@@ -1,5 +1,6 @@
-grafana/data/*
+*/grafana/data/*
 media/
+static/
 .DS_Store
 # Byte-compiled / optimized / DLL files
 __pycache__/
