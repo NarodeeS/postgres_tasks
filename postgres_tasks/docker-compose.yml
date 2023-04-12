@@ -11,6 +11,7 @@ services:
         - ./postgres_tasks:/server  # remove in prod
         - ./postgres_tasks/supervisor/supervisord.conf:/etc/supervisor/supervisord.conf
         - ./postgres_tasks/supervisor/logs:/var/log
+        -  django_static_volume:/server/static
       ports:
         - 8000:8000
       networks:
@@ -23,3 +24,6 @@ networks:
   rabbit-network:
   backend-network:
   frontend-network:
+
+volumes:
+  django_static_volume:

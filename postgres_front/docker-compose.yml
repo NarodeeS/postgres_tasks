@@ -15,6 +15,7 @@ services:
     volumes:
       - ./postgres_front:/app
       - ./postgres_front/nginx:/etc/nginx/conf.d
+      - django_static_volume:/www/data/static
   
   nginx-exporter:
     container_name: nginx-exporter
@@ -32,3 +33,6 @@ networks:
   rabbit-network:
   backend-network:
   frontend-network:
+
+volumes:
+  django_static_volume:
