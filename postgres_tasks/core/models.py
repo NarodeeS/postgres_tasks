@@ -7,6 +7,7 @@ from .managers import UserManager
 
 class User(AbstractUser):
     id = models.AutoField(primary_key=True)
+    
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
     student_group = models.CharField(max_length=10)
@@ -31,9 +32,11 @@ class User(AbstractUser):
 
 class Task(models.Model):
     id = models.AutoField(primary_key=True)
+    
     title = models.CharField(max_length=50, unique=True)
     description = models.TextField()
     difficulty = models.IntegerField()
+    moves_count = models.IntegerField()
     creation_script = models.FileField(upload_to='creation_scripts')
     check_script = models.FileField(upload_to='check_scripts')
     db_structure = models.ImageField(upload_to='dbs_structure')
@@ -58,12 +61,22 @@ class CompletedTask(models.Model):
 
 class DatabaseInfo(models.Model):
     id = models.AutoField(primary_key=True)
+    
     db_name = models.CharField(max_length=50, unique=True)
     status = models.CharField(max_length=10, default=DatabaseStatus.DOWN.value)
     db_password = models.CharField(max_length=10)
+    moves_performed = models.IntegerField(default=0)
     
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    @property
+    def moves_left(self) -> int:
+        return self.task.moves_count - self.moves_performed
+    
+    def increment_moves(self):
+        self.moves_performed += 1
+        self.save()
 
     def __str__(self) -> str:
         return self.db_name

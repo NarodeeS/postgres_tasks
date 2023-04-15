@@ -3,4 +3,4 @@ class NoSuchDbError(Exception):
         self.db_name = db_name
     
     def __str__(self) -> str:
-        return f"can't find '{self.db_name}' db"
+        return f"Can't find '{self.db_name}' db"

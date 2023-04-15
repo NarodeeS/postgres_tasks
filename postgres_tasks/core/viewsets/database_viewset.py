@@ -9,7 +9,7 @@ from core.permissions import IsOwner
 from core.celery_tasks import delete_db
 from core.service.send_sql_command import send_sql_command
 from core.service.check_task import check_task
-from core.service.errors import NoSuchDbError
+from core.service.errors import NoSuchDbError, OutOfMovesError
 from core.service.utils.finish_task import finish_task
 from core.utils.raise_if_not_exsts import raise_if_not_exists
 
@@ -48,7 +48,7 @@ class DatabaseViewSet(mixins.CreateModelMixin,
             
         try:
             result = send_sql_command(db_name, sql_query)
-        except NoSuchDbError as error:
+        except (NoSuchDbError, OutOfMovesError) as error:
             return Response(data={'error': str(error)}, 
                             status=status.HTTP_400_BAD_REQUEST)
             

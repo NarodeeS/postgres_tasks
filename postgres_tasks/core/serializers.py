@@ -7,14 +7,13 @@ from .models import DatabaseInfo, Task, User
 class DatabaseInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = DatabaseInfo
-        exclude = ['db_password', 'task', 'user']
-        read_only_fields = ['id', 'db_name', 'status']
+        fields = ('id', 'db_name', 'status', 'moves_left')
 
 
-class TaskSerializer(serializers.ModelSerializer):
+class TaskGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'difficulty']
+        fields = ('id', 'title', 'description', 'difficulty')
 
 
 class UserRegistrationSerializer(BaseUserRegistrationSerializer):
