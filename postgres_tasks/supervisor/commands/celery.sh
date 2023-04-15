@@ -1,0 +1,1 @@
+celery -A postgres_tasks worker -l INFO --concurrency=4

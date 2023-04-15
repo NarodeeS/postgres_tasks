@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django
+spec:
+  selector:
+    matchLabels:
+      app: django
+  template:
+    metadata:
+      labels:
+        app: django
+    spec:
+      containers:
+      - name: django
+        image: narodees/postgres_tasks-django # custom image
+        command: ["supervisord"]
+        resources:
+          limits:
+            memory: "1500Mi"
+            cpu: "1"
+        ports:
+          - containerPort: 8000
+        env:
+          - name: DJANGO_SECRET_KEY
+            valueFrom:
+              configMapKeyRef:
+                name: my-config
+                key: DJANGO_SECRET_KEY
+          - name: DEBUG
+            valueFrom:
+              configMapKeyRef:
+                name: my-config
+                key: DEBUG
+          - name: POSTGRES_USER
+            valueFrom:
+              configMapKeyRef:
+                name: my-config
+                key: POSTGRES_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: my-config
+                key: POSTGRES_PASSWORD
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: my-config
+                key: POSTGRES_DB
+          - name: RABBITMQ_DEFAULT_USER
+            valueFrom:
+              configMapKeyRef:
+                name: my-config
+                key: RABBITMQ_DEFAULT_USER
+          - name: RABBITMQ_DEFAULT_PASS
+            valueFrom:
+              configMapKeyRef:
+                name: my-config
+                key: RABBITMQ_DEFAULT_PASS
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django
+spec:
+  selector:
+    app: django
+  ports:
+    - port: 8000
+      targetPort: 8000

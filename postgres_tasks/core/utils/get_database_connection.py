@@ -4,7 +4,7 @@ from psycopg2 import connect, extensions
 
 
 def get_database_connection(db_name: str, username: str, password: str):
-    connection = connect(host='sandbox_postgres',
+    connection = connect(host='sandbox-postgres',
                          port=5432,
                          user=username,
                          password=password,

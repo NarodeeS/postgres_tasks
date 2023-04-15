@@ -8,8 +8,6 @@ services:
       env_file:
         - ./.env
       volumes:
-        - ./postgres_tasks:/server  # remove in prod
-        - ./postgres_tasks/supervisor/supervisord.conf:/etc/supervisor/supervisord.conf
         - ./postgres_tasks/supervisor/logs:/var/log
         -  django_static_volume:/server/static
       ports:

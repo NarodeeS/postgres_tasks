@@ -3,15 +3,13 @@ version: '3.9'
 services:
   prometheus:
       container_name: prometheus
-      image: prom/prometheus
+      build: monitoring/prometheus
       ports:
          - 9090:9090
       networks:
         - monitoring-network
         - backend-network
         - frontend-network
-      volumes:
-        - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 
   grafana:
       container_name: grafana
@@ -20,8 +18,6 @@ services:
         - 3000:3000
       networks:
         - monitoring-network
-      volumes:
-        - ./monitoring/grafana/data:/var/lib/grafana
 
 networks:
   monitoring-network:

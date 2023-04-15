@@ -13,8 +13,6 @@ services:
       - frontend-network
       - backend-network
     volumes:
-      - ./postgres_front:/app
-      - ./postgres_front/nginx:/etc/nginx/conf.d
       - django_static_volume:/www/data/static
   
   nginx-exporter:
