@@ -4,6 +4,7 @@ import psycopg2
 
 from core.utils.get_database_connection import get_database_connection
 from core.utils.connection_manager import ConnectionManager
+from core.models import DatabaseInfo
 from .utils.get_db_info import get_db_info
 
 
@@ -28,6 +29,7 @@ def send_sql_command(db_name: str, command: str) -> QueryResult:
     with ConnectionManager(connection):
         with connection.cursor() as cursor:
             try:
+                # check attempts amount
                 cursor.execute(command)
                 result = cursor.fetchall()
                 column_names = [descr_row[0] for descr_row in cursor.description]

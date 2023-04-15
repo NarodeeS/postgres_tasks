@@ -1,8 +1,8 @@
 version: "3.9"
 
 services:
-  postgres:
-    container_name: postgres_django
+  django-postgres:
+    container_name: django-postgres
     image: postgres
     restart: unless-stopped
     ports:
@@ -12,8 +12,8 @@ services:
     env_file:
       - ./.env
 
-  sandbox_postgres:
-    container_name: sandbox_postgres
+  sandbox-postgres:
+    container_name: sandbox-postgres
     image: postgres
     restart: unless-stopped
     ports:
