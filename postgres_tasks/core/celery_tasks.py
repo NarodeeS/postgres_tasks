@@ -4,7 +4,8 @@ import psycopg2
 import postgres_tasks.settings as settings
 from random import randrange
 from postgres_tasks.celery import app
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, send_mail
+from django.template.loader import render_to_string
 from socket import gaierror
 from django.core.cache import cache
 
@@ -64,19 +65,19 @@ def delete_db(db_name: str) -> None:
 
 @app.task
 def send_verification_email(email: str) -> None:
-    subject, from_email, to = "hello", settings.EMAIL_HOST_USER, email
-    text_content = "This is an important message."
-    
     number_for_verification = randrange(1000, 9999)
-    print(number_for_verification)
-    cache.set(email, number_for_verification)
+    cache.set(email, number_for_verification, 60000)
+    print(settings.EMAIL_HOST_USER)
+    print(settings.EMAIL_HOST_PASSWORD)
+    print(email)
 
-    html_content = f"<p>This is an <strong>important {number_for_verification}</strong> message.</p>"
-    msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-    msg.attach_alternative(html_content, "text/html")
+    msg_html = render_to_string('core/email_template.html', {'number_for_verification': number_for_verification})
 
-    try:
-        msg.send()
-    except gaierror as e:
-        print(e)
-
+    send_mail(
+        "Subject here",
+        "Here is the message.",
+        settings.EMAIL_HOST_USER,
+        [email],
+        fail_silently=False,
+        html_message=msg_html,
+    )

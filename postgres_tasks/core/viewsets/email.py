@@ -1,13 +1,40 @@
 from rest_framework.views import APIView
+from rest_framework import status
 from rest_framework.response import Response
-from core.celery_tasks import send_verification_email 
+
+from core.models import User
 from django.core.cache import cache
 
 
 class EamilApiView(APIView):
 
-    def get(self, request):
-        email = "angron2002@mail.ru"
-        print(cache.get(email))
-        send_verification_email.delay(email)
-        return Response({'message': ' was send'})
+    def post(self, request):
+        try:
+            email = request.data["email"]
+        except KeyError:
+            return Response(data={'error': 'Need to specify email'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        try:
+            key = request.data["key"]
+        except KeyError:
+            return Response(data={'error': 'Need to specify key'},
+                            status=status.HTTP_400_BAD_REQUEST) 
+        
+        cashed_key = cache.get(email)
+
+        if cashed_key != int(key):
+            return Response(data={'error': 'Wrong key'},
+                            status=status.HTTP_400_BAD_REQUEST) 
+        
+        user = User.objects.filter(email=email).first()
+        print(user)
+        if not user:
+            return Response(data={'error': 'No such user'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        user.email_confirmed = True
+        user.save()
+        cache.delete(email)
+
+        return Response(data={'detail': 'OK'}, 
+                            status=status.HTTP_200_OK)
+

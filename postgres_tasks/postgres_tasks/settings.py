@@ -59,7 +59,7 @@ CORS_ALLOW_CREDENTIALS = True
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "core.templates"],
+        "DIRS": [BASE_DIR / "templates" ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -100,8 +100,7 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': BASE_DIR / 'cache', 
-                   # for windows users: 'c:/path/to/django_cache'
+        'LOCATION': BASE_DIR / 'cache' 
     }
 }
 
@@ -126,10 +125,14 @@ AUTH_PASSWORD_VALIDATORS = [
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
+# EMAIL_PORT = 587
+
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+
+EMAIL_TIMEOUT = 60  
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'krakazabra2906@gmail.com'
-EMAIL_HOST_PASSWORD = 'nyegbkzvcibsbotk'
+EMAIL_USE_SSL = False
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/

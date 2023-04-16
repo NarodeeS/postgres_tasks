@@ -6,6 +6,7 @@ __pycache__/
 *$py.class
 
 cache/
+grafana/
 */grafana/data/*
 pyrightconfig.json
 # C extensions
