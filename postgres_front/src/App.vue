@@ -22,7 +22,8 @@ export default defineComponent({
     },
 
     mounted(){
-        axios.defaults.baseURL = `http://${process.env.VUE_APP_BASE_URL}:8000/`
+        // axios.defaults.baseURL = `http://${process.env.VUE_APP_BASE_URL}:8000/`
+        axios.defaults.baseURL = `http://localhost:8000/`
         axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
         axios.defaults.xsrfCookieName = "csrftoken";
         axios.defaults.withCredentials = true;    
@@ -69,11 +70,6 @@ export default defineComponent({
     
         async function Login(email: string, password: string){
           errorInLogin.value = null
-          if (email == '' || password == ''){
-            errorInLogin.value = "Login or password is empty"
-            return
-          }
-
           try{
             const response = await axios.post('api/auth/token/login/', {
               email: email,

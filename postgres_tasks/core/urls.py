@@ -14,5 +14,5 @@ router.register('tasks', TaskViewSet, basename='task')
 urlpatterns = router.urls
 
 urlpatterns += [
-    path('test_email/', EamilApiView.as_view()),
+    path('email/verification/', EamilApiView.as_view()),
 ]

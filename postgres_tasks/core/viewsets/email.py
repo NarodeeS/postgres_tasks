@@ -21,6 +21,7 @@ class EamilApiView(APIView):
                             status=status.HTTP_400_BAD_REQUEST) 
         
         cashed_key = cache.get(email)
+        print(cashed_key)
 
         if cashed_key != int(key):
             return Response(data={'error': 'Wrong key'},

@@ -67,9 +67,6 @@ def delete_db(db_name: str) -> None:
 def send_verification_email(email: str) -> None:
     number_for_verification = randrange(1000, 9999)
     cache.set(email, number_for_verification, 60000)
-    print(settings.EMAIL_HOST_USER)
-    print(settings.EMAIL_HOST_PASSWORD)
-    print(email)
 
     msg_html = render_to_string('core/email_template.html', {'number_for_verification': number_for_verification})
 
