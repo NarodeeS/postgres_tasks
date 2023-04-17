@@ -1,17 +1,19 @@
-import os
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+from config import (DJANGO_SECRET_KEY, DEBUG, 
+                    POSTGRES_USER, 
+                    POSTGRES_PASSWORD,
+                    RABBITMQ_DEFAULT_USER, 
+                    RABBITMQ_DEFAULT_PASS)
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+SECRET_KEY = DJANGO_SECRET_KEY
 
-DEBUG = bool(os.getenv("DEBUG"))
+DEBUG = DEBUG
 
 ALLOWED_HOSTS = ["*"]
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'rest_framework.authtoken',
@@ -27,7 +29,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "core",
 ]
-
 
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
@@ -84,8 +85,8 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "HOST": "django-postgres",
         "PORT": "5432",
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "USER": POSTGRES_USER,
+        "PASSWORD": POSTGRES_PASSWORD,
         "NAME": "postgres",
     }
 }
@@ -118,7 +119,7 @@ TIME_ZONE = "UTC"
 
 USE_I18N = True
 
-USE_TZ = True
+# USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
@@ -135,8 +136,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # настройки celery
 CELERY_BROKER_URL = (
-    f"amqp://{os.getenv('RABBITMQ_DEFAULT_USER')}"
-    f":{os.getenv('RABBITMQ_DEFAULT_PASS')}@rabbitmq:5672"
+    f"amqp://{RABBITMQ_DEFAULT_USER}"
+    f":{RABBITMQ_DEFAULT_PASS}@rabbitmq:5672"
 )
 
 MEDIA_ROOT = BASE_DIR / 'media'

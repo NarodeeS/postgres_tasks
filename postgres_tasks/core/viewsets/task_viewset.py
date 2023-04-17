@@ -5,7 +5,7 @@ from core.models import Task, CompletedTask
 from core.serializers import TaskGetSerializer
 from core.utils.raise_if_not_exsts import raise_if_not_exists
 from core.utils.database_exists import database_exists
-from core.celery_tasks import create_db
+from core.tasks import create_db
 
 
 class TaskViewSet(viewsets.ViewSet):
@@ -56,8 +56,8 @@ class TaskViewSet(viewsets.ViewSet):
             create_db.delay(request.user.id, task.id, db_name)
         else:
             if db_info.task.id != task_id:
-                return Response(data={'detail': 'Task already started', 
+                return Response(data={'detail': 'Another task already started', 
                                       'task_id': db_info.task.id}, 
-                                status=status.HTTP_200_OK)
+                                status=status.HTTP_400_BAD_REQUEST)
         return Response(data={'detail': 'OK', 'db_name': db_name}, 
                         status=status.HTTP_200_OK)

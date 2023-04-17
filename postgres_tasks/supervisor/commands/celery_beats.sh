@@ -1,0 +1,1 @@
+celery -A postgres_tasks beat -l INFO
