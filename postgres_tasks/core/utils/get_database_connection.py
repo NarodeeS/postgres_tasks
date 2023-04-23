@@ -1,6 +1,6 @@
-import os
-
 from psycopg2 import connect, extensions
+
+from config import POSTGRES_USER, POSTGRES_PASSWORD
 
 
 def get_database_connection(db_name: str, username: str, password: str):
@@ -16,5 +16,5 @@ def get_database_connection(db_name: str, username: str, password: str):
 
 def get_admin_connection(db_name: str):
     return get_database_connection(db_name, 
-                                   os.getenv('POSTGRES_USER'), # type: ignore
-                                   os.getenv('POSTGRES_PASSWORD'))  # type: ignore
+                                   POSTGRES_USER, # type: ignore
+                                   POSTGRES_PASSWORD)  # type: ignore

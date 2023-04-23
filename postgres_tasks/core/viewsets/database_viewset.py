@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from core.serializers import DatabaseInfoSerializer
 from core.models import DatabaseInfo
 from core.permissions import IsOwner
-from core.celery_tasks import delete_db
+from core.tasks import delete_db
 from core.service.send_sql_command import send_sql_command
 from core.service.check_task import check_task
 from core.service.errors import NoSuchDbError, OutOfMovesError

@@ -1,6 +1,6 @@
 from core.models import CompletedTask
 from .get_db_info import get_db_info
-from core.celery_tasks import delete_db
+from core.tasks import delete_db
 
 
 def finish_task(db_name: str):
