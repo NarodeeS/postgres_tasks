@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 
 from core.models import Task, CompletedTask
@@ -9,8 +9,6 @@ from core.tasks import create_db
 
 
 class TaskViewSet(viewsets.ViewSet):
-    permission_classes = [permissions.IsAuthenticated]
-
     def retrieve(self, request, *args, **kwargs):        
         try:
             task_id = kwargs['task_id']

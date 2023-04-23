@@ -11,52 +11,54 @@ spec:
       labels:
         app: django
     spec:
+      volumes:
+        - name: static-volume
+          persistentVolumeClaim:
+            claimName: static-volume
       containers:
-      - name: django
-        image: narodees/postgres_tasks-django # custom image
-        command: ["supervisord"]
-        resources:
-          limits:
-            memory: "1500Mi"
-            cpu: "1"
-        ports:
-          - containerPort: 8000
-        env:
-          - name: DJANGO_SECRET_KEY
-            valueFrom:
-              configMapKeyRef:
-                name: my-config
-                key: DJANGO_SECRET_KEY
-          - name: DEBUG
-            valueFrom:
-              configMapKeyRef:
-                name: my-config
-                key: DEBUG
-          - name: POSTGRES_USER
-            valueFrom:
-              configMapKeyRef:
-                name: my-config
-                key: POSTGRES_USER
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              configMapKeyRef:
-                name: my-config
-                key: POSTGRES_PASSWORD
-          - name: POSTGRES_DB
-            valueFrom:
-              configMapKeyRef:
-                name: my-config
-                key: POSTGRES_DB
-          - name: RABBITMQ_DEFAULT_USER
-            valueFrom:
-              configMapKeyRef:
-                name: my-config
-                key: RABBITMQ_DEFAULT_USER
-          - name: RABBITMQ_DEFAULT_PASS
-            valueFrom:
-              configMapKeyRef:
-                name: my-config
-                key: RABBITMQ_DEFAULT_PASS
+        - name: django
+          image: narodees/postgres_tasks-django
+          command: ["supervisord"]
+          resources:
+            limits:
+              memory: "1500Mi"
+              cpu: "1"
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - name: static-volume
+              mountPath: /server/static
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: POSTGRES_PASSWORD
+            - name: RABBITMQ_DEFAULT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: RABBITMQ_DEFAULT_USER
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: RABBITMQ_DEFAULT_PASS
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: POSTGRES_DB
+            - name: DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: DEBUG
 ---
 apiVersion: v1
 kind: Service
