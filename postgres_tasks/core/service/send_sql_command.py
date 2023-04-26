@@ -13,6 +13,7 @@ class QueryResult(TypedDict):
     result: list | None
     columns: list[str] | None
     error_message: str | None
+    moves_left: int 
 
 
 def send_sql_command(db_name: str, command: str) -> QueryResult:
@@ -39,9 +40,11 @@ def send_sql_command(db_name: str, command: str) -> QueryResult:
                 return QueryResult(status=cursor.statusmessage,
                                    result=None,
                                    columns=None,
-                                   error_message=error.pgerror)
+                                   error_message=error.pgerror,
+                                   moves_left=db_info.moves_left)
             
             return QueryResult(status=cursor.statusmessage, 
                                result=result, 
                                columns=column_names,
-                               error_message=None)
+                               error_message=None,
+                               moves_left=db_info.moves_left)
