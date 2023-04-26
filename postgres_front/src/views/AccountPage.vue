@@ -56,11 +56,11 @@
           ErrorAlertComponent,
         },
       mounted() {
-          // axios.defaults.baseURL = `http://${process.env.VUE_APP_BASE_URL}:8000/`
-          axios.defaults.baseURL = `http://localhost:80/`
-          axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-          axios.defaults.xsrfCookieName = "csrftoken";
-          axios.defaults.withCredentials = true;
+          // axios.defaults.baseURL = `http://${process.env.VUE_APP_BASE_URL}/`
+          // // axios.defaults.baseURL = `http://localhost:80/`
+          // axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+          // axios.defaults.xsrfCookieName = "csrftoken";
+          // axios.defaults.withCredentials = true;
     
           const cookie = useCookie()
           

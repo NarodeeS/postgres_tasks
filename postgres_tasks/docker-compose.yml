@@ -10,6 +10,7 @@ services:
       volumes:
         - ./postgres_tasks/supervisor/logs:/var/log
         -  django_static_volume:/server/static
+        - ./postgres_tasks:/server/
       ports:
         - 8000:8000
       networks:

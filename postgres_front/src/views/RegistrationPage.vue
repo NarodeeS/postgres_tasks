@@ -49,7 +49,11 @@ import { key } from '@/store'
 
 
 export default defineComponent({
-    setup() {
+    emits:{
+      login: (email: string, password: string) => true
+      },
+
+    setup(_, {emit}) {
         const errorInRegistrartion = ref<null | string>(null)
         const store = useStore(key)
         const accountForm = ref<AccountForm>({
@@ -82,14 +86,22 @@ export default defineComponent({
                 return
             }
             try{
+               
                 const response = await axios.post('api/auth/users/', accountForm.value)
                 if (accountForm.value.email == '' || accountForm.value.password == ''){
                     errorInRegistrartion.value = "Login or password is empty"
                     return
                 }
-                store.state.email = accountForm.value.email
-                store.state.password = accountForm.value.password 
-                router.push({name: 'accountValdidation'})
+
+                if (process.env.VUE_APP_VERIFICATE_EMAIL === 'yes'){
+                    store.state.email = accountForm.value.email
+                    store.state.password = accountForm.value.password 
+                    router.push({name: 'accountValdidation'})
+                }
+                else{
+                    emit('login', accountForm.value.email, accountForm.value.password)
+                    router.push({name: 'account'})
+                }
             }
             catch (error : any) {
                 if (error.response.data.password !== undefined) {

@@ -32,10 +32,13 @@ export default defineComponent({
       login: (email: string, password: string) => true
       },
 
-
-    mounted() {
-        this.checkEmail()
-    },
+    // mounted() {
+    //     axios.defaults.baseURL = `http://${process.env.VUE_APP_BASE_URL}/`
+    //     axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+    //     axios.defaults.xsrfCookieName = "csrftoken";
+    //     axios.defaults.withCredentials = true;   
+    //     this.checkEmail()
+    // },
     setup(_, { emit }) {
         const store = useStore(key)
 
@@ -43,7 +46,6 @@ export default defineComponent({
         const errorInCodeValidation = ref <string | null>(null)
 
         function checkEmail() {
-            console.log(store.state.email)
             if ( store.state.email === null) {
 
                 router.push({name: 'registration'})

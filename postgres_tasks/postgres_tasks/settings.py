@@ -6,10 +6,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
-DEBUG = bool(os.getenv("DEBUG"))
+DEBUG = bool(int(os.getenv(("DEBUG"))))
 
 ALLOWED_HOSTS = ["*"]
-
 
 # Application definition
 
@@ -28,7 +27,6 @@ INSTALLED_APPS = [
     "core",
 ]
 
-
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -41,6 +39,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware"
 ]
+
+# без этого миграции не робят
+PROMETHEUS_EXPORT_MIGRATIONS = False
 
 ROOT_URLCONF = "postgres_tasks.urls"
 
@@ -64,7 +65,7 @@ CORS_ALLOW_CREDENTIALS = True
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates" ],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -93,39 +94,43 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': BASE_DIR / 'cache' 
+        'LOCATION': BASE_DIR / 'cache'
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp-relay.sendinblue.com'
 EMAIL_PORT = 587
 
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
-EMAIL_TIMEOUT = 60  
+EMAIL_TIMEOUT = 60
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
+
+VERIFICATE_EMAIL =  bool(int(os.getenv('VERIFICATE_EMAIL')))
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
@@ -137,7 +142,6 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -152,10 +156,8 @@ STATIC_ROOT = BASE_DIR / 'static'
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # настройки celery
-CELERY_BROKER_URL = (
-    f"amqp://{os.getenv('RABBITMQ_DEFAULT_USER')}"
-    f":{os.getenv('RABBITMQ_DEFAULT_PASS')}@rabbitmq:5672"
-)
+CELERY_BROKER_URL = (f"amqp://{os.getenv('RABBITMQ_DEFAULT_USER')}"
+                     f":{os.getenv('RABBITMQ_DEFAULT_PASS')}@rabbitmq:5672")
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
