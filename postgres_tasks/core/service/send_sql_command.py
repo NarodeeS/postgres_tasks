@@ -4,6 +4,7 @@ import psycopg2
 
 from core.utils.get_database_connection import get_database_connection
 from core.utils.connection_manager import ConnectionManager
+from core.service.errors import OutOfMovesError
 from .utils.get_db_info import get_db_info
 
 
@@ -28,6 +29,9 @@ def send_sql_command(db_name: str, command: str) -> QueryResult:
     with ConnectionManager(connection):
         with connection.cursor() as cursor:
             try:
+                if db_info.moves_performed >= db_info.task.moves_count:
+                    raise OutOfMovesError()
+                db_info.increment_moves()
                 cursor.execute(command)
                 result = cursor.fetchall()
                 column_names = [descr_row[0] for descr_row in cursor.description]

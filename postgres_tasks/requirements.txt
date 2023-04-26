@@ -10,6 +10,7 @@ Django==4.1.7
 django-cors-headers==3.14.0
 django-stubs==1.15.0
 django-stubs-ext==0.7.0
+gunicorn==20.1.0
 djangorestframework==3.14.0
 kombu==5.2.4
 mypy==1.1.1
@@ -28,3 +29,6 @@ vine==5.0.0
 wcwidth==0.2.6
 Pillow==9.4.0
 djoser==2.1.0
+django-prometheus==2.2.0
+prometheus-client==0.16.0
+supervisor==4.2.5

@@ -9,3 +9,8 @@ WORKDIR /server
 COPY ./requirements.txt ./
 RUN pip install -r requirements.txt
 
+COPY supervisor/supervisord.conf /etc/supervisor/supervisord.conf
+
+COPY . .
+
+CMD [ "supervisord" ]

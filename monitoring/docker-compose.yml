@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  prometheus:
+      container_name: prometheus
+      build: monitoring/prometheus
+      ports:
+         - 9090:9090
+      networks:
+        - monitoring-network
+        - backend-network
+        - frontend-network
+
+  grafana:
+      container_name: grafana
+      build: monitoring/grafana
+      ports:
+        - 3000:3000
+      networks:
+        - monitoring-network
+
+networks:
+  monitoring-network:
+  rabbit-network:
+  backend-network:
+  frontend-network:

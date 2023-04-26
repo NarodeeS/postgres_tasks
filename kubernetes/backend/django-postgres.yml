@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-postgres
+  template:
+    metadata:
+      labels:
+        app: django-postgres
+    spec:
+      containers:
+        - name: django-postgres
+          image: postgres
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: POSTGRES_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-postgres
+spec:
+  selector:
+    app: django-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432

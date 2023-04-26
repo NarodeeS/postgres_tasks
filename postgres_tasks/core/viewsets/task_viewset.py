@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 
 from core.models import Task, CompletedTask
-from core.serializers import TaskSerializer
+from core.serializers import TaskGetSerializer
 from core.utils.raise_if_not_exsts import raise_if_not_exists
 from core.utils.database_exists import database_exists
 from core.celery_tasks import create_db
@@ -22,14 +22,14 @@ class TaskViewSet(viewsets.ViewSet):
         
         associated_user_task = CompletedTask.objects.filter(task__id=task_id).first()
         
-        task = TaskSerializer(instance=task_model).data
+        task = TaskGetSerializer(instance=task_model).data
         task['completed'] = True if associated_user_task else False
 
         return Response(data={'task': task}, 
                         status=status.HTTP_200_OK)
 
     def list(self, request, *args, **kwargs):
-        all_tasks = [TaskSerializer(instance=task).data 
+        all_tasks = [TaskGetSerializer(instance=task).data 
                      for task in Task.objects.all()]
         user_tasks = {user_task.task.id: user_task
                       for user_task in (CompletedTask.objects
@@ -52,8 +52,12 @@ class TaskViewSet(viewsets.ViewSet):
         raise_if_not_exists(task, 'No such task')
 
         db_name = f"{'_'.join(task.title.split(' ')).lower()}_{user.id}"
-        if not database_exists(user.id):
+        if not (db_info := database_exists(user.id)):
             create_db.delay(request.user.id, task.id, db_name)
-            
+        else:
+            if db_info.task.id != task_id:
+                return Response(data={'detail': 'Task already started', 
+                                      'task_id': db_info.task.id}, 
+                                status=status.HTTP_200_OK)
         return Response(data={'detail': 'OK', 'db_name': db_name}, 
                         status=status.HTTP_200_OK)
