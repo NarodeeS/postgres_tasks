@@ -1,10 +1,11 @@
-import os
+from datetime import datetime
 
 import psycopg2
 import postgres_tasks.settings as settings
 from random import randrange
+from config import SANDBOX_POSTGRES_DB, DATABASE_INFO_LIFETIME
 from postgres_tasks.celery import app
-from django.core.mail import EmailMultiAlternatives, send_mail
+from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from socket import gaierror
 from django.core.cache import cache
@@ -24,7 +25,7 @@ def create_db(user_id: int, task_id: int, db_name: str) -> None:
     db_password = user.password[:10]
     task: Task = Task.objects.filter(id=task_id).first() # type: ignore
     
-    admin_db_name: str = os.getenv('POSTGRES_DB')  # type: ignore
+    admin_db_name: str = SANDBOX_POSTGRES_DB
     
     with ConnectionManager(get_admin_connection(admin_db_name)) as connection:
         with connection.cursor() as cursor:
@@ -49,7 +50,7 @@ def delete_db(db_name: str) -> None:
     db_info = get_db_info(db_name)
     db_username = db_info.user.get_db_username()
     
-    admin_db_name: str = os.getenv('POSTGRES_DB')  # type: ignore
+    admin_db_name: str = SANDBOX_POSTGRES_DB
     
     with ConnectionManager(get_admin_connection(admin_db_name)) as connection:
         with connection.cursor() as cursor:
@@ -78,3 +79,11 @@ def send_verification_email(email: str) -> None:
         fail_silently=False,
         html_message=msg_html,
     )
+
+@app.task
+def clean_inactive_databases() -> None:
+    all_databases = DatabaseInfo.objects.all()
+    for database in all_databases:
+        date_diff = datetime.now() - database.last_action_datetime
+        if date_diff.total_seconds() >= DATABASE_INFO_LIFETIME:
+            delete_db(database.db_name)

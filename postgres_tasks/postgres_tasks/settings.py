@@ -1,16 +1,18 @@
-import os
 from pathlib import Path
+import os
+from config import (DJANGO_SECRET_KEY, DEBUG, 
+                    POSTGRES_USER, 
+                    POSTGRES_PASSWORD,
+                    RABBITMQ_DEFAULT_USER, 
+                    RABBITMQ_DEFAULT_PASS)
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
-
-DEBUG = bool(int(os.getenv(("DEBUG"))))
+SECRET_KEY = DJANGO_SECRET_KEY
+DEBUG = DEBUG
 
 ALLOWED_HOSTS = ["*"]
-
-# Application definition
 
 INSTALLED_APPS = [
     'rest_framework.authtoken',
@@ -85,8 +87,8 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "HOST": "django-postgres",
         "PORT": "5432",
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "USER": POSTGRES_USER,
+        "PASSWORD": POSTGRES_PASSWORD,
         "NAME": "postgres",
     }
 }
@@ -141,12 +143,12 @@ TIME_ZONE = "UTC"
 
 USE_I18N = True
 
-USE_TZ = True
+# USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = "/static/"
+STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / 'static'
 # STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
@@ -156,8 +158,11 @@ STATIC_ROOT = BASE_DIR / 'static'
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # настройки celery
-CELERY_BROKER_URL = (f"amqp://{os.getenv('RABBITMQ_DEFAULT_USER')}"
-                     f":{os.getenv('RABBITMQ_DEFAULT_PASS')}@rabbitmq:5672")
+
+CELERY_BROKER_URL = (
+    f"amqp://{RABBITMQ_DEFAULT_USER}"
+    f":{RABBITMQ_DEFAULT_PASS}@rabbitmq:5672"
+)
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -166,7 +171,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        # 'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAuthenticated', # change to IsEmailVerified
     ]
 }
 

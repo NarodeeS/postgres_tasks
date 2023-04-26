@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 
 from .service.database_status import DatabaseStatus
@@ -67,6 +68,7 @@ class DatabaseInfo(models.Model):
     status = models.CharField(max_length=10, default=DatabaseStatus.DOWN.value)
     db_password = models.CharField(max_length=10)
     moves_performed = models.IntegerField(default=0)
+    last_action_datetime = models.DateTimeField(auto_now=True)
     
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -74,6 +76,10 @@ class DatabaseInfo(models.Model):
     @property
     def moves_left(self) -> int:
         return self.task.moves_count - self.moves_performed
+    
+    def save(self, *args, **kwargs):
+        self.last_action_datetime = timezone.now()
+        super().save(*args, **kwargs)
     
     def increment_moves(self):
         self.moves_performed += 1

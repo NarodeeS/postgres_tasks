@@ -22,17 +22,17 @@ spec:
           ports:
             - containerPort: 15672
             - containerPort: 15692
-            - containerPort: 5672 
+            - containerPort: 5672
           env:
             - name: RABBITMQ_DEFAULT_USER
               valueFrom:
-                configMapKeyRef:
-                  name: my-config
+                secretKeyRef:
+                  name: my-secret
                   key: RABBITMQ_DEFAULT_USER
             - name: RABBITMQ_DEFAULT_PASS
               valueFrom:
-                configMapKeyRef:
-                  name: my-config
+                secretKeyRef:
+                  name: my-secret
                   key: RABBITMQ_DEFAULT_PASS
 ---
 apiVersion: v1
