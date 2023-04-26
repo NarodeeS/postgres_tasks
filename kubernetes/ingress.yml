@@ -2,17 +2,35 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: my-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: lets-encrypt-issuer
+    kubernetes.io/ingress.class: traefik  # change to nginx in Kubernetes
   labels:
     name: my-ingress
 spec:
+  tls:
+    - hosts:
+        - https-nginx.localhost
+        - https-grafana.localhost
+      secretName: certificate
   rules:
-  - host: my.localhost  # change later
-    http:
-      paths:
-      - pathType: Prefix
-        path: "/"
-        backend:
-          service:
-            name: nginx
-            port: 
-              number: 80
+    - host: https-nginx.localhost  # change later
+      http:
+        paths:
+        - pathType: Prefix
+          path: "/"
+          backend:
+            service:
+              name: nginx
+              port: 
+                number: 80
+    - host: https-grafana.localhost  # change later
+      http:
+        paths:
+        - pathType: Prefix
+          path: "/"
+          backend:
+            service:
+              name: grafana
+              port: 
+                number: 3000

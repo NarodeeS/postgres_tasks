@@ -12,21 +12,31 @@ spec:
         app: grafana
     spec:
       containers:
-      - name: grafana
-        image: narodees/postgres_tasks-grafana # custom grafana image
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "250m"
-        ports:
-          - containerPort: 3000
+        - name: grafana
+          image: narodees/postgres_tasks-grafana # custom grafana image
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "250m"
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                    name: my-secret
+                    key: GF_SECURITY_ADMIN_USER
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                    name: my-secret
+                    key: GF_SECURITY_ADMIN_PASSWORD
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: grafana
 spec:
-  # type: LoadBalancer
   selector:
     app: grafana
   ports:

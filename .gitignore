@@ -2,7 +2,8 @@
 media/
 static/
 .DS_Store
-*/secrets.yml
+*my-secret.yml
+*lets-encrypt-secret.yml
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
