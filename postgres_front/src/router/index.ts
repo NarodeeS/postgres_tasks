@@ -5,6 +5,7 @@ import AccauntPage from "@/views/AccountPage.vue";
 import LoginPage from "@/views/LoginPage.vue"
 import MainPage from "@/views/MainPage.vue"
 import RegistrationPage from "@/views/RegistrationPage.vue"
+import RegistrationValidationPage from "@/views/ReistrationValidationPage.vue"
 
 const routes = [
   {
@@ -21,6 +22,11 @@ const routes = [
     path: "/registration",
     name: "registration",
     component: RegistrationPage
+  },
+  {
+    path: "/registration/validation",
+    name: "accountValdidation",
+    component: RegistrationValidationPage,
   },
   {
     path: "/account",

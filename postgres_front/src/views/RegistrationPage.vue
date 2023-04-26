@@ -44,14 +44,18 @@ import { defineComponent, ref } from 'vue'
 import axios from 'axios';
 import type AccountForm from '@/types/AccoutForm'
 import router from '../router';
+import { useStore } from 'vuex'
+import { key } from '@/store'
+
 
 export default defineComponent({
     emits:{
       login: (email: string, password: string) => true
       },
 
-    setup(_, { emit }) {
+    setup(_, {emit}) {
         const errorInRegistrartion = ref<null | string>(null)
+        const store = useStore(key)
         const accountForm = ref<AccountForm>({
             first_name: '',
             last_name: '',
@@ -82,9 +86,22 @@ export default defineComponent({
                 return
             }
             try{
+               
                 const response = await axios.post('api/auth/users/', accountForm.value)
-                emit('login', accountForm.value.email, accountForm.value.password)
-                router.push({name: 'account'})
+                if (accountForm.value.email == '' || accountForm.value.password == ''){
+                    errorInRegistrartion.value = "Login or password is empty"
+                    return
+                }
+
+                if (process.env.VUE_APP_VERIFICATE_EMAIL === 'yes'){
+                    store.state.email = accountForm.value.email
+                    store.state.password = accountForm.value.password 
+                    router.push({name: 'accountValdidation'})
+                }
+                else{
+                    emit('login', accountForm.value.email, accountForm.value.password)
+                    router.push({name: 'account'})
+                }
             }
             catch (error : any) {
                 if (error.response.data.password !== undefined) {
@@ -112,3 +129,4 @@ export default defineComponent({
 
 <style>
  </style>
+

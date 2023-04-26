@@ -13,9 +13,10 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=150)
     student_group = models.CharField(max_length=10)
     email = models.EmailField(unique=True)
+    email_confirmed = models.BooleanField(default=False)
     username = models.CharField(
         max_length=150,
-        unique=True,
+        unique=True, 
         blank=True, 
         null=True
     )

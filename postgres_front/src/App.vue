@@ -22,11 +22,15 @@ export default defineComponent({
     },
 
     mounted(){
-
-        axios.defaults.baseURL = `http://localhost:80/`
-        axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-        axios.defaults.xsrfCookieName = "csrftoken";
-        axios.defaults.withCredentials = true;    
+      if (typeof(process.env.VUE_APP_ROOT_DNS) === "undefined"){
+        axios.defaults.baseURL = `http://${process.env.VUE_APP_ROOT_API}:${process.env.VUE_APP_ROOT_API_PORT}/`
+      }
+      else{
+        axios.defaults.baseURL = `http://${process.env.VUE_APP_ROOT_DNS}/`
+      }
+      axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+      axios.defaults.xsrfCookieName = "csrftoken";
+      axios.defaults.withCredentials = true;   
     }, 
 
     setup() {
@@ -62,7 +66,6 @@ export default defineComponent({
             }
           }
           catch (error) {
-            console.log(error)
             return 
           }
             is_auntificated.value = false
@@ -70,11 +73,6 @@ export default defineComponent({
     
         async function Login(email: string, password: string){
           errorInLogin.value = null
-          if (email == '' || password == ''){
-            errorInLogin.value = "Login or password is empty"
-            return
-          }
-
           try{
             const response = await axios.post('api/auth/token/login/', {
               email: email,
@@ -88,7 +86,6 @@ export default defineComponent({
             }
           }
           catch (error : any) {
-            console.log(error)
             errorInLogin.value =error.response.data.non_field_errors[0] 
             return 
           }

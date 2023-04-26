@@ -1,9 +1,15 @@
 from datetime import datetime
 
 import psycopg2
-
+import postgres_tasks.settings as settings
+from random import randrange
 from config import SANDBOX_POSTGRES_DB, DATABASE_INFO_LIFETIME
 from postgres_tasks.celery import app
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from socket import gaierror
+from django.core.cache import cache
+
 from .models import DatabaseInfo, User, Task
 from .service.database_status import DatabaseStatus
 from .utils.get_database_connection import get_admin_connection
@@ -56,6 +62,23 @@ def delete_db(db_name: str) -> None:
                 print(err.pgerror)                
                 db_info.status = DatabaseStatus.ERROR.value
                 db_info.save()
+
+
+@app.task
+def send_verification_email(email: str) -> None:
+    number_for_verification = randrange(1000, 9999)
+    cache.set(email, number_for_verification, 60000)
+
+    msg_html = render_to_string('core/email_template.html', {'number_for_verification': number_for_verification})
+
+    send_mail(
+        "Subject here",
+        "Here is the message.",
+        settings.EMAIL_HOST_USER,
+        [email],
+        fail_silently=False,
+        html_message=msg_html,
+    )
 
 @app.task
 def clean_inactive_databases() -> None:
