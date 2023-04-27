@@ -1,19 +1,19 @@
 from core.serializers import TaskGetSerializer
 from core.models import CompletedTask, Task, User
-from core.utils.raise_if_not_exsts import raise_if_not_exists
 from core.utils.database_exists import database_exists
 from core.tasks import create_db_task
 from core.service.errors import TaskAlreadyStartedError, NoSuchTaskError
 
 
 def get_user_task_data(task_id: int) -> dict:
-    task_model = Task.objects.filter(id=task_id).first()
-    raise_if_not_exists(task_model, 'No such task')
+    task = Task.objects.filter(id=task_id).first()
+    if not task:
+        raise NoSuchTaskError(task)
     
     associated_user_task = (CompletedTask.objects.filter(task__id=task_id)
                                                  .first())
     
-    task = TaskGetSerializer(instance=task_model).data
+    task = TaskGetSerializer(instance=task).data
     task['completed'] = True if associated_user_task else False
     return task
  
