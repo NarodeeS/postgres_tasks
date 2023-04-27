@@ -11,7 +11,7 @@ class IsOwner(permissions.BasePermission):
         return obj.user == request.user
 
 
-# class IsEmailVerifiedAndAuthenticated(permissions.BasePermission):
-#     def has_permission(self, request, view):
-#         return (bool(request.user and request.user.is_authenticated) 
-#                 and request.user.email_confirmed)
+class IsEmailVerifiedAndAuthenticated(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return (bool(request.user and request.user.is_authenticated) 
+                and request.user.email_confirmed)

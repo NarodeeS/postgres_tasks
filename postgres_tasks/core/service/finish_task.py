@@ -1,6 +1,6 @@
 from core.models import CompletedTask
 from .get_db_info import get_db_info
-from core.tasks import delete_db
+from core.tasks import delete_db_task
 
 
 def finish_task(db_name: str):
@@ -14,4 +14,4 @@ def finish_task(db_name: str):
     if not potential_completed_task:
         CompletedTask.objects.create(task=db_info.task, 
                                      user=db_info.user)
-    delete_db.delay(db_name)
+    delete_db_task.delay(db_name)

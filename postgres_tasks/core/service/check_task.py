@@ -3,7 +3,7 @@ import psycopg2
 from core.utils.get_database_connection import get_admin_connection
 from core.utils.connection_manager import ConnectionManager
 from core.utils.load_script import load_script
-from .utils.get_db_info import get_db_info
+from .get_db_info import get_db_info
 
 
 def check_task(db_name: str) -> bool:

@@ -7,19 +7,18 @@ from config import SANDBOX_POSTGRES_DB, DATABASE_INFO_LIFETIME
 from postgres_tasks.celery import app
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from socket import gaierror
 from django.core.cache import cache
 
 from .models import DatabaseInfo, User, Task
 from .service.database_status import DatabaseStatus
 from .utils.get_database_connection import get_admin_connection
 from .service.fill_task_db import fill_task_db
-from .service.utils.get_db_info import get_db_info
+from .service.get_db_info import get_db_info
 from .utils.connection_manager import ConnectionManager
 
 
 @app.task
-def create_db(user_id: int, task_id: int, db_name: str) -> None:
+def create_db_task(user_id: int, task_id: int, db_name: str) -> None:
     user: User = User.objects.filter(id=user_id).first() # type: ignore
     db_username = user.get_db_username()
     db_password = user.password[:10]
@@ -46,7 +45,7 @@ def create_db(user_id: int, task_id: int, db_name: str) -> None:
 
 
 @app.task
-def delete_db(db_name: str) -> None:
+def delete_db_task(db_name: str) -> None:
     db_info = get_db_info(db_name)
     db_username = db_info.user.get_db_username()
     
@@ -65,7 +64,7 @@ def delete_db(db_name: str) -> None:
 
 
 @app.task
-def send_verification_email(email: str) -> None:
+def send_verification_email_task(email: str) -> None:
     number_for_verification = randrange(1000, 9999)
     cache.set(email, number_for_verification, 60000)
 
@@ -80,10 +79,11 @@ def send_verification_email(email: str) -> None:
         html_message=msg_html,
     )
 
+
 @app.task
-def clean_inactive_databases() -> None:
+def clean_inactive_databases_task() -> None:
     all_databases = DatabaseInfo.objects.all()
     for database in all_databases:
         date_diff = datetime.now() - database.last_action_datetime
         if date_diff.total_seconds() >= DATABASE_INFO_LIFETIME:
-            delete_db(database.db_name)
+            delete_db_task(database.db_name)

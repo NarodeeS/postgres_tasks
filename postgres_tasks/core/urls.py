@@ -4,7 +4,7 @@ from django.urls import path
 from core.viewsets.database_viewset import DatabaseViewSet
 from core.viewsets.task_viewset import TaskViewSet
 
-from core.viewsets.email import EamilApiView
+from core.viewsets.email import EmaillApiView
 
 
 router = routers.DefaultRouter()
@@ -14,5 +14,5 @@ router.register('tasks', TaskViewSet, basename='task')
 urlpatterns = router.urls
 
 urlpatterns += [
-    path('email/verification/', EamilApiView.as_view()),
+    path('email/verification/', EmaillApiView.as_view()),
 ]
