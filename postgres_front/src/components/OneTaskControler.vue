@@ -13,10 +13,10 @@
             <p class="card-text text-white">{{task.description}}</p>
             <div class="row justify-content-between align-items-center">
                 <div class="col-8">
-                    <p class="card-text text-muted">Due Date: 12/31/2023</p>
+     
                 </div>
                 <div class="col-4 text-end">
-                    <button class="btn btn-custom-green " @click="deployTask">Start task</button>
+                    <button class="btn btn-outline-custom-green " @click="deployTask">Start task</button>
                 </div>
             </div>
         </div>

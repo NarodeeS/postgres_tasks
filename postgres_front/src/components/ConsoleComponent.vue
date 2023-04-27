@@ -32,7 +32,6 @@
         <div class="terminal-container">
           <div class="terminal-header">
             <div>PostgreSQL Terminal</div>
-            <div><i class="fas fa-power-off"></i></div>
           </div>
           <div class="terminal-body" 
            id="terminal">
@@ -60,12 +59,21 @@
               <label for="input-field" class="input-label">Input:</label>
               <input type="text" class="input-field form-control" v-model="command" id="input-field">
             </div>
+            <div class="row console-navigation">
+              <div class="col-6 single-line">
+                  <p>Turns: <strong>{{ turn_numbers }}</strong></p>
+              </div>
 
-            <div class="input-container container-buttons">
-              <button type="button" @click="sendCommand" class="btn ml-2 btn-custom-green">Submit</button>
-              <button type="button" data-bs-toggle="modal" data-bs-target="#forceCloseModal"  class="btn ml-2 btn-custom-green">Pass</button>
-              <button type="button" @click="closeTask" class="btn ml-2 btn-custom-red">Delete</button>
-          </div>
+              <div class="col-6 ">
+                  <button type="button" @click="sendCommand" class="btn ml-2 btn-outline-custom-green">Send Command</button>
+                  <button type="button" data-bs-toggle="modal" data-bs-target="#forceCloseModal"  class="btn ml-2 btn-outline-custom-green">Submit</button>
+                  <button type="button" @click="closeTask" class="btn ml-2 btn-outline-custom-red">Delete</button>
+              </div>
+
+            </div>
+
+
+          
         </div>
     </div>
 </div>
@@ -92,6 +100,10 @@ export default defineComponent({
             required: true,
             type : Object as PropType<PostgersCommandResponse[]> 
         },
+        turn_numbers: {
+          required: true,
+          type : Number
+        }
     },
     watch:{
       response_from_postgres_list:{
@@ -168,22 +180,25 @@ export default defineComponent({
 .terminal-prompt {
   color: #1abc9c;
 }
+.console-navigation {
+  margin-top: 20px;
+}
+
 .input-container {
   display: flex;
   align-items: center;
   margin-top: 10px;
 }
 
-.container-buttons {
-  display: flex;
-  justify-content: flex-end;
-}
 .input-label {
   margin-right: 10px;
 }
+
+
 .input-field {
   background-color: #3e4460;
   flex-grow: 1;
+
 }
 .input-field:focus {
   outline: 1px solid #1abc9c;
@@ -194,20 +209,6 @@ export default defineComponent({
   color: #1abc9c; 
 }
 
-.btn-custom-red {
-    color: #fff;
-    background-color: #dc3545;
-    border: none;
-    border-radius: 3px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.btn-custom-red:hover {
-  background-color: #c82333;
-}
-
 .modal-content {
   background-color: #3f4457;
   color: #fff;
@@ -216,6 +217,10 @@ export default defineComponent({
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
+}
+
+.single-line{
+  color: #ffc107;
 }
 
 </style>

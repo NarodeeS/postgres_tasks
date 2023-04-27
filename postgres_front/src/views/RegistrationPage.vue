@@ -32,7 +32,7 @@
                     <strong>Error:</strong> {{errorInRegistrartion}}
                 </div>
 
-                <input type="submit" @click="Registration" value="Register">
+                  <button class="btn btn-outline-custom-green register-button" @click="Registration">Register</button>
             </form>
         </div>
     </div>
@@ -86,8 +86,7 @@ export default defineComponent({
                 return
             }
             try{
-               
-                const response = await axios.post('api/auth/users/', accountForm.value)
+                await axios.post('api/auth/users/', accountForm.value)
                 if (accountForm.value.email == '' || accountForm.value.password == ''){
                     errorInRegistrartion.value = "Login or password is empty"
                     return
@@ -104,12 +103,18 @@ export default defineComponent({
                 }
             }
             catch (error : any) {
+                console.log(error)
+                try{
                 if (error.response.data.password !== undefined) {
                     errorInRegistrartion.value =error.response.data.password[0]
                     return
                 }
                 if (error.response.data.email !== undefined) {
                     errorInRegistrartion.value =error.response.data.email[0]
+                    return
+                }}
+                catch (error : any) {
+                    errorInRegistrartion.value = "Server error"
                     return
                 }
                 return 
@@ -128,5 +133,10 @@ export default defineComponent({
 </script>
 
 <style>
- </style>
+.register-button{
+    width: 100%;
+    min-height: 50px;
+}
+</style>
+
 

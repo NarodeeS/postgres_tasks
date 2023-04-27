@@ -1,4 +1,4 @@
-<template>
+<template>     
     <div>
     
         <div id="main-part" class="container-fluid" v-if="is_auntificated === true">
@@ -19,6 +19,7 @@
                               @end_task="sendTaskForChecking"
                               @close_task="endTaskWithoutChecking" 
                               :db_is_starting="db_is_starting"
+                              :turn_numbers="moves_left"
                               :task_passed_with_eror="task_controler.task_passed_with_eror"
                               :response_from_postgres_list="postgresResponseHistory"></ConsoleComponent>
                       </div>
@@ -56,12 +57,7 @@
           ErrorAlertComponent,
         },
       mounted() {
-          // axios.defaults.baseURL = `http://${process.env.VUE_APP_BASE_URL}/`
-          // // axios.defaults.baseURL = `http://localhost:80/`
-          // axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-          // axios.defaults.xsrfCookieName = "csrftoken";
-          // axios.defaults.withCredentials = true;
-    
+
           const cookie = useCookie()
           
           let token = cookie.getCookie("token")
@@ -81,7 +77,7 @@
             Authorization: 'Token ' + cookie.getCookie("token")
           }          
 
-          let token = cookie.getCookie("token")
+          const moves_left = ref<number>(0); 
           const dbName = ref<null | string>(null);
           const is_auntificated = ref(false);
           const db_is_starting = ref(false);
@@ -179,6 +175,7 @@
                     const response = await axios.get(`api/databases/${dbName.value}/`, {headers: headers})
                     if (response.data.status === "up") {
                         db_is_starting.value = false;
+                        moves_left.value = response.data.moves_left
                     }
                 }
                 catch (err) {
@@ -188,13 +185,14 @@
             }
     
           function updatePostgresResponseFields(response: AxiosResponse, command: string) {
+                moves_left.value = response.data.moves_left
                 let index = 1
                 let new_response: PostgresCommandResponse = {
                   status: response.data.status,
                   result: [],
                   error_message: response.data.error_message,
                   columns: response.data.columns,
-                  command: command
+                  command: command,
                 }
 
                 if(response.data.result !== null){
@@ -211,19 +209,39 @@
                 postgresResponseHistory.value.push(new_response)
             }
       
+          function emptyComandHandler(){
+            let new_response: PostgresCommandResponse = {
+                  status: "",
+                  result: [],
+                  error_message: '',
+                  columns: null,
+                  command: '',
+                } 
+                postgresResponseHistory.value.push(new_response)
+          }
+
+
           async function sendCommand(command: string) {
               task_controler.value.task_passed_with_eror = false
-    
-              try {
+
+              if (command === "") {
+                emptyComandHandler()
+                return
+              }
+              else{
+                try {
                   const response = await axios.post(`/api/databases/${dbName.value}/command/`,
                       { "command": command }, 
                       {headers: headers}
                   )
+                  console.log(response.data)
                   updatePostgresResponseFields(response, command)
-              }
-              catch (err: any) {
-                  alert("Ошибка при выполнении команды")
-                  return
+
+                }
+                catch (err: any) {
+                    alert("Ошибка при выполнении команды")
+                    return
+                }
               }
           }
           
@@ -254,6 +272,7 @@
           task_controler,
           postgresResponseHistory,
           tasks,
+          moves_left,
           deployTask,
           sendCommand,
           sendTaskForChecking,
@@ -268,8 +287,6 @@
 .tasks-control{
     display: flex;
     flex-direction: column;
-    /* align-items: center;
-    justify-content: center; */
     margin-top: 20px;
 }
 

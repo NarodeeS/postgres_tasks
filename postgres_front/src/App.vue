@@ -50,25 +50,22 @@ export default defineComponent({
 
         async function Logout(){
           const token = cookie.getCookie("token")
-        
+          cookie.removeCookie("token")
+          router.push({name: 'mainPage'})
           try{
-            const response = await axios.post('api/auth/token/logout/', {}, 
+              await axios.post('api/auth/token/logout/', {}, 
               { 
                 headers: {
                    'Authorization': 'Token ' + token
                   }
               }
             )
-
-            if (response.status == 204){
-              cookie.removeCookie("token")
-              router.push({name: 'mainPage'})
-            }
           }
           catch (error) {
             return 
           }
-            is_auntificated.value = false
+    
+          is_auntificated.value = false
         }
     
         async function Login(email: string, password: string){
