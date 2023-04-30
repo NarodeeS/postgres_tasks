@@ -24,10 +24,7 @@ def check_task(db_name: str) -> bool:
                 row = cursor.fetchone()
                 if row:    
                     success, *_ = row
-                    if success:
-                        return True
-                    else:
-                        return False
+                    return bool(success)
             except psycopg2.Error as error:
                 print(error.pgerror)
             
