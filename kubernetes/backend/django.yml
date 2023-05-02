@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: django
+  namespace: postgres-tasks
 spec:
   selector:
     matchLabels:
@@ -17,7 +18,7 @@ spec:
             claimName: static-volume
       containers:
         - name: django
-          image: narodees/postgres_tasks-django
+          image: narodees/postgres_tasks-django:0.1
           command: ["supervisord"]
           resources:
             limits:
@@ -64,6 +65,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: django
+  namespace: postgres-tasks
 spec:
   selector:
     app: django

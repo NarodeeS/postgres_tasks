@@ -56,7 +56,8 @@ ROOT_URLCONF = "postgres_tasks.urls"
 #     "http://localhost:8080",
 # ]
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost', 'https://localhost']
+CSRF_TRUSTED_ORIGINS = ['http://localhost', 'https://localhost', 
+                        'http://nginx.localhost', 'https://nginx.localhost']
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
