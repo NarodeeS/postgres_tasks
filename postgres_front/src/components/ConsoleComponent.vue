@@ -150,7 +150,7 @@ export default defineComponent({
 
 .terminal-container {
   padding: 15px;
-  border: 1px solid #1abc9c;
+  border: 1px solid var(--green-color);
   margin: auto;
   width: 90%;
   max-width: 700px;
@@ -178,7 +178,7 @@ export default defineComponent({
   overflow: auto;
 }
 .terminal-prompt {
-  color: #1abc9c;
+  color: var(--green-color);
 }
 .console-navigation {
   margin-top: 20px;
@@ -201,12 +201,12 @@ export default defineComponent({
 
 }
 .input-field:focus {
-  outline: 1px solid #1abc9c;
+  outline: 1px solid var(--green-color);
   background-color: #3e4460;
   color: #fff;
 }
 .console-prompt{
-  color: #1abc9c; 
+  color: var(--green-color); 
 }
 
 .modal-content {

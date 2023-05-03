@@ -23,8 +23,11 @@
                               :task_passed_with_eror="task_controler.task_passed_with_eror"
                               :response_from_postgres_list="postgresResponseHistory"></ConsoleComponent>
                       </div>
-                      <div v-else-if="task_controler.task_is_passed === true">
+                    <div v-else-if="task_controler.task_is_passed === true">
                           <SucessAlertComponent></SucessAlertComponent>
+                          </div>
+                    <div v-else-if="task_turn_out_with_error === true">
+                      <TurnOutWithErrorAlertComponent></TurnOutWithErrorAlertComponent>
                           </div>
                     </div>
                 </div>
@@ -44,8 +47,9 @@
     import TaskListControlerComponent from "@/components/TaskListControlerComponent.vue";
     import PostgresCommandResponse from "@/types/PostgresCommandResponse";
     import ConsoleComponent from "@/components/ConsoleComponent.vue";
-    import SucessAlertComponent from "@/components/SucessAlertComponent.vue";
-    import ErrorAlertComponent from "@/components/ErrorAlertComponent.vue";
+    import SucessAlertComponent from "@/components/results/SucessAlertComponent.vue";
+    import ErrorAlertComponent from "@/components/results/ErrorAlertComponent.vue";
+    import TurnOutWithErrorAlertComponent from "@/components/results/TurnOutWithError.vue";
     import router from "@/router";
     
     export default defineComponent({
@@ -55,6 +59,7 @@
           ConsoleComponent,
           SucessAlertComponent,
           ErrorAlertComponent,
+          TurnOutWithErrorAlertComponent
         },
       mounted() {
 
@@ -81,6 +86,7 @@
           const dbName = ref<null | string>(null);
           const is_auntificated = ref(false);
           const db_is_starting = ref(false);
+          const task_turn_out_with_error = ref(false);
           const task_controler = ref<TaskControler>({
             showForceClose: false,
             selected_task_id: null,
@@ -149,6 +155,7 @@
                   checkIsDbStarted()
           }
           function prepareFieldsBeforeDeployingTask(id: number) {
+                  task_turn_out_with_error.value = false
                   task_controler.value.selected_task_id = id
                   db_is_starting.value = true
                   task_controler.value.task_is_passed = false
@@ -234,8 +241,11 @@
                       { "command": command }, 
                       {headers: headers}
                   )
-                  console.log(response.data)
                   updatePostgresResponseFields(response, command)
+
+                  if (moves_left.value === 0 ) {
+                      await sendTaskForChecking()
+                  }
 
                 }
                 catch (err: any) {
@@ -249,7 +259,15 @@
               try {
                   const response = await axios.post(`/api/databases/${dbName.value}/check/`, {}, {headers: headers})
                   if (response.data.detail === "Check error") {
-                      task_controler.value.task_passed_with_eror = true
+                      if (moves_left.value == 0){
+                        task_turn_out_with_error.value = true
+                        postgresResponseHistory.value = []
+                        task_controler.value.selected_task_id = null
+                        endTaskWithoutChecking()
+                      }
+                      else{
+                        task_controler.value.task_passed_with_eror = true
+                      }
                       return
                   }
                   postgresResponseHistory.value = []
@@ -272,6 +290,7 @@
           task_controler,
           postgresResponseHistory,
           tasks,
+          task_turn_out_with_error,
           moves_left,
           deployTask,
           sendCommand,

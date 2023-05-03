@@ -52,7 +52,7 @@ export default defineComponent({
 .card-task {
   border-radius: 15px;
   box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
-  border: 1px solid #1abc9c;
+  border: 1px solid var(--green-color);
 }
 
 .card-title {
@@ -67,7 +67,7 @@ export default defineComponent({
 }
 
 .custom-text{
-  color: #1abc9c;
+  color: var(--green-color);
 }
 
 .badge{

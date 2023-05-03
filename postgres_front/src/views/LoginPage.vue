@@ -77,7 +77,7 @@ export default defineComponent({
 }
 
 .forgot-password a {
-    color: #1abc9c;
+    color: var(--green-color);
     font-weight: bold;
 }
 
@@ -86,11 +86,8 @@ export default defineComponent({
     color: #148f77;
 }
 
-
 .login-button{
   width: 100%;
   min-height: 50px;
 }
-
-
 </style>
