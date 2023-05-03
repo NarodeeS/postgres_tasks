@@ -5,9 +5,12 @@ import route from "@/router/index";
 import { VueCookieNext } from 'vue-cookie-next'
 import { store, key } from './store'
 
+
+
 createApp(App).use(VueCookieNext)
         .use(route)
         .use(store, key)
+        // .use(VueAnime)
         .mount('#app')
 
 // set default config

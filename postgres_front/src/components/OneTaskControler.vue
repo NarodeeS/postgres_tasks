@@ -13,10 +13,10 @@
             <p class="card-text text-white">{{task.description}}</p>
             <div class="row justify-content-between align-items-center">
                 <div class="col-8">
-                    <p class="card-text text-muted">Due Date: 12/31/2023</p>
+     
                 </div>
                 <div class="col-4 text-end">
-                    <button class="btn btn-custom-green " @click="deployTask">Start task</button>
+                    <button class="btn btn-outline-custom-green " @click="deployTask">Start task</button>
                 </div>
             </div>
         </div>
@@ -52,7 +52,7 @@ export default defineComponent({
 .card-task {
   border-radius: 15px;
   box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
-  border: 1px solid #1abc9c;
+  border: 1px solid var(--green-color);
 }
 
 .card-title {
@@ -67,7 +67,7 @@ export default defineComponent({
 }
 
 .custom-text{
-  color: #1abc9c;
+  color: var(--green-color);
 }
 
 .badge{

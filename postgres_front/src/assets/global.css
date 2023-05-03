@@ -1,7 +1,16 @@
+:root{
+    --green-color:  #1abc9c;
+}
+
 body {
     background-color: #1c1e26;
     color: #fff;
     font-family: Arial, sans-serif;
+}
+main {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100em;
 }
 
 #dilog-form{
@@ -25,7 +34,7 @@ body {
 
 .btn-custom-green{
     color: white;
-    background-color: #1abc9c;
+    background-color: var(--green-color);
     box-shadow: 0 0 0 0.1px #126958;
 }
 .btn-custom-green:hover {
@@ -39,7 +48,7 @@ body {
     margin: auto;
     margin-top: 50px;
     padding: 20px;
-    border: 1px solid #1abc9c;
+    border: 1px solid var(--green-color);
     border-radius: 5px;
 }
 
@@ -66,7 +75,7 @@ body {
 .form-container input[type="submit"] {
     width: 100%;
     padding: 10px;
-    background-color: #1abc9c;
+    background-color:var(--green-color);
     border: none;
     color: #fff;
     font-size: 16px;
@@ -75,4 +84,29 @@ body {
 
 .form-container input[type="submit"]:hover {
     background-color: #148f77;
+}
+
+.btn-outline-custom-green {
+    color: #1abc9c;
+    background-color: transparent;
+    background-image: none;
+    border-color: #1abc9c;
+}
+.btn-outline-custom-green:hover {
+    color: #fff;
+    background-color: #1abc9c;
+    border-color: var(--green-color);
+}
+
+.btn-outline-custom-red {
+    color: #e74c3c;
+    background-color: transparent;
+    background-image: none;
+    border-color: #e74c3c;
+}
+
+.btn-outline-custom-red:hover {
+    color: #fff;
+    background-color: #e74c3c;
+    border-color: #e74c3c;
 }

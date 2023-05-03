@@ -1,5 +1,4 @@
 <template>
-    <!-- Login Section -->
     <div class="container">
         <div class="form-container">
             <h2>  Login to Your Account</h2>
@@ -23,7 +22,7 @@
                   <div v-if="error !== null" class="alert alert-danger alert-dismissible fade show" role="alert">
               <strong>Error:</strong> {{error}}
           </div>
-                  <input type="submit" @click="Login" value="Login">
+                  <button class="btn btn-outline-custom-green login-button" @click="Login">Login</button>
 
                   <div class="forgot-password">
                                 <a href="#" @click="ToLoginPage">Have no accout?</a>
@@ -72,19 +71,23 @@ export default defineComponent({
 <style>
 
 .forgot-password {
-            text-align: right;
-            font-size: 14px;
-            margin-top: 10px;
-        }
+    text-align: right;
+    font-size: 14px;
+    margin-top: 10px;
+}
 
 .forgot-password a {
-    color: #1abc9c;
+    color: var(--green-color);
     font-weight: bold;
 }
 
 .forgot-password a:hover {
-        text-decoration: none;
-        color: #148f77;
-    }
- 
+    text-decoration: none;
+    color: #148f77;
+}
+
+.login-button{
+  width: 100%;
+  min-height: 50px;
+}
 </style>
