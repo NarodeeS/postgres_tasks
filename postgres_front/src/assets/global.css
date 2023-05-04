@@ -1,5 +1,5 @@
-:root{
-    --green-color:  #1abc9c;
+:root {
+    --green-color: #1abc9c;
 }
 
 body {
@@ -13,26 +13,26 @@ main {
     max-width: 100em;
 }
 
-#dilog-form{
+#dilog-form {
     top: 0;
     bottom: 0;
     right: 0;
     left: 0;
-    background: rgba(0,0,0, 0.5);
+    background: rgba(0, 0, 0, 0.5);
     position: fixed;
     display: flex;
 }
 
-#dialog-content{
+#dialog-content {
     margin: auto;
     background: white;
     border-radius: 20px;
     min-height: 50px;
     min-width: 300px;
-    padding:20px;
+    padding: 20px;
 }
 
-.btn-custom-green{
+.btn-custom-green {
     color: white;
     background-color: var(--green-color);
     box-shadow: 0 0 0 0.1px #126958;
@@ -40,8 +40,7 @@ main {
 .btn-custom-green:hover {
     color: white;
     background-color: #126958;
-  }
-
+}
 
 .form-container {
     max-width: 400px;
@@ -61,7 +60,9 @@ main {
     font-weight: bold;
 }
 
-.form-container input[type="text"], .form-container input[type="email"], .form-container input[type="password"] {
+.form-container input[type='text'],
+.form-container input[type='email'],
+.form-container input[type='password'] {
     width: 100%;
     padding: 10px;
     margin-bottom: 20px;
@@ -72,17 +73,17 @@ main {
     font-size: 16px;
 }
 
-.form-container input[type="submit"] {
+.form-container input[type='submit'] {
     width: 100%;
     padding: 10px;
-    background-color:var(--green-color);
+    background-color: var(--green-color);
     border: none;
     color: #fff;
     font-size: 16px;
     cursor: pointer;
 }
 
-.form-container input[type="submit"]:hover {
+.form-container input[type='submit']:hover {
     background-color: #148f77;
 }
 

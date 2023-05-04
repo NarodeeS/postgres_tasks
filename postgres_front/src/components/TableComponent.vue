@@ -1,16 +1,20 @@
 <template>
-       <table v-if="dataColumns != null" class="table table-output">
-        <thead >
+    <table v-if="dataColumns != null" class="table table-output">
+        <thead>
             <tr>
                 <th class="table-output" scope="col">#</th>
-                <th scope="col" v-for="(column, index) in dataColumns" :key="index">{{column}}</th>
+                <th scope="col" v-for="(column, index) in dataColumns" :key="index">
+                    {{ column }}
+                </th>
             </tr>
         </thead>
 
-        <tbody>            
+        <tbody>
             <tr v-for="element in dataResults" v-bind:key="element.id">
-            <td scope="col">{{element.id}}</td>
-            <td scope="col" v-for="raw_element in element.data"  v-bind:key="raw_element.id">{{raw_element}}</td>
+                <td scope="col">{{ element.id }}</td>
+                <td scope="col" v-for="raw_element in element.data" v-bind:key="raw_element">
+                    {{ raw_element }}
+                </td>
             </tr>
         </tbody>
     </table>
@@ -28,15 +32,14 @@ export default defineComponent({
         },
         dataColumns: {
             required: true,
-            type: null as unknown as PropType<string[] | null>,
+            type: null as unknown as PropType<string[] | null>
         }
-    }, 
+    }
 })
 </script>
 
 <style>
 .table-output {
-  color: #fff;
+    color: #fff;
 }
-
 </style>

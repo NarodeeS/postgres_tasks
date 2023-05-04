@@ -46,6 +46,7 @@ export default defineComponent({
         async function Logout() {
             const token = cookie.getCookie('token')
             cookie.removeCookie('token')
+            is_auntificated.value = false
             router.push({ name: 'mainPage' })
             try {
                 await axios.post(
@@ -60,11 +61,8 @@ export default defineComponent({
             } catch (error) {
                 return
             }
-
-            is_auntificated.value = false
         }
 
-        // возможно следует перенести в компонент Login
         async function Login(email: string, password: string) {
             errorInLogin.value = null
             try {

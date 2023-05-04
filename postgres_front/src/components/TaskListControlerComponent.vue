@@ -1,22 +1,23 @@
 <template>
     <div id="task-list">
-        <TaskComponent
-                v-for="task in task_list"
-                :key="task.id"
-                :task="task"
-                @deploy_task="deployTask">
-        </TaskComponent>
-        </div> 
+        <OneTaskComponent
+            v-for="task in task_list"
+            :key="task.id"
+            :task="task"
+            @deploy_task="$emit('deploy_task', task.id)"
+        >
+        </OneTaskComponent>
+    </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import type Task from '@/types/Task'
-import TaskComponent from "@/components/OneTaskControler.vue"
+import OneTaskComponent from '@/components/OneTaskControler.vue'
 
 export default defineComponent({
     components: {
-        TaskComponent
+        OneTaskComponent
     },
     props: {
         task_list: {
@@ -24,20 +25,10 @@ export default defineComponent({
             type: Array as PropType<Task[]>
         }
     },
-    emits:{
-        deploy_task: (id:number) => true
-    },
-
-    setup(_, { emit }) {
-        
-        function deployTask(id: number)  {
-            emit('deploy_task', id)
-        }
-        return {deployTask}
+    emits: {
+        deploy_task: (id: number) => true
     },
 })
 </script>
 
-<style>
-
-</style>
+<style></style>
