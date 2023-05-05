@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer as BaseUserRegistrationSerializer
 
-from core.tasks import send_verification_email 
+from core.tasks import send_verification_email_task 
 from .models import DatabaseInfo, Task, User
 from postgres_tasks.settings import VERIFICATE_EMAIL
+
 
 class DatabaseInfoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,12 +19,11 @@ class TaskGetSerializer(serializers.ModelSerializer):
 
 
 class UserRegistrationSerializer(BaseUserRegistrationSerializer):
-
     def validate(self, data):
         super().validate(data)
         email = data.get("email")
         if VERIFICATE_EMAIL == True:
-            send_verification_email.delay(email)
+            send_verification_email_task.delay(email)
         else:
             data['email_confirmed'] = True
         return data

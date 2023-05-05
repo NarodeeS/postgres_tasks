@@ -5,7 +5,7 @@ import psycopg2
 from core.utils.get_database_connection import get_database_connection
 from core.utils.connection_manager import ConnectionManager
 from core.service.errors import OutOfMovesError
-from .utils.get_db_info import get_db_info
+from .get_db_info import get_db_info
 
 
 class QueryResult(TypedDict):

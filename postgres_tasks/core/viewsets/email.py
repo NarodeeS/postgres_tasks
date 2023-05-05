@@ -7,8 +7,8 @@ from core.models import User
 from django.core.cache import cache
 
 
-class EamilApiView(APIView):
-    permission_classes=[AllowAny]
+class EmaillApiView(APIView):
+    permission_classes = [AllowAny]
 
     def post(self, request):
         try:
@@ -40,4 +40,3 @@ class EamilApiView(APIView):
 
         return Response(data={'detail': 'OK'}, 
                             status=status.HTTP_200_OK)
-

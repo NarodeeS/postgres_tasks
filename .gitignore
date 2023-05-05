@@ -2,7 +2,7 @@
 media/
 static/
 .DS_Store
-*my-secret.yml
+*secrets.yml
 *lets-encrypt-secret.yml
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -10,8 +10,6 @@ __pycache__/
 *$py.class
 
 cache/
-grafana/
-*/grafana/data/*
 pyrightconfig.json
 # C extensions
 *.so

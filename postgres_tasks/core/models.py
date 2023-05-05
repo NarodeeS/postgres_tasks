@@ -58,7 +58,7 @@ class CompletedTask(models.Model):
     
     def __str__(self) -> str:
         return f"Completed task '{self.task.title}'" \
-                "for user '{self.user.username}'"
+               f"for user '{self.user.username}'"
 
 
 class DatabaseInfo(models.Model):

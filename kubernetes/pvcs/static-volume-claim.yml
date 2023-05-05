@@ -2,7 +2,9 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: static-volume
+  namespace: postgres-tasks
 spec:
+  storageClassName: local-path
   accessModes:
     - ReadWriteOnce
   resources:

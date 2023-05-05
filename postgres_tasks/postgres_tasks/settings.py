@@ -1,16 +1,12 @@
 from pathlib import Path
-import os
-from config import (DJANGO_SECRET_KEY, DEBUG, 
-                    POSTGRES_USER, 
-                    POSTGRES_PASSWORD,
-                    RABBITMQ_DEFAULT_USER, 
-                    RABBITMQ_DEFAULT_PASS)
+
+import config
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = DJANGO_SECRET_KEY
-DEBUG = DEBUG
+SECRET_KEY = config.DJANGO_SECRET_KEY
+DEBUG = config.DEBUG
 
 ALLOWED_HOSTS = ["*"]
 
@@ -59,7 +55,9 @@ ROOT_URLCONF = "postgres_tasks.urls"
 #     "http://localhost:8000",
 #     "http://localhost:8080",
 # ]
-CSRF_TRUSTED_ORIGINS = ['http://localhost', 'https://localhost']
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost', 'https://localhost', 
+                        'http://nginx.localhost', 'https://nginx.localhost']
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
@@ -87,8 +85,8 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "HOST": "django-postgres",
         "PORT": "5432",
-        "USER": POSTGRES_USER,
-        "PASSWORD": POSTGRES_PASSWORD,
+        "USER": config.POSTGRES_USER,
+        "PASSWORD": config.POSTGRES_PASSWORD,
         "NAME": "postgres",
     }
 }
@@ -125,14 +123,14 @@ AUTH_PASSWORD_VALIDATORS = [
 EMAIL_HOST = 'smtp-relay.sendinblue.com'
 EMAIL_PORT = 587
 
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = config.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = config.EMAIL_HOST_PASSWORD
 
 EMAIL_TIMEOUT = 60
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
 
-VERIFICATE_EMAIL =  bool(int(os.getenv('VERIFICATE_EMAIL')))
+VERIFICATE_EMAIL = config.VERIFICATE_EMAIL
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
@@ -160,8 +158,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # настройки celery
 
 CELERY_BROKER_URL = (
-    f"amqp://{RABBITMQ_DEFAULT_USER}"
-    f":{RABBITMQ_DEFAULT_PASS}@rabbitmq:5672"
+    f"amqp://{config.RABBITMQ_DEFAULT_USER}"
+    f":{config.RABBITMQ_DEFAULT_PASS}@rabbitmq:5672"
 )
 
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -171,7 +169,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated', # change to IsEmailVerified
+        'core.permissions.IsEmailVerifiedAndAuthenticated',
     ]
 }
 

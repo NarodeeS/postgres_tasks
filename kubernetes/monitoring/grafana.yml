@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
+  namespace: postgres-tasks
 spec:
   selector:
     matchLabels:
@@ -13,7 +14,7 @@ spec:
     spec:
       containers:
         - name: grafana
-          image: narodees/postgres_tasks-grafana # custom grafana image
+          image: narodees/postgres_tasks-grafana:0.1  # custom grafana image
           resources:
             limits:
               memory: "128Mi"
@@ -36,6 +37,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: grafana
+  namespace: postgres-tasks
 spec:
   selector:
     app: grafana

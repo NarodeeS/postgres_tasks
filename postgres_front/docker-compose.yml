@@ -13,7 +13,7 @@ services:
       - frontend-network
       - backend-network
     volumes:
-      - django_static_volume:/www/data/static
+      - django_static_volume:/www/data/static:ro
   
   nginx-exporter:
     container_name: nginx-exporter
