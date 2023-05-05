@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: grafana
-          image: narodees/postgres_tasks-grafana # custom grafana image
+          image: narodees/postgres_tasks-grafana:0.1  # custom grafana image
           resources:
             limits:
               memory: "128Mi"

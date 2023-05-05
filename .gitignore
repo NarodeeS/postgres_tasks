@@ -10,7 +10,6 @@ __pycache__/
 *$py.class
 
 cache/
-grafana/
 pyrightconfig.json
 # C extensions
 *.so

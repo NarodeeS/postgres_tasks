@@ -30,6 +30,7 @@ spec:
           volumeMounts:
             - name: static-volume
               mountPath: /www/data/static
+              readOnly: true
 ---
 apiVersion: v1
 kind: Service
