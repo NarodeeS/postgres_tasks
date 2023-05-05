@@ -80,21 +80,21 @@
                 </div>
                 <div class="input-container">
                     <label for="input-field" class="input-label">Input:</label>
-                    <input
-                        type="text"
+                    <textarea 
+                        cols='20' rows='1'
                         class="input-field form-control"
                         v-model="command"
                         id="input-field"
                     />
                 </div>
                 <div class="row console-navigation">
-                    <div class="col-6 single-line">
+                    <div class="col-5 single-line">
                         <p>
                             Turns: <strong>{{ turn_numbers }}</strong>
                         </p>
                     </div>
 
-                    <div class="col-6">
+                    <div class="col-7">
                         <button
                             type="button"
                             @click="sendCommand"
@@ -108,7 +108,7 @@
                             data-bs-target="#forceCloseModal"
                             class="btn ml-2 btn-outline-custom-green"
                         >
-                            Submit
+                            Pass Task
                         </button>
                         <button
                             type="button"
@@ -229,6 +229,7 @@ export default defineComponent({
 .input-field {
     background-color: #3e4460;
     flex-grow: 1;
+    color: #fff;
 }
 .input-field:focus {
     outline: 1px solid var(--green-color);

@@ -10,10 +10,9 @@
                     ></TaskListControlerComponent>
                 </div>
                 <div class="col-8 console-control">
+                    <ResultForTaskComponent :result="'move_over'"></ResultForTaskComponent>
                     <div v-if="task_controler.selected_task_id != null">
-                        <div v-if="task_controler.task_passed_with_eror === true">
-                            <ErrorAlertComponent></ErrorAlertComponent>
-                        </div>
+                  
                         <ConsoleComponent
                             @send_command="sendCommand"
                             @end_task="sendTaskForChecking"
@@ -24,12 +23,7 @@
                             :response_from_postgres_list="postgresResponseHistory"
                         ></ConsoleComponent>
                     </div>
-                    <div v-else-if="task_controler.task_is_passed === true">
-                        <SucessAlertComponent></SucessAlertComponent>
-                    </div>
-                    <div v-else-if="task_turn_out_with_error === true">
-                        <TurnOutWithErrorAlertComponent></TurnOutWithErrorAlertComponent>
-                    </div>
+ 
                 </div>
             </div>
         </div>
@@ -48,19 +42,16 @@ import type ResponseType from '@/types/ResponesType'
 import TaskListControlerComponent from '@/components/TaskListControlerComponent.vue'
 import PostgresCommandResponse from '@/types/PostgresCommandResponse'
 import ConsoleComponent from '@/components/ConsoleComponent.vue'
-import SucessAlertComponent from '@/components/results/SucessAlertComponent.vue'
-import ErrorAlertComponent from '@/components/results/ErrorAlertComponent.vue'
-import TurnOutWithErrorAlertComponent from '@/components/results/TurnOutWithError.vue'
+import ResultForTaskComponent from '@/components/ResultForTaskComponent.vue'
+
 import router from '@/router'
 
 export default defineComponent({
     name: 'App',
     components: {
+        ResultForTaskComponent,
         TaskListControlerComponent,
         ConsoleComponent,
-        SucessAlertComponent,
-        ErrorAlertComponent,
-        TurnOutWithErrorAlertComponent
     },
     mounted() {
         const cookie = useCookie()
