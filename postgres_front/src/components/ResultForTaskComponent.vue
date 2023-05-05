@@ -1,12 +1,12 @@
 <template>
-    <div v-if="result != 'none'">
-        <div v-if="result === 'success_passed'">
+    <div v-if="result != ResponseType.None">
+        <div v-if="result === ResponseType.Success_passed">
             <SucessAlertComponent></SucessAlertComponent>
         </div>
-        <div v-else-if="result === 'error_while_passing'">
+        <div v-else-if="result === ResponseType.Error_while_passing">
             <ErrorAlertComponent></ErrorAlertComponent>
         </div>
-        <div v-else-if="result  === 'move_over'">
+        <div v-else-if="result  === ResponseType.Moves_over">
             <TurnOutWithErrorAlertComponent></TurnOutWithErrorAlertComponent>
         </div>
     </div>
@@ -15,7 +15,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 
-import type ResponseType from '@/types/ResponesType'
+import ResponseType from '@/types/enums/ResponesType'
 
 import SucessAlertComponent from '@/components/results/SucessAlertComponent.vue'
 import ErrorAlertComponent from '@/components/results/ErrorAlertComponent.vue'
@@ -24,8 +24,7 @@ import TurnOutWithErrorAlertComponent from '@/components/results/TurnOutWithErro
 export default defineComponent({
     props: {
         result: {
-            // type: Object as PropType<ResponseType>,
-            type: String,
+            type: Number as PropType<ResponseType>,
             required: true
         }
     },
@@ -34,6 +33,11 @@ export default defineComponent({
         SucessAlertComponent,
         ErrorAlertComponent,
         TurnOutWithErrorAlertComponent
+    },
+    setup() {
+        return {
+          ResponseType
+        }
     }
 })
 </script>

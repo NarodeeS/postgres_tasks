@@ -83,7 +83,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import axios from 'axios'
-import type AccountForm from '@/types/AccoutForm'
+import type AccountForm from '@/types/interfaces/AccoutForm'
 import router from '../router'
 import { useStore } from 'vuex'
 import { key } from '@/store'

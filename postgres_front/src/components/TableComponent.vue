@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import type PostgresResultResponse from '@/types/PostgreResultResponse'
+import type PostgresResultResponse from '@/types/interfaces/PostgreResultResponse'
 
 export default defineComponent({
     props: {

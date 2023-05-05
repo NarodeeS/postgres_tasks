@@ -1,7 +1,7 @@
 // store.ts
 import { InjectionKey } from 'vue'
 import { createStore, Store } from 'vuex'
-import AccautForm from './types/AccoutForm'
+import AccautForm from './types/interfaces/AccoutForm'
 
 export interface State {
     email: string

@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import type Task from '@/types/Task'
+import type Task from '@/types/interfaces/Task'
 import OneTaskComponent from '@/components/OneTaskControler.vue'
 
 export default defineComponent({

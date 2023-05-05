@@ -1,4 +1,4 @@
-import PostgresResultResponse from '@/types/PostgreResultResponse'
+import PostgresResultResponse from '@/types/interfaces/PostgreResultResponse'
 
 interface PostgersCommandResponse {
     status: string

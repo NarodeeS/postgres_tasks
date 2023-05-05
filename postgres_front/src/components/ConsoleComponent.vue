@@ -1,6 +1,6 @@
 <template>
     <div class="console-component">
-        <div v-if="db_is_starting === true">
+        <div v-if="dbIsStarting === true">
             <div class="d-flex justify-content-center">
                 <div class="spinner-border" role="status">
                     <span class="sr-only">Loading...</span>
@@ -46,15 +46,15 @@
                     <div>PostgreSQL Terminal</div>
                 </div>
                 <div class="terminal-body" id="terminal">
-                    <p v-if="response_from_postgres_list.length === 0">
+                    <p v-if="responseFromPostgresList.length === 0">
                         Welcome to PostgreSQL Terminal!
                     </p>
-                    <p v-if="response_from_postgres_list.length === 0">
+                    <p v-if="responseFromPostgresList.length === 0">
                         <span class="terminal-prompt">$</span> <span class="user-input"></span>
                     </p>
 
                     <div
-                        v-for="one_commnad in response_from_postgres_list"
+                        v-for="one_commnad in responseFromPostgresList"
                         v-bind:key="one_commnad.status"
                     >
                         <div class="console-line">
@@ -90,7 +90,7 @@
                 <div class="row console-navigation">
                     <div class="col-5 single-line">
                         <p>
-                            Turns: <strong>{{ turn_numbers }}</strong>
+                            Turns: <strong>{{ turnNumber }}</strong>
                         </p>
                     </div>
 
@@ -127,7 +127,7 @@
 <script lang="ts">
 import { defineComponent, nextTick, ref } from 'vue'
 import type { PropType } from 'vue'
-import type PostgersCommandResponse from '@/types/PostgresCommandResponse'
+import type PostgersCommandResponse from '@/types/interfaces/PostgresCommandResponse'
 import TableComponent from '@/components/TableComponent.vue'
 
 export default defineComponent({
@@ -135,21 +135,21 @@ export default defineComponent({
         TableComponent
     },
     props: {
-        db_is_starting: {
+        dbIsStarting: {
             required: true,
             type: Boolean
         },
-        response_from_postgres_list: {
+        responseFromPostgresList: {
             required: true,
             type: Object as PropType<PostgersCommandResponse[]>
         },
-        turn_numbers: {
+        turnNumber: {
             required: true,
             type: Number
         }
     },
     watch: {
-        response_from_postgres_list: {
+        responseFromPostgresList: {
             handler: async function (val, oldVal) {
                 var element = document.getElementById('terminal')!
                 await nextTick()

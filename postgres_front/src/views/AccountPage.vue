@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div id="main-part" class="container-fluid" v-if="is_auntificated === true">
+        <div id="main-part" class="container-fluid" v-if="isAuthenticated === true">
             <div class="row">
                 <div class="col-4 tasks-control">
                     <h3>Задания:</h3>
@@ -10,20 +10,17 @@
                     ></TaskListControlerComponent>
                 </div>
                 <div class="col-8 console-control">
-                    <ResultForTaskComponent :result="'move_over'"></ResultForTaskComponent>
-                    <div v-if="task_controler.selected_task_id != null">
-                  
+                    <ResultForTaskComponent :result="resultForTask"></ResultForTaskComponent>
+                    <div v-if="taskId != null">
                         <ConsoleComponent
                             @send_command="sendCommand"
                             @end_task="sendTaskForChecking"
                             @close_task_without_cheking="endTaskWithoutChecking"
-                            :db_is_starting="db_is_starting"
-                            :turn_numbers="moves_left"
-                            :task_passed_with_eror="task_controler.task_passed_with_eror"
-                            :response_from_postgres_list="postgresResponseHistory"
+                            :dbIsStarting="dbIsStarting"
+                            :turnNumber="movesLeft"
+                            :responseFromPostgresList="postgresResponseHistory"
                         ></ConsoleComponent>
                     </div>
- 
                 </div>
             </div>
         </div>
@@ -35,12 +32,11 @@ import { defineComponent, ref } from 'vue'
 import axios, { AxiosResponse } from 'axios'
 import { useCookie } from 'vue-cookie-next'
 
-import type Task from '@/types/Task'
-import type TaskControler from '@/types/TaskControler'
-import type ResponseType from '@/types/ResponesType'
+import type Task from '@/types/interfaces/Task'
+import ResponseType from '@/types/enums/ResponesType'
+import type PostgresCommandResponse from '@/types/interfaces/PostgresCommandResponse'
 
 import TaskListControlerComponent from '@/components/TaskListControlerComponent.vue'
-import PostgresCommandResponse from '@/types/PostgresCommandResponse'
 import ConsoleComponent from '@/components/ConsoleComponent.vue'
 import ResultForTaskComponent from '@/components/ResultForTaskComponent.vue'
 
@@ -51,17 +47,17 @@ export default defineComponent({
     components: {
         ResultForTaskComponent,
         TaskListControlerComponent,
-        ConsoleComponent,
+        ConsoleComponent
     },
     mounted() {
         const cookie = useCookie()
         let token = cookie.getCookie('token')
 
         if (token) {
-            this.is_auntificated = true
-            this.GeyTasks()
+            this.isAuthenticated = true
+            this.getTasksOrPushToLoginPage()
         } else {
-            this.is_auntificated = false
+            this.isAuthenticated = false
             router.push({ name: 'login' })
         }
     },
@@ -71,22 +67,23 @@ export default defineComponent({
             Authorization: 'Token ' + cookie.getCookie('token')
         }
 
-        const moves_left = ref<number>(0)
+        const resultForTask = ref<ResponseType>(ResponseType.Moves_over)
+        const movesLeft = ref<number>(0)
         const dbName = ref<null | string>(null)
-        const is_auntificated = ref(false)
-        const db_is_starting = ref(false)
-        const task_turn_out_with_error = ref(false)
-        const task_controler = ref<TaskControler>({
-            showForceClose: false,
-            selected_task_id: null,
-            task_is_passed: false,
-            task_passed_with_eror: false
-        })
-        const postgresResponseHistory = ref<PostgresCommandResponse[]>([])
+        const isAuthenticated = ref(false)
+        const dbIsStarting = ref(false)
+        const taskId = ref<number | null>(null)
 
+        const postgresResponseHistory = ref<PostgresCommandResponse[]>([])
         const tasksList = ref<Task[]>([])
 
-        async function GeyTasks() {
+        function delay(milliseconds: number) {
+            return new Promise((resolve) => {
+                setTimeout(resolve, milliseconds)
+            })
+        }
+
+        async function getTasksOrPushToLoginPage() {
             try {
                 const response = await axios.get('api/tasks/', { headers: headers })
                 response.data.forEach((element: Task) => {
@@ -97,44 +94,41 @@ export default defineComponent({
             }
         }
 
-        function delay(milliseconds: number) {
-            return new Promise((resolve) => {
-                setTimeout(resolve, milliseconds)
-            })
+        function endTaskWithoutChecking() {
+            makeRequestForDelitingdb()
+            resultForTask.value = ResponseType.None
+            taskId.value = null
         }
 
-        async function endTaskWithoutChecking() {
+        async function makeRequestForDelitingdb() {
             try {
                 await axios.delete(`api/databases/${dbName.value}/`, { headers: headers })
                 postgresResponseHistory.value = []
             } catch (err) {
                 return
             }
-            clearFieldsAfterEndTaskWithoutChecking()
-        }
-
-        function clearFieldsAfterEndTaskWithoutChecking() {
-            task_controler.value.selected_task_id = null
-            task_controler.value.task_is_passed = false
-            task_controler.value.task_passed_with_eror = false
         }
 
         async function deployTask(id: number) {
-            if (task_controler.value.selected_task_id != null) {
+            if (taskId.value != null) {
                 alert('Вы не еще завешили начатое задание')
                 return
             }
             prepareFieldsBeforeDeployingTask(id)
-            let selected_task = tasksList.value.find(
-                (x) => x.id === task_controler.value.selected_task_id
-            )
-            if (typeof selected_task === 'undefined') {
+            let selectedTask = tasksList.value.find((x) => x.id === taskId.value)
+            if (typeof selectedTask === 'undefined') {
                 return
             }
+
+            await makeRequestIsDbStarted(selectedTask.id)
+            checkIsDbStarted()
+        }
+
+        async function makeRequestIsDbStarted(taskId: number) {
             try {
                 const response = await axios.post(
                     `/api/tasks/`,
-                    { task_id: selected_task.id },
+                    { task_id: taskId },
                     { headers: headers }
                 )
                 dbName.value = response.data.db_name
@@ -142,14 +136,12 @@ export default defineComponent({
                 alert('Ошибка при создании базы данных')
                 return
             }
-            checkIsDbStarted()
         }
+
         function prepareFieldsBeforeDeployingTask(id: number) {
-            task_turn_out_with_error.value = false
-            task_controler.value.selected_task_id = id
-            db_is_starting.value = true
-            task_controler.value.task_is_passed = false
-            task_controler.value.task_passed_with_eror = false
+            resultForTask.value = ResponseType.None
+            taskId.value = id
+            dbIsStarting.value = true
         }
 
         async function checkIsDbStarted() {
@@ -157,11 +149,11 @@ export default defineComponent({
 
             let max_retries = 5
             let try_number = 0
-            while (max_retries !== try_number || db_is_starting.value === false) {
+            while (max_retries !== try_number || dbIsStarting.value === false) {
                 try_number += 1
                 await isDbStartedRequest()
 
-                if (db_is_starting.value === false) {
+                if (dbIsStarting.value === false) {
                     return
                 }
             }
@@ -173,19 +165,53 @@ export default defineComponent({
                     headers: headers
                 })
                 if (response.data.status === 'up') {
-                    db_is_starting.value = false
-                    moves_left.value = response.data.moves_left
+                    dbIsStarting.value = false
+                    movesLeft.value = response.data.moves_left
                 }
             } catch (err) {
-                console.log(err)
-                task_controler.value.selected_task_id = null
+                taskId.value = null
             }
         }
 
+        async function sendCommand(command: string) {
+            resultForTask.value = ResponseType.None
+            if (command === '') {
+                emptyComandWasSended()
+                return
+            } else {
+                try {
+                    const response = await axios.post(
+                        `/api/databases/${dbName.value}/command/`,
+                        { command: command },
+                        { headers: headers }
+                    )
+                    updatePostgresResponseFields(response, command)
+
+                    if (movesLeft.value === 0) {
+                        await sendTaskForChecking()
+                    }
+                } catch (err: any) {
+                    alert('Ошибка при выполнении команды')
+                    return
+                }
+            }
+        }
+
+        function emptyComandWasSended() {
+            let newPostgresResponseHistory: PostgresCommandResponse = {
+                status: '',
+                result: [],
+                error_message: '',
+                columns: null,
+                command: ''
+            }
+            postgresResponseHistory.value.push(newPostgresResponseHistory)
+        }
+
         function updatePostgresResponseFields(response: AxiosResponse, command: string) {
-            moves_left.value = response.data.moves_left
+            movesLeft.value = response.data.moves_left
             let index = 1
-            let new_response: PostgresCommandResponse = {
+            let newPostgresResponseHistory: PostgresCommandResponse = {
                 status: response.data.status,
                 result: [],
                 error_message: response.data.error_message,
@@ -199,48 +225,12 @@ export default defineComponent({
                         id: index,
                         data: el
                     }
-                    new_response.result.push(raw)
+                    newPostgresResponseHistory.result.push(raw)
                     index += 1
                 })
             }
 
-            postgresResponseHistory.value.push(new_response)
-        }
-
-        function emptyComandHandler() {
-            let new_response: PostgresCommandResponse = {
-                status: '',
-                result: [],
-                error_message: '',
-                columns: null,
-                command: ''
-            }
-            postgresResponseHistory.value.push(new_response)
-        }
-
-        async function sendCommand(command: string) {
-            task_controler.value.task_passed_with_eror = false
-
-            if (command === '') {
-                emptyComandHandler()
-                return
-            } else {
-                try {
-                    const response = await axios.post(
-                        `/api/databases/${dbName.value}/command/`,
-                        { command: command },
-                        { headers: headers }
-                    )
-                    updatePostgresResponseFields(response, command)
-
-                    if (moves_left.value === 0) {
-                        await sendTaskForChecking()
-                    }
-                } catch (err: any) {
-                    alert('Ошибка при выполнении команды')
-                    return
-                }
-            }
+            postgresResponseHistory.value.push(newPostgresResponseHistory)
         }
 
         async function sendTaskForChecking() {
@@ -250,45 +240,54 @@ export default defineComponent({
                     {},
                     { headers: headers }
                 )
-                if (response.data.detail === 'Check error') {
-                    if (moves_left.value == 0) {
-                        task_turn_out_with_error.value = true
-                        postgresResponseHistory.value = []
-                        task_controler.value.selected_task_id = null
-                        endTaskWithoutChecking()
-                    } else {
-                        task_controler.value.task_passed_with_eror = true
-                    }
+
+                deleteTaskIfTurnOut(response)
+
+                let selectedTask = tasksList.value.find((x) => x.id === taskId.value)
+                if (typeof selectedTask === 'undefined') {
                     return
                 }
-                postgresResponseHistory.value = []
-                let selected_task = tasksList.value.find(
-                    (x) => x.id === task_controler.value.selected_task_id
-                )!
-                selected_task.completed = true
-                updateFieldsAfterSucses()
+                selectedTask.completed = true
+                resultForTask.value = ResponseType.Success_passed
+                cleanFields()
             } catch (err) {
-                task_controler.value.task_passed_with_eror = true
+                console.log(err)
+                resultForTask.value = ResponseType.Error_while_passing
             }
         }
-        function updateFieldsAfterSucses() {
-            task_controler.value.selected_task_id = null
-            task_controler.value.task_is_passed = true
+
+        async function deleteTaskIfTurnOut(response: AxiosResponse) {
+            if (response.data.detail === 'Check error') {
+                if (movesLeft.value == 0) {
+                    postgresResponseHistory.value = []
+                    taskId.value = null
+                    resultForTask.value = ResponseType.Moves_over
+                    await makeRequestForDelitingdb()
+                } else {
+                    resultForTask.value = ResponseType.Error_while_passing
+                }
+                return
+            }
+        }
+
+        function cleanFields() {
+            postgresResponseHistory.value = []
+            taskId.value = null
         }
 
         return {
-            is_auntificated,
-            db_is_starting,
-            task_controler,
+            resultForTask,
+            isAuthenticated,
+            dbIsStarting,
+            taskId,
             postgresResponseHistory,
             tasksList,
-            task_turn_out_with_error,
-            moves_left,
+            movesLeft,
             deployTask,
             sendCommand,
             sendTaskForChecking,
             endTaskWithoutChecking,
-            GeyTasks
+            getTasksOrPushToLoginPage
         }
     }
 })
