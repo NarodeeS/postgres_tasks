@@ -1,30 +1,31 @@
 version: '3.9'
 
 services:
-    nginx:
-        container_name: nginx
-        restart: unless-stopped
-        build: postgres_front
-        env_file:
-            - ./.env
-        ports:
-            - 80:80
-        networks:
-            - frontend-network
-            - backend-network
-        volumes:
-            - django_static_volume:/www/data/static
 
-    nginx-exporter:
-        container_name: nginx-exporter
-        image: nginx/nginx-prometheus-exporter
-        restart: unless-stopped
-        expose:
-            - 9113
-        networks:
-            - monitoring-network
-            - frontend-network
-        command: -nginx.scrape-uri http://nginx:80/metrics
+  nginx:
+    container_name: nginx
+    restart: unless-stopped
+    build: postgres_front
+    env_file:
+      - ./.env
+    ports:
+      - 80:80
+    networks:
+      - frontend-network
+      - backend-network
+    volumes:
+      - django_static_volume:/www/data/static:ro
+  
+  nginx-exporter:
+    container_name: nginx-exporter
+    image: nginx/nginx-prometheus-exporter
+    restart: unless-stopped
+    expose:
+      - 9113
+    networks:
+      - monitoring-network
+      - frontend-network
+    command: -nginx.scrape-uri http://nginx:80/metrics
 
 networks:
     monitoring-network:

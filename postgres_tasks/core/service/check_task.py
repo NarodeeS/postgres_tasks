@@ -3,7 +3,7 @@ import psycopg2
 from core.utils.get_database_connection import get_admin_connection
 from core.utils.connection_manager import ConnectionManager
 from core.utils.load_script import load_script
-from .utils.get_db_info import get_db_info
+from .get_db_info import get_db_info
 
 
 def check_task(db_name: str) -> bool:
@@ -24,10 +24,7 @@ def check_task(db_name: str) -> bool:
                 row = cursor.fetchone()
                 if row:    
                     success, *_ = row
-                    if success:
-                        return True
-                    else:
-                        return False
+                    return bool(success)
             except psycopg2.Error as error:
                 print(error.pgerror)
             

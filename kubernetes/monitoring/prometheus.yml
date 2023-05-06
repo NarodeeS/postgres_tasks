@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus
+  namespace: postgres-tasks
 spec:
   selector:
     matchLabels:
@@ -11,20 +12,29 @@ spec:
       labels:
         app: prometheus
     spec:
+      serviceAccount: prometheus-account
       containers:
-      - name: prometheus
-        image: narodees/postgres_tasks-prometheus  # custom prometheus image
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "250m"
-        ports:
-          - containerPort: 9090
+        - name: prometheus
+          image: prom/prometheus
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "250m"
+          ports:
+            - containerPort: 9090
+          volumeMounts: # mount config file
+            - name: prometheus-volume
+              mountPath: /etc/prometheus/
+      volumes:
+        - name: prometheus-volume
+          configMap:
+            name: prometheus-config-map
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: prometheus
+  namespace: postgres-tasks
 spec:
   selector:
     app: prometheus

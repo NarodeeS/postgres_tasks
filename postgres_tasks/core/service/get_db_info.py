@@ -1,5 +1,5 @@
 from core.models import DatabaseInfo
-from ..errors.no_such_db_error import NoSuchDbError
+from .errors import NoSuchDbError
 
 
 def get_db_info(db_name: str) -> DatabaseInfo:

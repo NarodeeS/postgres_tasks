@@ -2,17 +2,16 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: my-ingress
-  annotations:
-    cert-manager.io/cluster-issuer: lets-encrypt-issuer
-    kubernetes.io/ingress.class: traefik  # change to nginx in Kubernetes
+  namespace: postgres-tasks
   labels:
     name: my-ingress
 spec:
+  ingressClassName: traefik  # change to nginx in Kubernetes
   tls:
     - hosts:
-        - https-nginx.localhost
-        - https-grafana.localhost
-      secretName: certificate
+        - https-nginx.localhost  # change to public domain
+        - https-grafana.localhost  # change to public domain
+      secretName: certificate-tls
   rules:
     - host: https-nginx.localhost  # change later
       http:

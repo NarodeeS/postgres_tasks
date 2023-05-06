@@ -2,8 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx
+  namespace: postgres-tasks
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: nginx
@@ -19,7 +20,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: nginx
-          image: narodees/postgres_tasks-nginx  # custom nginx image
+          image: narodees/postgres_tasks-nginx:0.1  # custom nginx image
           resources:
             limits:
               memory: "1Gi"
@@ -29,11 +30,13 @@ spec:
           volumeMounts:
             - name: static-volume
               mountPath: /www/data/static
+              readOnly: true
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: nginx
+  namespace: postgres-tasks
 spec:
   selector:
     app: nginx
