@@ -16,7 +16,7 @@
                     <strong>Error:</strong> {{ errorInCodeValidation }}
                 </div>
 
-                <input type="submit" @click="Registration" value="Register" />
+                <input type="submit" @click="registration" value="Register" />
             </form>
         </div>
     </div>
@@ -46,7 +46,7 @@ export default defineComponent({
             }
         }
 
-        async function Registration() {
+        async function registration() {
             if (code.value === '') {
                 errorInCodeValidation.value = 'Code is required'
                 return
@@ -57,13 +57,13 @@ export default defineComponent({
                     email: store.getters.email,
                     key: code.value
                 })
-                CheckResponse(response)
+                checkResponse(response)
             } catch (error: any) {
                 return
             }
         }
 
-        function CheckResponse(response: AxiosResponse) {
+        function checkResponse(response: AxiosResponse) {
             if (response.status === 200) {
                 emit('login', store.getters.email, store.getters.password)
                 router.push({ name: 'account' })
@@ -75,7 +75,7 @@ export default defineComponent({
         return {
             code,
             errorInCodeValidation,
-            Registration,
+            registration,
             checkEmail
         }
     }

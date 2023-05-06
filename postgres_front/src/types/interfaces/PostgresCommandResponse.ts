@@ -4,7 +4,7 @@ interface PostgersCommandResponse {
     status: string
     columns: string[] | null
     result: PostgresResultResponse[]
-    error_message: string
+    errorMessage: string
     command: string
 }
 

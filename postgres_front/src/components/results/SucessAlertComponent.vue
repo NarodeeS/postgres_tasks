@@ -15,7 +15,7 @@ export default defineComponent({})
 
 <style>
 .custom-sucses-alert {
-    color: #ffc107;
-    background-color: #3f4457;
+    color: var(--yellow-color);
+    background-color: var(--light-grey-color);
 }
 </style>

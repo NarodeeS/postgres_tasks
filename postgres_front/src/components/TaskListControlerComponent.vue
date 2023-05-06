@@ -1,7 +1,7 @@
 <template>
     <div id="task-list">
         <OneTaskComponent
-            v-for="task in task_list"
+            v-for="task in taskList"
             :key="task.id"
             :task="task"
             @deploy_task="$emit('deploy_task', task.id)"
@@ -20,14 +20,14 @@ export default defineComponent({
         OneTaskComponent
     },
     props: {
-        task_list: {
+        taskList: {
             required: true,
             type: Array as PropType<Task[]>
         }
     },
     emits: {
         deploy_task: (id: number) => true
-    },
+    }
 })
 </script>
 

@@ -14,7 +14,10 @@
             <div class="row justify-content-between align-items-center">
                 <div class="col-8"></div>
                 <div class="col-4 text-end">
-                    <button class="btn btn-outline-custom-green" @click="$emit('deploy_task', $props.task.id)">
+                    <button
+                        class="btn btn-outline-custom-green"
+                        @click="$emit('deploy_task', $props.task.id)"
+                    >
                         Start task
                     </button>
                 </div>
@@ -36,7 +39,7 @@ export default defineComponent({
     },
     emits: {
         deploy_task: (id: number) => true
-    },
+    }
 })
 </script>
 

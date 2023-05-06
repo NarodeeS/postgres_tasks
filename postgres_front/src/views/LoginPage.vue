@@ -17,11 +17,7 @@
                         required
                     />
                 </div>
-                <div class="form-group">
-                    <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="remember" />
-                    </div>
-                </div>
+
                 <div
                     v-if="error !== null"
                     class="alert alert-danger alert-dismissible fade show"
@@ -81,11 +77,6 @@ export default defineComponent({
 .forgot-password a {
     color: var(--green-color);
     font-weight: bold;
-}
-
-.forgot-password a:hover {
-    text-decoration: none;
-    color: #148f77;
 }
 
 .login-button {

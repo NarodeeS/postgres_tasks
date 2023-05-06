@@ -40,6 +40,6 @@ export default defineComponent({
 
 <style>
 .table-output {
-    color: #fff;
+    color: var(--white-color);
 }
 </style>

@@ -10,9 +10,7 @@
                 aria-controls="navbarSupportedContent"
                 aria-expanded="false"
                 aria-label="Toggle navigation"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            ></button>
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
@@ -30,15 +28,15 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#">About</a>
                     </li>
-                    <li class="nav-item" v-if="is_authenticated == false">
+                    <li class="nav-item" v-if="isAuthenticated == false">
                         <a class="nav-link" href="#" @click="$router.push({ name: 'registration' })"
                             >Registration</a
                         >
                     </li>
-                    <li v-if="is_authenticated == true" class="nav-item">
+                    <li v-if="isAuthenticated == true" class="nav-item">
                         <a class="nav-link" @click="$emit('logout')">Logout</a>
                     </li>
-                    <li v-if="is_authenticated == true" class="nav-item">
+                    <li v-if="isAuthenticated == true" class="nav-item">
                         <a class="nav-link" @click="$router.push({ name: 'account' })">Account</a>
                     </li>
                     <li v-else class="nav-item">
@@ -54,7 +52,7 @@ import { defineComponent } from 'vue'
 
 export default defineComponent({
     props: {
-        is_authenticated: {
+        isAuthenticated: {
             required: true,
             type: Boolean
         }
@@ -62,7 +60,7 @@ export default defineComponent({
     emits: {
         login: () => true,
         logout: () => true
-    },
+    }
 })
 </script>
 

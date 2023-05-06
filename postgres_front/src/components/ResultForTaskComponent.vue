@@ -6,7 +6,7 @@
         <div v-else-if="result === ResponseType.Error_while_passing">
             <ErrorAlertComponent></ErrorAlertComponent>
         </div>
-        <div v-else-if="result  === ResponseType.Moves_over">
+        <div v-else-if="result === ResponseType.Moves_over">
             <TurnOutWithErrorAlertComponent></TurnOutWithErrorAlertComponent>
         </div>
     </div>
@@ -36,7 +36,7 @@ export default defineComponent({
     },
     setup() {
         return {
-          ResponseType
+            ResponseType
         }
     }
 })

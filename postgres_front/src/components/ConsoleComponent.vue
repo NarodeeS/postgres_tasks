@@ -9,37 +9,7 @@
         </div>
 
         <div class="container-fluid console" div v-else>
-            <div
-                class="modal fad"
-                id="forceCloseModal"
-                tabindex="-1"
-                aria-labelledby="exampleModalLabel"
-                aria-hidden="true"
-            >
-                <div class="modal-dialog custom-modal">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Вы уверены ?</h1>
-                        </div>
-                        <div class="modal-body">
-                            Вы хотите прервать задание ? Это действие нельзя будет отменить
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
-                                Отмена
-                            </button>
-                            <button
-                                type="button"
-                                class="btn btn-outline-danger"
-                                data-bs-dismiss="modal"
-                                @click="$emit('end_task')"
-                            >
-                                Закончить задание
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <ModalComponent @end_task="$emit('end_task')"></ModalComponent>
 
             <div class="terminal-container">
                 <div class="terminal-header">
@@ -54,34 +24,35 @@
                     </p>
 
                     <div
-                        v-for="one_commnad in responseFromPostgresList"
-                        v-bind:key="one_commnad.status"
+                        v-for="oneCommnad in responseFromPostgresList"
+                        v-bind:key="oneCommnad.status"
                     >
                         <div class="console-line">
                             <strong
                                 ><span class="console-prompt">postgres=#</span>
-                                {{ one_commnad.command }}</strong
+                                {{ oneCommnad.command }}</strong
                             >
                         </div>
                         <TableComponent
-                            v-if="one_commnad.columns !== null"
+                            v-if="oneCommnad.columns !== null"
                             id="console-table"
-                            :dataResults="one_commnad.result"
-                            :dataColumns="one_commnad.columns"
+                            :dataResults="oneCommnad.result"
+                            :dataColumns="oneCommnad.columns"
                         ></TableComponent>
                         <blockquote class="blockquote">
-                            <p>{{ one_commnad.status }}</p>
+                            <p>{{ oneCommnad.status }}</p>
                         </blockquote>
 
                         <blockquote class="blockquote">
-                            <p>{{ one_commnad.error_message }}</p>
+                            <p>{{ oneCommnad.errorMessage }}</p>
                         </blockquote>
                     </div>
                 </div>
                 <div class="input-container">
                     <label for="input-field" class="input-label">Input:</label>
-                    <textarea 
-                        cols='20' rows='1'
+                    <textarea
+                        cols="20"
+                        rows="1"
                         class="input-field form-control"
                         v-model="command"
                         id="input-field"
@@ -129,10 +100,12 @@ import { defineComponent, nextTick, ref } from 'vue'
 import type { PropType } from 'vue'
 import type PostgersCommandResponse from '@/types/interfaces/PostgresCommandResponse'
 import TableComponent from '@/components/TableComponent.vue'
+import ModalComponent from './ModalComponent.vue'
 
 export default defineComponent({
     components: {
-        TableComponent
+        TableComponent,
+        ModalComponent
     },
     props: {
         dbIsStarting: {
@@ -174,7 +147,7 @@ export default defineComponent({
         }
         return {
             command,
-            sendCommand,
+            sendCommand
         }
     }
 })
@@ -193,8 +166,8 @@ export default defineComponent({
     overflow: hidden;
 }
 .terminal-header {
-    background-color: #2c3e50;
-    color: #fff;
+    background-color: var(--gray-color);
+    color: var(--white-color);
     padding: 5px;
     display: flex;
     justify-content: space-between;
@@ -209,9 +182,11 @@ export default defineComponent({
     resize: vertical;
     overflow: auto;
 }
+
 .terminal-prompt {
     color: var(--green-color);
 }
+
 .console-navigation {
     margin-top: 20px;
 }
@@ -227,30 +202,20 @@ export default defineComponent({
 }
 
 .input-field {
-    background-color: #3e4460;
+    background-color: var(--light-grey-color);
     flex-grow: 1;
-    color: #fff;
+    color: var(--white-color);
 }
 .input-field:focus {
     outline: 1px solid var(--green-color);
-    background-color: #3e4460;
-    color: #fff;
+    background-color: var(--light-grey-color);
+    color: var(--white-color);
 }
 .console-prompt {
     color: var(--green-color);
 }
 
-.modal-content {
-    background-color: #3f4457;
-    color: #fff;
-    border: none;
-    border-radius: 3px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
 .single-line {
-    color: #ffc107;
+    color: var(--yellow-color);
 }
 </style>

@@ -16,7 +16,7 @@
                         <a
                             href="#"
                             @click="$router.push({ name: 'account' })"
-                            class="btn btn-custom-green btn-success btn-lg mt-4"
+                            class="btn btn-outline-custom-green btn-lg"
                             >Get Started</a
                         >
                     </div>

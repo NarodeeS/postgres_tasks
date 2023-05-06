@@ -5,7 +5,7 @@
                 <div class="col-4 tasks-control">
                     <h3>Задания:</h3>
                     <TaskListControlerComponent
-                        :task_list="tasksList"
+                        :taskList="tasksList"
                         @deploy_task="deployTask"
                     ></TaskListControlerComponent>
                 </div>
@@ -84,6 +84,7 @@ export default defineComponent({
         }
 
         async function getTasksOrPushToLoginPage() {
+            resultForTask.value = ResponseType.None
             try {
                 const response = await axios.get('api/tasks/', { headers: headers })
                 response.data.forEach((element: Task) => {
@@ -201,7 +202,7 @@ export default defineComponent({
             let newPostgresResponseHistory: PostgresCommandResponse = {
                 status: '',
                 result: [],
-                error_message: '',
+                errorMessage: '',
                 columns: null,
                 command: ''
             }
@@ -214,7 +215,7 @@ export default defineComponent({
             let newPostgresResponseHistory: PostgresCommandResponse = {
                 status: response.data.status,
                 result: [],
-                error_message: response.data.error_message,
+                errorMessage: response.data.error_message,
                 columns: response.data.columns,
                 command: command
             }
@@ -242,14 +243,7 @@ export default defineComponent({
                 )
 
                 deleteTaskIfTurnOut(response)
-
-                let selectedTask = tasksList.value.find((x) => x.id === taskId.value)
-                if (typeof selectedTask === 'undefined') {
-                    return
-                }
-                selectedTask.completed = true
-                resultForTask.value = ResponseType.Success_passed
-                cleanFields()
+                cleanFieldsAfterSuccess()
             } catch (err) {
                 console.log(err)
                 resultForTask.value = ResponseType.Error_while_passing
@@ -270,7 +264,13 @@ export default defineComponent({
             }
         }
 
-        function cleanFields() {
+        function cleanFieldsAfterSuccess() {
+            let selectedTask = tasksList.value.find((x) => x.id === taskId.value)
+            if (typeof selectedTask === 'undefined') {
+                return
+            }
+            selectedTask.completed = true
+            resultForTask.value = ResponseType.Success_passed
             postgresResponseHistory.value = []
             taskId.value = null
         }

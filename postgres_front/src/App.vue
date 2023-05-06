@@ -1,6 +1,6 @@
 <template>
     <div class="layout">
-        <NavBarComponent :is_authenticated="is_auntificated" @logout="Logout"></NavBarComponent>
+        <NavBarComponent :isAuthenticated="isAuntificated" @logout="Logout"></NavBarComponent>
         <main class="layout-content">
             <router-view :error="errorInLogin" @login="Login" />
         </main>
@@ -34,19 +34,19 @@ export default defineComponent({
         const cookie = useCookie()
 
         let token = ref(cookie.getCookie('token'))
-        let is_auntificated = ref(false)
+        let isAuntificated = ref(false)
         const errorInLogin = ref<null | string>(null)
 
         if (token.value == null) {
-            is_auntificated.value = false
+            isAuntificated.value = false
         } else {
-            is_auntificated.value = true
+            isAuntificated.value = true
         }
 
         async function Logout() {
             const token = cookie.getCookie('token')
             cookie.removeCookie('token')
-            is_auntificated.value = false
+            isAuntificated.value = false
             router.push({ name: 'mainPage' })
             try {
                 await axios.post(
@@ -73,7 +73,7 @@ export default defineComponent({
 
                 if (response.status == 200) {
                     cookie.setCookie('token', response.data.auth_token)
-                    is_auntificated.value = true
+                    isAuntificated.value = true
                     router.push({ name: 'account' })
                 }
             } catch (error: any) {
@@ -81,7 +81,7 @@ export default defineComponent({
                 return
             }
         }
-        return { Logout, Login, errorInLogin, is_auntificated }
+        return { Logout, Login, errorInLogin, isAuntificated }
     }
 })
 </script>

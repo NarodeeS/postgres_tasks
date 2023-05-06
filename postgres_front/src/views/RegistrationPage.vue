@@ -72,9 +72,7 @@
                     <strong>Error:</strong> {{ errorInRegistrartion }}
                 </div>
 
-                <button class="btn btn-outline-custom-green register-button" @click="Registration">
-                    Register
-                </button>
+                <button class="btn btn-outline-custom-green" @click="registration">Register</button>
             </form>
         </div>
     </div>
@@ -97,26 +95,26 @@ export default defineComponent({
         const errorInRegistrartion = ref<null | string>(null)
         const store = useStore(key)
         const accountForm = ref<AccountForm>({
-            first_name: '',
-            last_name: '',
-            student_group: '',
+            firstName: '',
+            lastName: '',
+            studentGroup: '',
             email: '',
             password: '',
-            repeat_password: ''
+            repeatPassword: ''
         })
 
         function CheckFields(): boolean {
             if (
-                accountForm.value.first_name === '' ||
-                accountForm.value.last_name === '' ||
-                accountForm.value.student_group === '' ||
+                accountForm.value.firstName === '' ||
+                accountForm.value.lastName === '' ||
+                accountForm.value.studentGroup === '' ||
                 accountForm.value.email === '' ||
                 accountForm.value.password === '' ||
-                accountForm.value.repeat_password === ''
+                accountForm.value.repeatPassword === ''
             ) {
                 return false
             }
-            if (accountForm.value.password !== accountForm.value.repeat_password) {
+            if (accountForm.value.password !== accountForm.value.repeatPassword) {
                 errorInRegistrartion.value = 'Passwords are not equal !'
                 return false
             } else {
@@ -124,7 +122,7 @@ export default defineComponent({
             }
         }
 
-        async function Registration() {
+        async function registration() {
             errorInRegistrartion.value = null
 
             if (!CheckFields()) {
@@ -173,7 +171,7 @@ export default defineComponent({
         return {
             accountForm,
             errorInRegistrartion,
-            Registration
+            registration
         }
     }
 })

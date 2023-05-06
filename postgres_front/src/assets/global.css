@@ -1,45 +1,23 @@
 :root {
     --green-color: #1abc9c;
+    --dark-green-color: #126958;
+    --yellow-color: #f1c40f;
+    --red-color: #e74c3c;
+    --white-color: #fff;
+    --main-background-color: #1c1e26;
+    --light-grey-color: #3e4460;
+    --grey-color: #2c3e50;
 }
 
 body {
-    background-color: #1c1e26;
-    color: #fff;
+    background-color: var(--main-background-color);
+    color: var(--white-color);
     font-family: Arial, sans-serif;
 }
 main {
     margin-left: auto;
     margin-right: auto;
     max-width: 100em;
-}
-
-#dilog-form {
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.5);
-    position: fixed;
-    display: flex;
-}
-
-#dialog-content {
-    margin: auto;
-    background: white;
-    border-radius: 20px;
-    min-height: 50px;
-    min-width: 300px;
-    padding: 20px;
-}
-
-.btn-custom-green {
-    color: white;
-    background-color: var(--green-color);
-    box-shadow: 0 0 0 0.1px #126958;
-}
-.btn-custom-green:hover {
-    color: white;
-    background-color: #126958;
 }
 
 .form-container {
@@ -56,10 +34,6 @@ main {
     margin-bottom: 20px;
 }
 
-.form-container label {
-    font-weight: bold;
-}
-
 .form-container input[type='text'],
 .form-container input[type='email'],
 .form-container input[type='password'] {
@@ -68,46 +42,32 @@ main {
     margin-bottom: 20px;
     border-radius: 3px;
     border: none;
-    background-color: #3e4460;
-    color: #fff;
+    background-color: var(--light-grey-color);
+    color: var(--white-color);
     font-size: 16px;
-}
-
-.form-container input[type='submit'] {
-    width: 100%;
-    padding: 10px;
-    background-color: var(--green-color);
-    border: none;
-    color: #fff;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.form-container input[type='submit']:hover {
-    background-color: #148f77;
 }
 
 .btn-outline-custom-green {
-    color: #1abc9c;
+    color: var(--green-color);
     background-color: transparent;
     background-image: none;
-    border-color: #1abc9c;
+    border-color: var(--green-color) c;
 }
 .btn-outline-custom-green:hover {
-    color: #fff;
-    background-color: #1abc9c;
+    color: var(--white-color);
+    background-color: var(--green-color);
     border-color: var(--green-color);
 }
 
 .btn-outline-custom-red {
-    color: #e74c3c;
+    color: var(--red-color);
     background-color: transparent;
     background-image: none;
-    border-color: #e74c3c;
+    border-color: var(--red-color);
 }
 
 .btn-outline-custom-red:hover {
-    color: #fff;
-    background-color: #e74c3c;
-    border-color: #e74c3c;
+    color: var(--white-color);
+    background-color: var(--red-color);
+    border-color: var(--red-color);
 }

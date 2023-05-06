@@ -5,4 +5,4 @@ enum ResponseType {
     None
 }
 
-export default ResponseType; 
+export default ResponseType
