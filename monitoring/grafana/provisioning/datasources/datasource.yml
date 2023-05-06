@@ -11,3 +11,10 @@ datasources:
       prometheusType: Prometheus
       prometheusVersion: 2.37.0
     editable: true
+
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://grafana-loki:3100
+    jsonData:
+      maxLines: 1000
