@@ -9,8 +9,7 @@ services:
       - ./.env
     volumes:
       - ./postgres_tasks/supervisor/logs:/var/log
-      -  django_static_volume:/server/static
-      - ./postgres_tasks:/server/
+      - django_static_volume:/server/static
       - logs_volume:/var/log
     ports:
       - 8000:8000
