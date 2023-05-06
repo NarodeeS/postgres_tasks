@@ -1,317 +1,308 @@
-<template>     
+<template>
     <div>
-    
-        <div id="main-part" class="container-fluid" v-if="is_auntificated === true">
-                  <div class="row">
-                      <div class="col-4 tasks-control">
-                          <h3>Задания:</h3>
-                        <TaskListControlerComponent
-                        :task_list="tasks" 
-                        @deploy_task="deployTask"></TaskListControlerComponent>  
-                      </div>
-                    <div class="col-8 console-control">
-                    <div v-if="task_controler.selected_task_id != null">
-                      <div v-if="task_controler.task_passed_with_eror === true">
-                      <ErrorAlertComponent></ErrorAlertComponent>
-                      </div>  
+        <div id="main-part" class="container-fluid" v-if="isAuthenticated === true">
+            <div class="row">
+                <div class="col-4 tasks-control">
+                    <h3>Задания:</h3>
+                    <TaskListControlerComponent
+                        :taskList="tasksList"
+                        @deploy_task="deployTask"
+                    ></TaskListControlerComponent>
+                </div>
+                <div class="col-8 console-control">
+                    <ResultForTaskComponent :result="resultForTask"></ResultForTaskComponent>
+                    <div v-if="taskId != null">
                         <ConsoleComponent
-                              @send_command="sendCommand"
-                              @end_task="sendTaskForChecking"
-                              @close_task="endTaskWithoutChecking" 
-                              :db_is_starting="db_is_starting"
-                              :turn_numbers="moves_left"
-                              :task_passed_with_eror="task_controler.task_passed_with_eror"
-                              :response_from_postgres_list="postgresResponseHistory"></ConsoleComponent>
-                      </div>
-                    <div v-else-if="task_controler.task_is_passed === true">
-                          <SucessAlertComponent></SucessAlertComponent>
-                          </div>
-                    <div v-else-if="task_turn_out_with_error === true">
-                      <TurnOutWithErrorAlertComponent></TurnOutWithErrorAlertComponent>
-                          </div>
+                            @send_command="sendCommand"
+                            @end_task="sendTaskForChecking"
+                            @close_task_without_cheking="endTaskWithoutChecking"
+                            :dbIsStarting="dbIsStarting"
+                            :turnNumber="movesLeft"
+                            :responseFromPostgresList="postgresResponseHistory"
+                        ></ConsoleComponent>
                     </div>
                 </div>
+            </div>
         </div>
-      </div>
-    
-    </template>
-    
-    <script lang="ts">
-    import { defineComponent, ref } from "vue";
-    import axios, {AxiosResponse}  from 'axios';
-    import { useCookie } from 'vue-cookie-next'
-    
-    import type Task from "@/types/Task";
-    import type TaskControler from "@/types/TaskControler";
-    
-    import TaskListControlerComponent from "@/components/TaskListControlerComponent.vue";
-    import PostgresCommandResponse from "@/types/PostgresCommandResponse";
-    import ConsoleComponent from "@/components/ConsoleComponent.vue";
-    import SucessAlertComponent from "@/components/results/SucessAlertComponent.vue";
-    import ErrorAlertComponent from "@/components/results/ErrorAlertComponent.vue";
-    import TurnOutWithErrorAlertComponent from "@/components/results/TurnOutWithError.vue";
-    import router from "@/router";
-    
-    export default defineComponent({
-      name: "App",
-      components: {
-          TaskListControlerComponent, 
-          ConsoleComponent,
-          SucessAlertComponent,
-          ErrorAlertComponent,
-          TurnOutWithErrorAlertComponent
-        },
-      mounted() {
+    </div>
+</template>
 
-          const cookie = useCookie()
-          
-          let token = cookie.getCookie("token")
-    
-          if (token) {
-              this.is_auntificated = true;
-              this.GeyTasks()
-          } 
-          else {
-              this.is_auntificated = false;
-              router.push({name: "login"})
-          }
-      }, 
-      setup() {
-          const cookie = useCookie()
-          const headers = {
-            Authorization: 'Token ' + cookie.getCookie("token")
-          }          
+<script lang="ts">
+import { defineComponent, ref } from 'vue'
+import axios, { AxiosResponse } from 'axios'
+import { useCookie } from 'vue-cookie-next'
 
-          const moves_left = ref<number>(0); 
-          const dbName = ref<null | string>(null);
-          const is_auntificated = ref(false);
-          const db_is_starting = ref(false);
-          const task_turn_out_with_error = ref(false);
-          const task_controler = ref<TaskControler>({
-            showForceClose: false,
-            selected_task_id: null,
-            task_is_passed: false,
-            task_passed_with_eror: false,
-          });
-          const postgresResponseHistory = ref<PostgresCommandResponse[]>([]);
-    
-          const tasks = ref<Task[]>([]);
-      
+import type Task from '@/types/interfaces/Task'
+import ResponseType from '@/types/enums/ResponesType'
+import type PostgresCommandResponse from '@/types/interfaces/PostgresCommandResponse'
 
-          async function GeyTasks() {
+import TaskListControlerComponent from '@/components/TaskListControlerComponent.vue'
+import ConsoleComponent from '@/components/ConsoleComponent.vue'
+import ResultForTaskComponent from '@/components/ResultForTaskComponent.vue'
+
+import router from '@/router'
+
+export default defineComponent({
+    name: 'App',
+    components: {
+        ResultForTaskComponent,
+        TaskListControlerComponent,
+        ConsoleComponent
+    },
+    mounted() {
+        const cookie = useCookie()
+        let token = cookie.getCookie('token')
+
+        if (token) {
+            this.isAuthenticated = true
+            this.getTasksOrPushToLoginPage()
+        } else {
+            this.isAuthenticated = false
+            router.push({ name: 'login' })
+        }
+    },
+    setup() {
+        const cookie = useCookie()
+        const headers = {
+            Authorization: 'Token ' + cookie.getCookie('token')
+        }
+
+        const resultForTask = ref<ResponseType>(ResponseType.Moves_over)
+        const movesLeft = ref<number>(0)
+        const dbName = ref<null | string>(null)
+        const isAuthenticated = ref(false)
+        const dbIsStarting = ref(false)
+        const taskId = ref<number | null>(null)
+
+        const postgresResponseHistory = ref<PostgresCommandResponse[]>([])
+        const tasksList = ref<Task[]>([])
+
+        function delay(milliseconds: number) {
+            return new Promise((resolve) => {
+                setTimeout(resolve, milliseconds)
+            })
+        }
+
+        async function getTasksOrPushToLoginPage() {
+            resultForTask.value = ResponseType.None
             try {
-              const response = await axios.get("api/tasks/", 
-              {headers: headers});
-              response.data.forEach((element: Task) => {
-                tasks.value.push(element);
-              });
+                const response = await axios.get('api/tasks/', { headers: headers })
+                response.data.forEach((element: Task) => {
+                    tasksList.value.push(element)
+                })
             } catch (err) {
-              router.push({name: "login"})
+                router.push({ name: 'login' })
             }
-          }
+        }
 
-          function delay(milliseconds: number) {
-                  return new Promise(resolve => {
-                      setTimeout(resolve, milliseconds);
-                });
-          }
-    
-          async function endTaskWithoutChecking() {
-                  try {
-                    await axios.delete(`api/databases/${dbName.value}/` , {headers: headers})
-                    postgresResponseHistory.value = []
-                  } catch (err) {
-                      return
-                  }
-                  clearFieldsAfterEndTaskWithoutChecking()
-              }
-  
-          function clearFieldsAfterEndTaskWithoutChecking() {
-                  task_controler.value.selected_task_id = null
-                  task_controler.value.task_is_passed = false
-                  task_controler.value.task_passed_with_eror = false
-          }
-    
-          async function deployTask(id: number) {
-                  if (task_controler.value.selected_task_id != null) {
-                      alert("Вы не еще завешили начатое задание")
-                      return
-                  }
-                  prepareFieldsBeforeDeployingTask(id)
-                  let selected_task = tasks.value.find(x => x.id === task_controler.value.selected_task_id)
-                  if (typeof selected_task === 'undefined'){
-                    return
-                  }
-                  try {
-                      const response = await axios.post(`/api/tasks/`,
-                      {"task_id": selected_task.id,},
-                      {headers: headers})
-                        dbName.value = response.data.db_name
-    
-                  } catch (err) {
-                     alert("Ошибка при создании базы данных")
-                     return
-                  }
-                  checkIsDbStarted()
-          }
-          function prepareFieldsBeforeDeployingTask(id: number) {
-                  task_turn_out_with_error.value = false
-                  task_controler.value.selected_task_id = id
-                  db_is_starting.value = true
-                  task_controler.value.task_is_passed = false
-                  task_controler.value.task_passed_with_eror = false
-              }
-    
-          async function checkIsDbStarted() {
-                  await delay(1000);
-    
-                  let max_retries = 5;
-                  let try_number = 0;
-                  while (max_retries !== try_number || db_is_starting.value === false) {
-                      try_number += 1;
-                      await isDbStartedRequest()
-    
-                      if (db_is_starting.value === false) {
-                          return
-                      } 
-                  }
-              }
-    
-          async function isDbStartedRequest() {
-                try {
-                    const response = await axios.get(`api/databases/${dbName.value}/`, {headers: headers})
-                    if (response.data.status === "up") {
-                        db_is_starting.value = false;
-                        moves_left.value = response.data.moves_left
-                    }
-                }
-                catch (err) {
-                    console.log(err);
-                    task_controler.value.selected_task_id = null
-                }
-            }
-    
-          function updatePostgresResponseFields(response: AxiosResponse, command: string) {
-                moves_left.value = response.data.moves_left
-                let index = 1
-                let new_response: PostgresCommandResponse = {
-                  status: response.data.status,
-                  result: [],
-                  error_message: response.data.error_message,
-                  columns: response.data.columns,
-                  command: command,
-                }
+        function endTaskWithoutChecking() {
+            makeRequestForDelitingdb()
+            resultForTask.value = ResponseType.None
+            taskId.value = null
+        }
 
-                if(response.data.result !== null){
-                  response.data.result.forEach(function(el: any){
-                      let raw = {
-                        id : index,
-                        data : el
-                      } 
-                      new_response.result.push(raw)
-                      index += 1
-                    })
-                }
-            
-                postgresResponseHistory.value.push(new_response)
-            }
-      
-          function emptyComandHandler(){
-            let new_response: PostgresCommandResponse = {
-                  status: "",
-                  result: [],
-                  error_message: '',
-                  columns: null,
-                  command: '',
-                } 
-                postgresResponseHistory.value.push(new_response)
-          }
-
-
-          async function sendCommand(command: string) {
-              task_controler.value.task_passed_with_eror = false
-
-              if (command === "") {
-                emptyComandHandler()
+        async function makeRequestForDelitingdb() {
+            try {
+                await axios.delete(`api/databases/${dbName.value}/`, { headers: headers })
+                postgresResponseHistory.value = []
+            } catch (err) {
                 return
-              }
-              else{
-                try {
-                  const response = await axios.post(`/api/databases/${dbName.value}/command/`,
-                      { "command": command }, 
-                      {headers: headers}
-                  )
-                  updatePostgresResponseFields(response, command)
+            }
+        }
 
-                  if (moves_left.value === 0 ) {
-                      await sendTaskForChecking()
-                  }
+        async function deployTask(id: number) {
+            if (taskId.value != null) {
+                alert('Вы не еще завешили начатое задание')
+                return
+            }
+            prepareFieldsBeforeDeployingTask(id)
+            let selectedTask = tasksList.value.find((x) => x.id === taskId.value)
+            if (typeof selectedTask === 'undefined') {
+                return
+            }
 
-                }
-                catch (err: any) {
-                    alert("Ошибка при выполнении команды")
+            await makeRequestIsDbStarted(selectedTask.id)
+            checkIsDbStarted()
+        }
+
+        async function makeRequestIsDbStarted(taskId: number) {
+            try {
+                const response = await axios.post(
+                    `/api/tasks/`,
+                    { task_id: taskId },
+                    { headers: headers }
+                )
+                dbName.value = response.data.db_name
+            } catch (err) {
+                alert('Ошибка при создании базы данных')
+                return
+            }
+        }
+
+        function prepareFieldsBeforeDeployingTask(id: number) {
+            resultForTask.value = ResponseType.None
+            taskId.value = id
+            dbIsStarting.value = true
+        }
+
+        async function checkIsDbStarted() {
+            await delay(1000)
+
+            let max_retries = 5
+            let try_number = 0
+            while (max_retries !== try_number || dbIsStarting.value === false) {
+                try_number += 1
+                await isDbStartedRequest()
+
+                if (dbIsStarting.value === false) {
                     return
                 }
-              }
-          }
-          
-          async function sendTaskForChecking() {
-              try {
-                  const response = await axios.post(`/api/databases/${dbName.value}/check/`, {}, {headers: headers})
-                  if (response.data.detail === "Check error") {
-                      if (moves_left.value == 0){
-                        task_turn_out_with_error.value = true
-                        postgresResponseHistory.value = []
-                        task_controler.value.selected_task_id = null
-                        endTaskWithoutChecking()
-                      }
-                      else{
-                        task_controler.value.task_passed_with_eror = true
-                      }
-                      return
-                  }
-                  postgresResponseHistory.value = []
-                  let selected_task = tasks.value.find(x => x.id === task_controler.value.selected_task_id)!
-                  selected_task.completed = true
-                  updateFieldsAfterSucses()
-              }
-              catch (err) {
-                  task_controler.value.task_passed_with_eror = true
-              }
-          }
-          function updateFieldsAfterSucses() {
-              task_controler.value.selected_task_id = null
-              task_controler.value.task_is_passed = true
-          }
-      
+            }
+        }
+
+        async function isDbStartedRequest() {
+            try {
+                const response = await axios.get(`api/databases/${dbName.value}/`, {
+                    headers: headers
+                })
+                if (response.data.status === 'up') {
+                    dbIsStarting.value = false
+                    movesLeft.value = response.data.moves_left
+                }
+            } catch (err) {
+                taskId.value = null
+            }
+        }
+
+        async function sendCommand(command: string) {
+            resultForTask.value = ResponseType.None
+            if (command === '') {
+                emptyComandWasSended()
+                return
+            } else {
+                try {
+                    const response = await axios.post(
+                        `/api/databases/${dbName.value}/command/`,
+                        { command: command },
+                        { headers: headers }
+                    )
+                    updatePostgresResponseFields(response, command)
+
+                    if (movesLeft.value === 0) {
+                        await sendTaskForChecking()
+                    }
+                } catch (err: any) {
+                    alert('Ошибка при выполнении команды')
+                    return
+                }
+            }
+        }
+
+        function emptyComandWasSended() {
+            let newPostgresResponseHistory: PostgresCommandResponse = {
+                status: '',
+                result: [],
+                errorMessage: '',
+                columns: null,
+                command: ''
+            }
+            postgresResponseHistory.value.push(newPostgresResponseHistory)
+        }
+
+        function updatePostgresResponseFields(response: AxiosResponse, command: string) {
+            movesLeft.value = response.data.moves_left
+            let index = 1
+            let newPostgresResponseHistory: PostgresCommandResponse = {
+                status: response.data.status,
+                result: [],
+                errorMessage: response.data.error_message,
+                columns: response.data.columns,
+                command: command
+            }
+
+            if (response.data.result !== null) {
+                response.data.result.forEach(function (el: any) {
+                    let raw = {
+                        id: index,
+                        data: el
+                    }
+                    newPostgresResponseHistory.result.push(raw)
+                    index += 1
+                })
+            }
+
+            postgresResponseHistory.value.push(newPostgresResponseHistory)
+        }
+
+        async function sendTaskForChecking() {
+            try {
+                const response = await axios.post(
+                    `/api/databases/${dbName.value}/check/`,
+                    {},
+                    { headers: headers }
+                )
+
+                deleteTaskIfTurnOut(response)
+                cleanFieldsAfterSuccess()
+            } catch (err) {
+                console.log(err)
+                resultForTask.value = ResponseType.Error_while_passing
+            }
+        }
+
+        async function deleteTaskIfTurnOut(response: AxiosResponse) {
+            if (response.data.detail === 'Check error') {
+                if (movesLeft.value == 0) {
+                    postgresResponseHistory.value = []
+                    taskId.value = null
+                    resultForTask.value = ResponseType.Moves_over
+                    await makeRequestForDelitingdb()
+                } else {
+                    resultForTask.value = ResponseType.Error_while_passing
+                }
+                return
+            }
+        }
+
+        function cleanFieldsAfterSuccess() {
+            let selectedTask = tasksList.value.find((x) => x.id === taskId.value)
+            if (typeof selectedTask === 'undefined') {
+                return
+            }
+            selectedTask.completed = true
+            resultForTask.value = ResponseType.Success_passed
+            postgresResponseHistory.value = []
+            taskId.value = null
+        }
+
         return {
-          is_auntificated,
-          db_is_starting,
-          task_controler,
-          postgresResponseHistory,
-          tasks,
-          task_turn_out_with_error,
-          moves_left,
-          deployTask,
-          sendCommand,
-          sendTaskForChecking,
-          endTaskWithoutChecking,
-          GeyTasks,
-        };
-      },
-    });
-    </script>
+            resultForTask,
+            isAuthenticated,
+            dbIsStarting,
+            taskId,
+            postgresResponseHistory,
+            tasksList,
+            movesLeft,
+            deployTask,
+            sendCommand,
+            sendTaskForChecking,
+            endTaskWithoutChecking,
+            getTasksOrPushToLoginPage
+        }
+    }
+})
+</script>
 
 <style>
-.tasks-control{
+.tasks-control {
     display: flex;
     flex-direction: column;
     margin-top: 20px;
 }
 
-.console-control{
+.console-control {
     flex-direction: column;
-    align-items: center; 
+    align-items: center;
     margin-top: 60px;
 }
 </style>

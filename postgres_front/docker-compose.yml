@@ -1,6 +1,7 @@
 version: '3.9'
 
 services:
+
   nginx:
     container_name: nginx
     restart: unless-stopped
@@ -27,10 +28,10 @@ services:
     command: -nginx.scrape-uri http://nginx:80/metrics
 
 networks:
-  monitoring-network:
-  rabbit-network:
-  backend-network:
-  frontend-network:
+    monitoring-network:
+    rabbit-network:
+    backend-network:
+    frontend-network:
 
 volumes:
-  django_static_volume:
+    django_static_volume:

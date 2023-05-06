@@ -1,33 +1,32 @@
 // store.ts
 import { InjectionKey } from 'vue'
 import { createStore, Store } from 'vuex'
-import AccautForm from './types/AccoutForm'
+import AccautForm from './types/interfaces/AccoutForm'
 
 export interface State {
-  email: string,
-  password: string
+    email: string
+    password: string
 }
-  // define injection key
-  export const key: InjectionKey<Store<State>> = Symbol()
-  
-  export const store = createStore<State>({
+// define injection key
+export const key: InjectionKey<Store<State>> = Symbol()
+
+export const store = createStore<State>({
     state: <State>{
-      email: '',
-      password: '',
+        email: '',
+        password: ''
     },
     mutations: {
-      updatAaccountForRegistratioA(state, new_form: AccautForm){
-        state.email = new_form.email
-        state.password = new_form.password
-      },
-
+        updatAaccountForRegistratioA(state, new_form: AccautForm) {
+            state.email = new_form.email
+            state.password = new_form.password
+        }
     },
     getters: {
-      email(state) {
-          return state.email;
-      },
-      password(state) {
-        return state.password;
-    },
-  }
-  })
+        email(state) {
+            return state.email
+        },
+        password(state) {
+            return state.password
+        }
+    }
+})
