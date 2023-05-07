@@ -1,7 +1,6 @@
-from rest_framework import viewsets, status
-from rest_framework.response import Response
+from rest_framework import viewsets
 
-from core.utils.common_responses import not_found
+from core.utils.web_utils import not_found, bad_request, ok
 from core.service.user_tasks import (get_user_task_data, 
                                      get_user_tasks_data, 
                                      create_user_task)
@@ -14,32 +13,28 @@ class TaskViewSet(viewsets.ViewSet):
             task_id = kwargs['task_id']
             task_data = get_user_task_data(task_id)
         except KeyError:
-            return Response(data={'error': 'Need to specify task id'})
-        except NoSuchTaskError as e:
+            return bad_request('Need to specify task id')
+        except NoSuchTaskError:
             return not_found('No such task')
-            
-        return Response(data={'task': task_data},
-                        status=status.HTTP_200_OK)
+        
+        return ok({'task': task_data})
 
     def list(self, request, *args, **kwargs):
         all_tasks_data = get_user_tasks_data(request.user)
-        return Response(data=all_tasks_data, status=status.HTTP_200_OK)
+        return ok(all_tasks_data)
 
     def create(self, request, *args, **kwargs):
         try:
             task_id = request.data['task_id']
         except KeyError:
-            return Response(data={'error': 'Need to specify task_id'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return bad_request('Need to specify task_id')
         
         try:
             db_name = create_user_task(task_id, request.user)
         except NoSuchTaskError as e:
             return not_found('No such task')
         except TaskAlreadyStartedError as e:
-            return Response(data={'detail': 'Another task already started', 
-                                  'task_id': e.started_task_id}, 
-                            status=status.HTTP_400_BAD_REQUEST)
+            return bad_request({'detail': 'Another task already started', 
+                                'task_id': e.started_task_id})
         
-        return Response(data={'detail': 'OK', 'db_name': db_name},
-                        status=status.HTTP_200_OK)
+        return ok({'detail': 'OK', 'db_name': db_name})

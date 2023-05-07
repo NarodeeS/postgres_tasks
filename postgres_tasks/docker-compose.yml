@@ -2,21 +2,22 @@ version: '3.9'
 
 services:
   django:
-      container_name: django
-      restart: unless-stopped
-      build: postgres_tasks
-      env_file:
-        - ./.env
-      volumes:
-        - ./postgres_tasks/supervisor/logs:/var/log
-        -  django_static_volume:/server/static
-        - ./postgres_tasks:/server/
-      ports:
-        - 8000:8000
-      networks:
-        - backend-network
-        - rabbit-network
-      command: supervisord
+    container_name: django
+    restart: unless-stopped
+    build: postgres_tasks
+    env_file:
+      - ./.env
+    volumes:
+      - ./postgres_tasks/supervisor/logs:/var/log
+      - django_static_volume:/server/static
+      - logs_volume:/var/log
+    ports:
+      - 8000:8000
+    networks:
+      - backend-network
+      - rabbit-network
+      - monitoring-network
+    command: supervisord
 
 networks:
   monitoring-network:
@@ -26,3 +27,4 @@ networks:
 
 volumes:
   django_static_volume:
+  logs_volume:

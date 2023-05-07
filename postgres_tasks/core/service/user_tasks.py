@@ -1,7 +1,7 @@
 from core.serializers import TaskGetSerializer
 from core.models import CompletedTask, Task, User
-from core.utils.database_exists import database_exists
-from core.tasks import create_db_task
+from core.utils.db_utils import database_exists
+from .service_tasks import create_db_task
 from core.service.errors import TaskAlreadyStartedError, NoSuchTaskError
 
 

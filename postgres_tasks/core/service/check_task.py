@@ -1,9 +1,8 @@
 import psycopg2
 
-from core.utils.get_database_connection import get_admin_connection
-from core.utils.connection_manager import ConnectionManager
-from core.utils.load_script import load_script
-from .get_db_info import get_db_info
+from core.utils.db_utils import get_admin_connection, DbConnectionManager
+from core.utils.load_file import load_file
+from .service_utils import get_db_info
 
 
 def check_task(db_name: str) -> bool:
@@ -13,11 +12,11 @@ def check_task(db_name: str) -> bool:
     db_info = get_db_info(db_name)
     
     check_script_path = db_info.task.check_script.path
-    check_script = load_script(check_script_path)
+    check_script = load_file(check_script_path)
     
     connection = get_admin_connection(db_name)
     
-    with ConnectionManager(connection):
+    with DbConnectionManager(connection):
         with connection.cursor() as cursor:
             try:
                 cursor.execute(check_script)

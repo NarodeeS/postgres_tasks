@@ -1,10 +1,9 @@
 import psycopg2
 
-from core.utils.get_database_connection import get_admin_connection
+from core.utils.db_utils import get_admin_connection, DbConnectionManager
 from .database_status import DatabaseStatus
-from core.utils.connection_manager import ConnectionManager
-from core.utils.load_script import load_script
-from .get_db_info import get_db_info
+from core.utils.load_file import load_file
+from .service_utils import get_db_info
 
 
 def fill_task_db(db_name: str, username: str, password: str):
@@ -14,7 +13,7 @@ def fill_task_db(db_name: str, username: str, password: str):
     db_info = get_db_info(db_name)
         
     task = db_info.task
-    filling_command = load_script(task.creation_script.path)
+    filling_command = load_file(task.creation_script.path)
     
     user_creation_command = f'''
         CREATE ROLE {username} WITH LOGIN PASSWORD '{password}';
@@ -26,7 +25,7 @@ def fill_task_db(db_name: str, username: str, password: str):
         GRANT ALL ON All ROUTINES IN SCHEMA public TO {username}; 
     '''
         
-    with ConnectionManager(get_admin_connection(db_name)) as connection:
+    with DbConnectionManager(get_admin_connection(db_name)) as connection:
         with connection.cursor() as cursor:
             try:
                 cursor.execute(filling_command)

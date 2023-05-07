@@ -2,25 +2,45 @@ version: '3.9'
 
 services:
   prometheus:
-      container_name: prometheus
-      image: prom/prometheus
-      volumes:
-        - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      ports:
-         - 9090:9090
-      networks:
-        - monitoring-network
-        - backend-network
-        - frontend-network
+    image: prom/prometheus
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+    networks:
+      - monitoring-network
+      - backend-network
+      - frontend-network
 
   grafana:
-      container_name: grafana
-      build: monitoring/grafana
-      ports:
-        - 3000:3000
-      networks:
-        - monitoring-network
+    container_name: grafana
+    build: monitoring/grafana
+    ports:
+      - 3000:3000
+    networks:
+      - monitoring-network
+
+  grafana-loki:
+    image: grafana/loki
+    ports:
+      - 3100:3100
+    volumes:
+      - ./monitoring/loki-config-dev.yml:/etc/loki/loki-config.yml
+    command:
+      - -config.file=/etc/loki/loki-config.yml
+    networks:
+      - monitoring-network
   
+  grafana-promtail:
+    image: grafana/promtail
+    volumes:
+      - ./monitoring/promtail.yml:/etc/promtail/promtail.yaml
+      - logs_volume:/var/log
+    command:
+      - --config.file=/etc/promtail/promtail.yaml
+    networks:
+      - monitoring-network
+
   node-exporter:
     image: prom/node-exporter:latest
     restart: unless-stopped
@@ -32,13 +52,16 @@ services:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    networks:
-      - monitoring-network
     ports:
       - 9100:9100
+    networks:
+      - monitoring-network
 
 networks:
-  monitoring-network: 
+  monitoring-network:
   rabbit-network:
   backend-network:
   frontend-network:
+
+volumes:
+  logs_volume:
