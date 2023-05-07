@@ -18,7 +18,7 @@ app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
     'delete_databases-every-5-min': {
-        'task': 'core.tasks.clean_inactive_databases',
+        'task': 'core.service.service_tasks.clean_inactive_databases_task',
         'schedule': 300.0
     }
 }

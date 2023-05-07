@@ -1,20 +1,20 @@
 from datetime import datetime
 
-import psycopg2
-import postgres_tasks.settings as settings
-from random import randrange
-from config import SANDBOX_POSTGRES_DB, DATABASE_INFO_LIFETIME
-from postgres_tasks.celery import app
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.core.cache import cache
+import psycopg2
+from random import randrange
 
-from .models import DatabaseInfo, User, Task
-from .service.database_status import DatabaseStatus
-from .utils.get_database_connection import get_admin_connection
-from .service.fill_task_db import fill_task_db
-from .service.get_db_info import get_db_info
-from .utils.connection_manager import ConnectionManager
+from config import SANDBOX_POSTGRES_DB, DATABASE_INFO_LIFETIME
+from core.models import DatabaseInfo, User, Task, CompletedTask
+from core.utils.db_utils import get_admin_connection
+from .database_status import DatabaseStatus
+from .errors import NoSuchDbError
+from .fill_task_db import fill_task_db, DbConnectionManager
+from postgres_tasks.celery import app
+import postgres_tasks.settings as settings
+from .service_utils import get_db_info
 
 
 @app.task
@@ -26,7 +26,7 @@ def create_db_task(user_id: int, task_id: int, db_name: str) -> None:
     
     admin_db_name: str = SANDBOX_POSTGRES_DB
     
-    with ConnectionManager(get_admin_connection(admin_db_name)) as connection:
+    with DbConnectionManager(get_admin_connection(admin_db_name)) as connection:
         with connection.cursor() as cursor:
             db_info = DatabaseInfo.objects.create(db_name=db_name, 
                                                   db_password=db_password,
@@ -51,7 +51,7 @@ def delete_db_task(db_name: str) -> None:
     
     admin_db_name: str = SANDBOX_POSTGRES_DB
     
-    with ConnectionManager(get_admin_connection(admin_db_name)) as connection:
+    with DbConnectionManager(get_admin_connection(admin_db_name)) as connection:
         with connection.cursor() as cursor:
             try:
                 cursor.execute(f'DROP DATABASE {db_name};')
@@ -87,3 +87,26 @@ def clean_inactive_databases_task() -> None:
         date_diff = datetime.now() - database.last_action_datetime
         if date_diff.total_seconds() >= DATABASE_INFO_LIFETIME:
             delete_db_task(database.db_name)
+
+
+def delete_db(db_name: str):
+    database_info = (DatabaseInfo.objects
+                                 .filter(db_name=db_name)
+                                 .first())
+    if not database_info:
+        raise NoSuchDbError(db_name)
+    delete_db_task.delay(db_name)
+
+
+def finish_task(db_name: str):
+    '''
+    Create 'CompletedTask' and delete db for this task
+    '''
+    db_info = get_db_info(db_name)
+    potential_completed_task = (CompletedTask.objects
+                                             .filter(task__id=db_info.task.id, 
+                                                     user__id=db_info.user.id))
+    if not potential_completed_task:
+        CompletedTask.objects.create(task=db_info.task, 
+                                     user=db_info.user)
+    delete_db_task.delay(db_name)

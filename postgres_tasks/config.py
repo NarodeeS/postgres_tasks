@@ -7,7 +7,10 @@ DEBUG = os.getenv("DEBUG")
 
 POSTGRES_USER = os.getenv("POSTGRES_USER") or 'postgres'
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
-SANDBOX_POSTGRES_DB = os.getenv('POSTGRES_DB') or 'postgres'
+
+SANDBOX_POSTGRES_DB = os.getenv('SANDBOX_POSTGRES_DB') or 'postgres'
+SANDBOX_POSTGRES_HOST = os.getenv('SANDBOX_POSTGRES_HOST') or 'sandbox-postgres'
+SANDBOX_POSTGRES_PORT = int(os.getenv('SANDBOX_POSTGRES_PORT') or '5432')
 
 RABBITMQ_DEFAULT_USER = os.getenv('RABBITMQ_DEFAULT_USER') or 'guest'
 RABBITMQ_DEFAULT_PASS = os.getenv('RABBITMQ_DEFAULT_PASS') or 'guest'
