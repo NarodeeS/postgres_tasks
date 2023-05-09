@@ -13,4 +13,4 @@
 
 В любом случае будет необходимо создать суперпользователя Django с помощью команды "docker exec -it django python3 manage.py createsuperuser". Теперь можно авторизовать в admin-панель по адресу "адрес_сервера/admin" и создавать задания.
 <br><br>
-[Документация API](https://documenter.getpostman.com/view/21209661/2s84DrQMTV)
+[Документация API](https://documenter.getpostman.com/view/23412097/2s93RNyaXz)
