@@ -1,10 +1,9 @@
+from django.core.cache import cache
 from rest_framework.views import APIView
-from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
 from core.models import User
-from django.core.cache import cache
+from core.utils.web_utils import bad_request, ok
 
 
 class EmaillApiView(APIView):
@@ -14,29 +13,25 @@ class EmaillApiView(APIView):
         try:
             email = request.data["email"]
         except KeyError:
-            return Response(data={'error': 'Need to specify email'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return bad_request('Need to specify email')
         try:
             key = request.data["key"]
         except KeyError:
-            return Response(data={'error': 'Need to specify key'},
-                            status=status.HTTP_400_BAD_REQUEST) 
+            return bad_request('Need to specify key')
         
         cashed_key = cache.get(email)
         print(cashed_key)
 
         if cashed_key != int(key):
-            return Response(data={'error': 'Wrong key'},
-                            status=status.HTTP_400_BAD_REQUEST) 
+            return bad_request('Wrong key')
         
         user = User.objects.filter(email=email).first()
         print(user)
         if not user:
-            return Response(data={'error': 'No such user'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return bad_request('No such user')
+        
         user.email_confirmed = True
         user.save()
         cache.delete(email)
 
-        return Response(data={'detail': 'OK'}, 
-                            status=status.HTTP_200_OK)
+        return ok()

@@ -18,7 +18,7 @@ spec:
             claimName: static-volume
       containers:
         - name: django
-          image: narodees/postgres_tasks-django:0.1
+          image: narodees/postgres_tasks-django:0.2
           command: ["supervisord"]
           resources:
             limits:

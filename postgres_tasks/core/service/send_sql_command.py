@@ -2,10 +2,9 @@ from typing import TypedDict
 
 import psycopg2
 
-from core.utils.get_database_connection import get_database_connection
-from core.utils.connection_manager import ConnectionManager
+from core.utils.db_utils import get_database_connection, DbConnectionManager
 from core.service.errors import OutOfMovesError
-from .get_db_info import get_db_info
+from .service_utils import get_db_info
 
 
 class QueryResult(TypedDict):
@@ -27,7 +26,7 @@ def send_sql_command(db_name: str, command: str) -> QueryResult:
     
     connection = get_database_connection(db_name, db_username, db_password)
     
-    with ConnectionManager(connection):
+    with DbConnectionManager(connection):
         with connection.cursor() as cursor:
             try:
                 if db_info.moves_performed >= db_info.task.moves_count:
