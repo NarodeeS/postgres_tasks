@@ -157,6 +157,8 @@ export default defineComponent({
                 if (dbIsStarting.value === false) {
                     return
                 }
+                await delay(1000)
+
             }
         }
 
@@ -165,6 +167,7 @@ export default defineComponent({
                 const response = await axios.get(`api/databases/${dbName.value}/`, {
                     headers: headers
                 })
+                console.log(response)
                 if (response.data.status === 'up') {
                     dbIsStarting.value = false
                     movesLeft.value = response.data.moves_left
