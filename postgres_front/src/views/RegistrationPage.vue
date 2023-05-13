@@ -65,11 +65,11 @@
                 </div>
 
                 <div
-                    v-if="errorInRegistrartion !== null"
+                    v-if="errorInRegistration !== null"
                     class="alert alert-danger alert-dismissible fade show"
                     role="alert"
                 >
-                    <strong>Error:</strong> {{ errorInRegistrartion }}
+                    <strong>Error:</strong> {{ errorInRegistration }}
                 </div>
 
                 <button class="btn btn-outline-custom-green" @click="registration">Register</button>
@@ -92,7 +92,7 @@ export default defineComponent({
     },
 
     setup(_, { emit }) {
-        const errorInRegistrartion = ref<null | string>(null)
+        const errorInRegistration = ref<null | string>(null)
         const store = useStore(key)
         const accountForm = ref<AccountForm>({
             firstName: '',
@@ -115,15 +115,14 @@ export default defineComponent({
                 return false
             }
             if (accountForm.value.password !== accountForm.value.repeatPassword) {
-                errorInRegistrartion.value = 'Passwords are not equal !'
+                errorInRegistration.value = 'Passwords are not equal!'
                 return false
-            } else {
-                return true
             }
+            return true
         }
 
         async function registration() {
-            errorInRegistrartion.value = null
+            errorInRegistration.value = null
 
             if (!CheckFields()) {
                 return
@@ -140,7 +139,7 @@ export default defineComponent({
                 )
                 // accountForm.value)
                 if (accountForm.value.email == '' || accountForm.value.password == '') {
-                    errorInRegistrartion.value = 'Login or password is empty'
+                    errorInRegistration.value = 'Login or password is empty'
                     return
                 }
                 redirectToAccountOrToVerification()
@@ -153,7 +152,7 @@ export default defineComponent({
             if (process.env.VUE_APP_VERIFICATE_EMAIL === 'yes') {
                 store.state.email = accountForm.value.email
                 store.state.password = accountForm.value.password
-                router.push({ name: 'accountValdidation' })
+                router.push({ name: 'accountValidation' })
             } else {
                 emit('login', accountForm.value.email, accountForm.value.password)
             }
@@ -162,15 +161,15 @@ export default defineComponent({
         function parseError(error: any) {
             try {
                 if (error.response.data.password !== undefined) {
-                    errorInRegistrartion.value = error.response.data.password[0]
+                    errorInRegistration.value = error.response.data.password[0]
                     return
                 }
                 if (error.response.data.email !== undefined) {
-                    errorInRegistrartion.value = error.response.data.email[0]
+                    errorInRegistration.value = error.response.data.email[0]
                     return
                 }
             } catch (error: any) {
-                errorInRegistrartion.value =
+                errorInRegistration.value =
                     'Something went wrong, try again or contact with support'
                 return
             }
@@ -178,7 +177,7 @@ export default defineComponent({
 
         return {
             accountForm,
-            errorInRegistrartion,
+            errorInRegistration: errorInRegistration,
             registration
         }
     }
