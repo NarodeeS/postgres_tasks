@@ -16,8 +16,8 @@ jobs:
         uses: docker/setup-buildx-action@v2
       - name: Run with Docker compose
         run: |
-          ./build_all.sh
-          ./start_all.sh
+          ./build_core.sh
+          ./start_core.sh
       - name: Wait for startup
         run: sleep 3
       - name: Run Django tests
@@ -41,5 +41,5 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push with Docker compose
         run: |
-          ./build_all.sh
+          ./build_core.sh
           docker-compose push
