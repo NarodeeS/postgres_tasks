@@ -26,3 +26,13 @@ scrape_configs:
       labels:
         __path__: "/var/log/django.log"
         app: django
+    - targets:
+        - localhost
+      labels:
+        __path__: "/var/log/access.log"
+        app: nginx-access
+    - targets:
+        - localhost
+      labels:
+        __path__: "/var/log/error.log"
+        app: nginx-error

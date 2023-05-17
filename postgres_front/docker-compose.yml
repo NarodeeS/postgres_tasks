@@ -6,6 +6,7 @@ services:
     container_name: nginx
     restart: unless-stopped
     build: postgres_front
+    image: narodees/postgres_tasks-nginx
     env_file:
       - ./.env
     ports:
@@ -13,8 +14,10 @@ services:
     networks:
       - frontend-network
       - backend-network
+      - monitoring-network
     volumes:
       - django_static_volume:/www/data/static:ro
+      - logs_volume:/var/log/nginx
   
   nginx-exporter:
     container_name: nginx-exporter
@@ -34,4 +37,5 @@ networks:
     frontend-network:
 
 volumes:
-    django_static_volume:
+  django_static_volume:
+  logs_volume:

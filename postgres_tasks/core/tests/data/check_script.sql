@@ -1,4 +1,4 @@
-CREATE FUNCTION check_task() RETURNS bool
+CREATE OR REPLACE FUNCTION check_task() RETURNS bool
 AS
 $$
     DECLARE

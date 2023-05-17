@@ -169,7 +169,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'core.permissions.IsEmailVerifiedAndAuthenticated',
+        'rest_framework.permissions.IsAuthenticated',
     ]
 }
 
@@ -182,4 +182,40 @@ DJOSER = {
     'PERMISSIONS': {
         'user_delete': ['rest_framework.permissions.IsAdminUser'],
     }
+}
+
+# Logging configuration
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'trace_formatter': {
+            'format': '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] [%(funcName)s] %(message)s',
+            'datefmt': '%H:%M:%S %d.%m.%Y',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'formatter': 'trace_formatter',
+            'filename': 'django.log',
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'trace_formatter',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': 'WARNING',
+    },
 }

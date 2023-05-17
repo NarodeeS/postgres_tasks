@@ -1,7 +1,9 @@
 .git
 .gitignore
 
-.docker
+Dockerfile
+docker-compose.yml
+requirements-dev.txt
 .dockerignore
 
 */__pycache__/
@@ -10,6 +12,6 @@
 
 .env
 
-./venv/
+./.venv/
 
 ./supervisor/logs/

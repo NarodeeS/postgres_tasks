@@ -1,14 +1,16 @@
-from rest_framework import viewsets, mixins, status
+from rest_framework import viewsets, mixins, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from core.serializers import DatabaseInfoSerializer
 from core.models import DatabaseInfo
-from core.permissions import IsOwner, IsEmailVerifiedAndAuthenticated
-from core.service.service_tasks import delete_db, finish_task
-from core.service.send_sql_command import send_sql_command
-from core.service.check_task import check_task
-from core.service.errors import NoSuchDbError, OutOfMovesError
+from core.permissions import IsOwner
+from core.bootstrap import bootstrap
+from domain.errors import NoSuchDbError, OutOfMovesError
+from domain import commands
 from core.utils.web_utils import bad_request, not_found, ok
+
+
+bus = bootstrap()
 
 
 class DatabaseViewSet(mixins.CreateModelMixin,
@@ -18,7 +20,7 @@ class DatabaseViewSet(mixins.CreateModelMixin,
     queryset = DatabaseInfo.objects.all()
     serializer_class = DatabaseInfoSerializer
     lookup_field = 'db_name'
-    permission_classes = [IsOwner & IsEmailVerifiedAndAuthenticated]
+    permission_classes = [IsOwner & permissions.IsAuthenticated]
     
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
@@ -26,7 +28,7 @@ class DatabaseViewSet(mixins.CreateModelMixin,
     def destroy(self, request, *args, **kwargs):
         try:
             db_name = kwargs['db_name']
-            delete_db(db_name)
+            bus.handle(commands.DeleteUserTaskDb(db_name))
         except KeyError:
             return bad_request('Use db_name as path parameter')
         except NoSuchDbError as e:
@@ -44,7 +46,7 @@ class DatabaseViewSet(mixins.CreateModelMixin,
                                "parameters and 'command' in body")
             
         try:
-            result = send_sql_command(db_name, sql_query)
+            result = bus.handle(commands.SendSqlCommand(db_name, sql_query))
         except (NoSuchDbError, OutOfMovesError) as error:
             return bad_request(str(error))
         
@@ -58,14 +60,14 @@ class DatabaseViewSet(mixins.CreateModelMixin,
             return not_found('Use db_name as path parameter')
         
         try:
-            success = check_task(db_name)
+            success = bus.handle(commands.CheckTask(db_name))
         except NoSuchDbError as error:
             return bad_request(str(error))
             
         response_status = status.HTTP_200_OK
         if success:
             response_message = 'Task completed sucessfully'
-            finish_task(db_name)
+            bus.handle(commands.FinishUserTask(db_name))
         else:
             response_message = 'Check error'
         

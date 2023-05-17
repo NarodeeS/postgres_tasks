@@ -1,0 +1,14 @@
+route:
+  receiver: 'tg_alert'
+
+receivers:
+  - name: 'tg_alert'
+    telegram_configs:
+    - send_resolved: true
+      api_url: https://api.telegram.org
+      bot_token: ${BOT_TOKEN}
+      chat_id: 640236133
+      parse_mode: HTML
+      http_config:
+        follow_redirects: true
+        enable_http2: false

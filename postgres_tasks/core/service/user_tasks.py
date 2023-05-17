@@ -1,8 +1,6 @@
 from core.serializers import TaskGetSerializer
 from core.models import CompletedTask, Task, User
-from core.utils.db_utils import database_exists
-from .service_tasks import create_db_task
-from core.service.errors import TaskAlreadyStartedError, NoSuchTaskError
+from domain.errors import NoSuchTaskError
 
 
 def get_user_task_data(task_id: int) -> dict:
@@ -29,17 +27,3 @@ def get_user_tasks_data(user: User):
         task['completed'] = True if associated_user_task else False
         
     return all_tasks
-
-
-def create_user_task(task_id: int, user: User) -> str:
-    task = Task.objects.filter(id=task_id).first()
-    if not task:
-        raise NoSuchTaskError(task)
-    
-    db_name = f"{'_'.join(task.title.split(' ')).lower()}_{user.id}"
-    if not (db_info := database_exists(user.id)):
-        create_db_task.delay(user.id, task.id, db_name)
-    else:
-        if db_info.task.id != task_id:
-            raise TaskAlreadyStartedError(db_info.task.id)
-    return db_name
