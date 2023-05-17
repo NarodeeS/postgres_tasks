@@ -1,6 +1,17 @@
 version: '3.9'
 
 services:
+  nginx-exporter:
+    container_name: nginx-exporter
+    image: nginx/nginx-prometheus-exporter
+    restart: unless-stopped
+    expose:
+      - 9113
+    networks:
+      - monitoring-network
+      - frontend-network
+    command: -nginx.scrape-uri http://nginx:80/metrics
+
   prometheus:
     image: prom/prometheus
     volumes:

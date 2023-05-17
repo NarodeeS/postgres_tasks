@@ -18,17 +18,6 @@ services:
     volumes:
       - django_static_volume:/www/data/static:ro
       - logs_volume:/var/log/nginx
-  
-  nginx-exporter:
-    container_name: nginx-exporter
-    image: nginx/nginx-prometheus-exporter
-    restart: unless-stopped
-    expose:
-      - 9113
-    networks:
-      - monitoring-network
-      - frontend-network
-    command: -nginx.scrape-uri http://nginx:80/metrics
 
 networks:
     monitoring-network:
