@@ -22,7 +22,7 @@ jobs:
         run: sleep 10
       - name: Run Django tests
         run:
-          docker exec -it django python3 manage.py test core.tests  
+          docker exec django python3 manage.py test core.tests  
 
   build-and-push:
     runs-on: ubuntu-latest
