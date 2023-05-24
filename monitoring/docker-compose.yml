@@ -47,7 +47,7 @@ services:
     env_file:
       .env
 
-  grafana-loki:
+  loki:
     image: grafana/loki
     ports:
       - 3100:3100

@@ -16,7 +16,26 @@ spec:
         - name: static-volume
           persistentVolumeClaim:
             claimName: static-volume
+        - name: promtail-conf
+          configMap: 
+            name: promtail-config-map
+        - name: logs
+          hostPath:
+            path: /var/log
       containers:
+        - name: promtail
+          image: grafana/promtail
+          args: [--config.file=/etc/promtail/promtail.yml]
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: promtail-conf
+              mountPath: /etc/promtail
+            - name: logs
+              mountPath: /var/log
+              readOnly: true
         - name: django
           image: narodees/postgres_tasks-django:0.2
           command: ["supervisord"]
@@ -29,6 +48,8 @@ spec:
           volumeMounts:
             - name: static-volume
               mountPath: /server/static
+            - name: logs
+              mountPath: /var/log
           env:
             - name: POSTGRES_USER
               valueFrom:

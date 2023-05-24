@@ -17,8 +17,24 @@ spec:
         - name: static-volume
           persistentVolumeClaim:
             claimName: static-volume
+        - name: logs
+          hostPath: 
+            path: /var/log
       restartPolicy: Always
       containers:
+        - name: promtail
+          image: grafana/promtail
+          args: [--config.file=/etc/promtail/promtail.yml]
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          volumeMounts:
+              - name: promtail-conf
+                mountPath: /etc/promtail
+              - name: logs
+                mountPath: /var/log
+                readOnly: true
         - name: nginx
           image: narodees/postgres_tasks-nginx:0.1  # custom nginx image
           resources:
@@ -31,6 +47,8 @@ spec:
             - name: static-volume
               mountPath: /www/data/static
               readOnly: true
+            - name: logs
+              mountPath: /var/log/nginx
 ---
 apiVersion: v1
 kind: Service
