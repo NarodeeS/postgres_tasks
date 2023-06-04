@@ -9,7 +9,7 @@
                         type="text"
                         id="name"
                         name="name"
-                        v-model="accountForm.first_name"
+                        v-model="accountForm.firstName"
                         required
                     />
                 </div>
@@ -19,7 +19,7 @@
                         type="text"
                         id="surname"
                         name="surname"
-                        v-model="accountForm.last_name"
+                        v-model="accountForm.lastName"
                         required
                     />
                 </div>
@@ -29,7 +29,7 @@
                         type="text"
                         id="group"
                         name="group"
-                        v-model="accountForm.student_group"
+                        v-model="accountForm.studentGroup"
                         required
                     />
                 </div>
@@ -59,7 +59,7 @@
                         type="password"
                         id="repeat_password"
                         name="repeat_password"
-                        v-model="accountForm.repeat_password"
+                        v-model="accountForm.repeatPassword"
                         required
                     />
                 </div>
@@ -114,6 +114,7 @@ export default defineComponent({
             ) {
                 return false
             }
+            console.log("dfdfd")
             if (accountForm.value.password !== accountForm.value.repeatPassword) {
                 errorInRegistrartion.value = 'Passwords are not equal !'
                 return false
