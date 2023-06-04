@@ -23,18 +23,6 @@ services:
       - monitoring-network
       - backend-network
       - frontend-network
-  
-  alert-manager:
-    image: prom/alertmanager
-    restart: unless-stopped
-    volumes:
-      - ./monitoring/alert-manager-dev.yml:/etc/alertmanager/config.yml
-    command:
-      - '--config.file=/etc/alertmanager/config.yml'
-    ports:
-      - 9093:9093
-    env_file:
-      - .env
 
   grafana:
     container_name: grafana
@@ -57,7 +45,7 @@ services:
       - -config.file=/etc/loki/loki-config.yml
     networks:
       - monitoring-network
-  
+
   grafana-promtail:
     image: grafana/promtail
     volumes:

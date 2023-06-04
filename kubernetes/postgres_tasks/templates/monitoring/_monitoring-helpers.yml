@@ -1,0 +1,23 @@
+{{- define "promtail.container" }}
+{{- $module := .Values.promtail -}}
+{{- $module_name := "promtail" -}}
+- name: {{ $module_name }}
+  image: {{ $module.image }}:{{ $module.tag }}
+  args: [--config.file=/etc/promtail/promtail.yml]
+  resources:
+    {{- toYaml $module.resources | nindent 4 }}
+  volumeMounts:
+    - name: promtail-conf
+      mountPath: /etc/promtail
+    - name: logs
+      mountPath: /var/log
+      readOnly: true
+{{- end }}
+
+{{- define "promtail.volumes" }}
+{{- $module := .Values.promtail -}}
+{{- $module_name := "promtail" -}}
+- name: promtail-conf
+  configMap: 
+    name: {{ $module_name }}-configmap
+{{- end }}

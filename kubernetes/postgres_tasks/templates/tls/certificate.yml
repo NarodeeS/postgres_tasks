@@ -1,0 +1,15 @@
+{{- $module := .Values.certificate -}}
+{{- $module_name := "certificate" -}}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ $module_name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  dnsNames:
+    {{- index $module "dns-names" | toYaml | nindent 4 }}
+  secretName: certificate-tls
+  issuerRef:
+    name: lets-encrypt-issuer
+    kind: ClusterIssuer
+ 

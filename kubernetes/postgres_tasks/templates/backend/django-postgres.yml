@@ -1,0 +1,51 @@
+{{- $module :=  index .Values "django-postgres" -}}
+{{- $module_name := "django-postgres" -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $module_name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  serviceName: {{ $module_name }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $module_name }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ $module_name }}-volume
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          {{- index $module "data-volume.resources" | toYaml | nindent 10  }}
+  template:
+    metadata:
+      labels:
+        app: {{ $module_name }}
+    spec:
+      containers:
+        - name: {{ $module_name }}
+          image: {{ $module.image }}:{{ $module.tag }}
+          resources:
+            {{- $module.resources| toYaml | nindent 12 }}
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: {{ $module_name }}-volume
+              mountPath: /var/lib/postgresql/data
+              readOnly: false
+          envFrom:
+            - secretRef:
+                name: {{ $module_name }}-secret-env
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $module_name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: {{ $module_name }}
+  ports:
+    - port: 5432
+      targetPort: 5432

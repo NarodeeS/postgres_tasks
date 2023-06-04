@@ -1,0 +1,14 @@
+{{- define "django.volumes" }}
+- name: static-volume
+  persistentVolumeClaim:
+    claimName: static-volume
+- name: logs
+  hostPath:
+    path: /var/log
+{{- end }}
+{{- define "django.volumeMounts" }}
+- name: static-volume
+  mountPath: /server/static
+- name: logs
+  mountPath: /var/log
+{{- end }}

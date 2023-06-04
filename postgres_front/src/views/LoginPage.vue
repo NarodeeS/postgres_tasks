@@ -30,7 +30,7 @@
                 </button>
 
                 <div class="forgot-password">
-                    <a href="#" @click="$router.push({ name: 'registration' })">Have no accout?</a>
+                    <a href="#" @click="$router.push({ name: 'registration' })">Have no account?</a>
                 </div>
             </form>
         </div>

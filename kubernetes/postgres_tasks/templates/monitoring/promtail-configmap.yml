@@ -1,0 +1,10 @@
+{{- $module := .Values.promtail -}}
+{{- $module_name := "promtail" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $module_name }}-configmap
+  namespace: {{ .Values.namespace }}
+data:
+  promtail.yml: |
+    {{- toString $module.config | nindent 4 }}

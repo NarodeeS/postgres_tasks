@@ -1,0 +1,76 @@
+{{- $module := index .Values "node-exporter" -}}
+{{- $module_name := "node-exporter" -}}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ $module_name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/name: {{ $module_name }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: exporter
+      app.kubernetes.io/name: {{ $module_name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: exporter
+        app.kubernetes.io/name: {{ $module_name }}
+    spec:
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      containers:
+        - name: {{ $module_name }}
+          image: {{ $module.image}}:{{ $module.tag }}
+          resources:
+            {{- toYaml $module.resources | nindent 12 }}
+          ports:
+            - name: {{ $module_name }}
+              containerPort: 9100
+          args:
+            - --path.sysfs=/host/sys
+            - --path.rootfs=/host/root
+            - --no-collector.wifi
+            - --no-collector.hwmon
+            - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/pods/.+)($|/)
+            - --collector.netclass.ignored-devices=^(veth.*)$
+          volumeMounts:
+            - name: sys
+              mountPath: /host/sys
+              readOnly: true
+            - name: root
+              mountPath: /rootfs
+              readOnly: true
+            - name: proc
+              mountPath: /host/proc
+              readOnly: true
+      volumes:
+        - name: proc
+          hostPath: 
+            path: /proc
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: root
+          hostPath:
+            path: /
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $module_name }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port:   '9100'
+spec:
+  selector:
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/name: {{ $module_name }}
+  ports:
+    - name: {{ $module_name }}
+      port: 9100
+      targetPort: 9100

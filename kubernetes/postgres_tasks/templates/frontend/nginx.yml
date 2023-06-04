@@ -1,0 +1,51 @@
+{{- $module := .Values.nginx -}}
+{{- $module_name := "nginx" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $module_name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $module_name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $module_name }}
+    spec:
+      containers:
+        - name: {{ $module_name }}
+          image: {{ $module.image }}:{{ $module.tag }}
+          resources:
+            {{- toYaml $module.resources | nindent 12 }}
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: static-volume
+              mountPath: /www/data/static
+              readOnly: true
+            - name: logs
+              mountPath: /var/log/nginx
+        {{- include "promtail.container" . | nindent 8 }}
+      volumes:
+        - name: static-volume
+          persistentVolumeClaim:
+            claimName: static-volume
+        - name: logs
+          hostPath: 
+            path: /var/log
+        {{- include "promtail.volumes" . | nindent 8 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $module_name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: {{ $module_name }}
+  ports:
+    - port: 80
+      targetPort: 80

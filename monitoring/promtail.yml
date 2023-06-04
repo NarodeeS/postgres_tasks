@@ -6,33 +6,28 @@ positions:
   filename: /tmp/positions.yaml
 
 clients:
-  - url: http://grafana-loki:3100/loki/api/v1/push  # loki endpoint
+  - url: http://loki:3100/loki/api/v1/push  # loki endpoint
 
 scrape_configs:
-- job_name: django-log-scraper
-  static_configs:
-    - targets:
-        - localhost
-      labels:
-        __path__: "/var/log/celery.log"
-        app: celery
-    - targets:
-        - localhost
-      labels:
-        __path__: "/var/log/celery_beats.log"
-        app: celery-beats
-    - targets:
-        - localhost
-      labels:
-        __path__: "/var/log/django.log"
-        app: django
-    - targets:
-        - localhost
-      labels:
-        __path__: "/var/log/access.log"
-        app: nginx-access
-    - targets:
-        - localhost
-      labels:
-        __path__: "/var/log/error.log"
-        app: nginx-error
+  - job_name: django-log-scraper
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          __path__: "/var/log/celery.log"
+          app: celery
+      - targets:
+          - localhost
+        labels:
+          __path__: "/var/log/celery_beats.log"
+          app: celery-beats
+      - targets:
+          - localhost
+        labels:
+          __path__: "/var/log/django.log"
+          app: django
+      - targets:
+          - localhost
+        labels:
+          __path__: "/var/log/*.log"
+          app: nginx
