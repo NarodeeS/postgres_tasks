@@ -1,8 +1,9 @@
-name: Build and push images to Docker Hub
+name: test, build and push images to Docker Hub
 on: 
   push:
     branches:
       - main
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -19,13 +20,13 @@ jobs:
         uses: docker/setup-buildx-action@v2
       - name: Run with Docker compose
         run: |
-          ./build_core.sh
-          ./start_core.sh
+          ./scripts/build_core.sh
+          ./scripts/start_core.sh
       - name: Wait for startup
         run: sleep 3
       - name: Run Django tests
         run:
-          docker exec django python3 manage.py test core.tests  
+          docker exec django python3 manage.py test core.tests
 
   build-and-push:
     runs-on: ubuntu-latest
@@ -44,5 +45,4 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push with Docker compose
         run: |
-          ./build_core.sh
-          ./push_core.sh
+          ./scripts/build_and_push_all.sh
