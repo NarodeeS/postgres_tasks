@@ -1,0 +1,28 @@
+{{- $module := .Values.ingress -}}
+{{- $module_name := "ingress" -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $module_name }}
+  namespace: postgres-tasks
+  labels:
+    name: {{ $module_name }}
+spec:
+  ingressClassName: {{ $module.class }}
+  tls:
+    - hosts:
+        {{- $module.tls.hosts | toYaml | nindent 8 }}
+      secretName: certificate-tls
+  rules:
+    {{- range $index, $rule := $module.rules }}
+    - host: {{ $rule.host }}
+      http:
+        paths:
+        - pathType: Prefix
+          path: {{ $rule.path | quote }}
+          backend:
+            service:
+              name: {{ $rule.service.name }}
+              port: 
+                number: {{ $rule.service.port }}
+    {{- end }}

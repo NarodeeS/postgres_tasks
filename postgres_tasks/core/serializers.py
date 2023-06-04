@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer as BaseUserRegistrationSerializer
 
-from core.service.service_tasks import send_verification_email_task 
+from core.celery_tasks import send_verification_email_task 
 from .models import DatabaseInfo, Task, User
 from postgres_tasks.settings import VERIFICATE_EMAIL
 

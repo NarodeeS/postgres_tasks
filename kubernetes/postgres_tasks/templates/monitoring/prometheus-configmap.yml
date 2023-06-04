@@ -1,0 +1,10 @@
+{{- $module := .Values.prometheus -}}
+{{- $module_name := "prometheus" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $module_name }}-configmap
+  namespace: {{ .Values.namespace }}
+data:
+  prometheus.yml: |
+    {{- toString $module.config | nindent 4 }}

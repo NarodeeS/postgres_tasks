@@ -1,0 +1,10 @@
+{{- $module := .Values.loki -}}
+{{- $module_name := "loki" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $module_name }}-configmap
+  namespace: {{ .Values.namespace }}
+data:
+  loki-config.yml: |
+    {{- toString $module.config | nindent 4 }}

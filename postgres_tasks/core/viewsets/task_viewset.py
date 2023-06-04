@@ -2,9 +2,13 @@ from rest_framework import viewsets
 
 from core.utils.web_utils import not_found, bad_request, ok
 from core.service.user_tasks import (get_user_task_data, 
-                                     get_user_tasks_data, 
-                                     create_user_task)
-from core.service.errors import TaskAlreadyStartedError, NoSuchTaskError
+                                     get_user_tasks_data)
+from domain.errors import TaskAlreadyStartedError, NoSuchTaskError
+from domain import commands
+from core.bootstrap import bootstrap
+
+
+bus = bootstrap()
 
 
 class TaskViewSet(viewsets.ViewSet):
@@ -30,7 +34,8 @@ class TaskViewSet(viewsets.ViewSet):
             return bad_request('Need to specify task_id')
         
         try:
-            db_name = create_user_task(task_id, request.user)
+            db_name = bus.handle(commands.CreateUserTask(task_id, 
+                                                         request.user.id))
         except NoSuchTaskError as e:
             return not_found('No such task')
         except TaskAlreadyStartedError as e:
