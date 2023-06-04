@@ -6,6 +6,7 @@ services:
     container_name: nginx
     restart: unless-stopped
     build: postgres_front
+    image: narodees/postgres_tasks-nginx
     env_file:
       - ./.env
     ports:
@@ -13,19 +14,10 @@ services:
     networks:
       - frontend-network
       - backend-network
+      - monitoring-network
     volumes:
       - django_static_volume:/www/data/static:ro
-  
-  nginx-exporter:
-    container_name: nginx-exporter
-    image: nginx/nginx-prometheus-exporter
-    restart: unless-stopped
-    expose:
-      - 9113
-    networks:
-      - monitoring-network
-      - frontend-network
-    command: -nginx.scrape-uri http://nginx:80/metrics
+      - logs_volume:/var/log/nginx
 
 networks:
     monitoring-network:
@@ -34,4 +26,5 @@ networks:
     frontend-network:
 
 volumes:
-    django_static_volume:
+  django_static_volume:
+  logs_volume:

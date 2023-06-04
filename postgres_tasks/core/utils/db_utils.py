@@ -5,6 +5,7 @@ from config import (POSTGRES_USER,
                     SANDBOX_POSTGRES_HOST, 
                     SANDBOX_POSTGRES_PORT)
 from core.models import DatabaseInfo
+from domain.errors import NoSuchDbError
 
 
 class DbConnectionManager:
@@ -19,8 +20,17 @@ class DbConnectionManager:
         self.psycopg_connection.close()
 
 
-def database_exists(user_id: int) -> DatabaseInfo | None:
-    return DatabaseInfo.objects.filter(user__id=user_id).first()
+def database_exists(db_name: str) -> DatabaseInfo | None:
+    return DatabaseInfo.objects.filter(db_name=db_name).first()
+
+
+def get_db_info(db_name: str) -> DatabaseInfo:
+    potential_db_info = (DatabaseInfo.objects
+                                     .filter(db_name=db_name)
+                                     .first())
+    if not potential_db_info:
+        raise NoSuchDbError(db_name)
+    return potential_db_info
 
 
 def get_database_connection(db_name: str, username: str, password: str):

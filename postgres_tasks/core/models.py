@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 
-from .service.database_status import DatabaseStatus
+from domain.database_status import DatabaseStatus
 from .managers import UserManager
 
 

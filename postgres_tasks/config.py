@@ -3,7 +3,7 @@ import os
 
 DJANGO_SECRET_KEY = os.getenv("DJANGO_SECRET_KEY") or 'very_secret_key'
 DATABASE_INFO_LIFETIME = float(os.getenv('DATABASE_INFO_LIFETIME') or '30')
-DEBUG = os.getenv("DEBUG")
+DEBUG = os.getenv("DEBUG") or '0'
 
 POSTGRES_USER = os.getenv("POSTGRES_USER") or 'postgres'
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")

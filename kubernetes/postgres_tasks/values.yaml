@@ -1,0 +1,256 @@
+namespace: postgres-tasks
+
+django:
+  image: narodees/postgres_tasks-django
+  tag: 0.2
+  resources:
+    limits:
+      memory: "500Mi"
+      cpu: "500m"
+  env:
+    DJANGO_SECRET_KEY: some_very_secret_key
+    POSTGRES_USER: adminka
+    POSTGRES_PASSWORD: qwerty
+    RABBITMQ_DEFAULT_USER: rabbit
+    RABBITMQ_DEFAULT_PASS: cool_rabbit
+    POSTGRES_DB: sandbox
+    VERIFICATE_EMAIL: 0
+    EMAIL_HOST_USER: change_me
+    EMAIL_HOST_PASSWORD: change_me
+
+django-postgres:
+  image: postgres
+  tag: latest
+  resources:
+    limits:
+      memory: "128Mi"
+      cpu: "500m"
+  data-volume:
+    resources:
+      requests:
+        storage: "500Mi"
+  env:
+    POSTGRES_USER: adminka
+    POSTGRES_PASSWORD: qwerty
+
+sandbox-postgres:
+  image: postgres
+  tag: latest
+  resources:
+    limits:
+      memory: "1Gi"
+      cpu: "250m"
+  data-volume:
+    resources:
+      requests:
+        storage: "500Mi"
+  env:
+    POSTGRES_USER: adminka
+    POSTGRES_PASSWORD: qwerty
+    POSTGRES_DB: sandbox
+
+nginx:
+  image: narodees/postgres_tasks-nginx
+  tag: 0.1
+  resources:
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+
+nginx-exporter:
+  image: nginx/nginx-prometheus-exporter
+  tag: latest
+  resources:
+    limits:
+      memory: "128Mi"
+      cpu: "250m"
+
+rabbitmq:
+  image: rabbitmq
+  tag: 3-management
+  resources:
+    limits:
+      memory: "2Gi"
+      cpu: "500m"
+  env:
+    RABBITMQ_DEFAULT_USER: rabbit
+    RABBITMQ_DEFAULT_PASS: cool_rabbit
+
+node-exporter:
+  image: prom/node-exporter
+  tag: latest
+  resources:
+    limits:
+      memory: 200Mi
+    requests:
+      cpu: 100m
+      memory: 200Mi
+
+prometheus:
+  image: prom/prometheus
+  tag: latest
+  resources:
+    limits:
+      memory: "128Mi"
+      cpu: "250m"
+  config: |
+    global:
+      scrape_interval: 30s
+
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+      
+      - job_name: 'django'
+        static_configs:
+          - targets: ['django:8000']
+
+      - job_name: 'nginx'
+        static_configs:
+          - targets: ['nginx-exporter:9113']
+      
+      - job_name: 'rabbit'
+        static_configs:
+          - targets: ['rabbitmq:15692']
+  
+      - job_name: 'node-exporter'
+        kubernetes_sd_configs:
+          - role: endpoints 
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_endpoints_name]
+            regex: 'node-exporter'
+            action: keep
+
+loki:
+  image: grafana/loki
+  tag: latest
+  resources:
+    limits:
+      memory: "128Mi"
+      cpu: "500m"
+  config: |
+    auth_enabled: false
+
+    server:
+      http_listen_port: 3100
+
+    common:
+      instance_addr: 127.0.0.1
+      path_prefix: /tmp/loki
+      storage:
+        filesystem:
+          chunks_directory: /tmp/loki/chunks
+          rules_directory: /tmp/loki/rules
+      replication_factor: 1
+      ring:
+        kvstore:
+          store: inmemory
+
+    query_range:
+      results_cache:
+        cache:
+          embedded_cache:
+            enabled: true
+            max_size_mb: 100
+
+    schema_config:
+      configs:
+        - from: 2020-10-24
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v11
+          index:
+            prefix: index_
+            period: 24h
+
+grafana:
+  image: narodees/postgres_tasks-grafana
+  tag: 0.2
+  resources:
+    limits:
+      memory: "128Mi"
+      cpu: "250m"
+  env:
+    GF_SECURITY_ADMIN_USER: admin
+    GF_SECURITY_ADMIN_PASSWORD: admin
+
+promtail:
+  image: grafana/promtail
+  tag: latest
+  resources:
+    limits:
+      memory: "128Mi"
+      cpu: "500m"
+  config: |
+    server:
+      http_listen_port: 9080
+      grpc_listen_port: 0
+
+    positions:
+      filename: /tmp/positions.yaml
+
+    clients:
+      - url: http://loki:3100/loki/api/v1/push
+
+    scrape_configs:
+    - job_name: django-log-scraper
+      static_configs:
+        - targets:
+            - localhost
+          labels:
+            __path__: "/var/log/celery.log"
+            app: celery
+        - targets:
+            - localhost
+          labels:
+            __path__: "/var/log/celery_beats.log"
+            app: celery-beats
+        - targets:
+            - localhost
+          labels:
+            __path__: "/var/log/django.log"
+            app: django
+        - targets:
+            - localhost
+          labels:
+            __path__: "/var/log/access.log"
+            app: nginx-access
+        - targets:
+            - localhost
+          labels:
+            __path__: "/var/log/error.log"
+            app: nginx-error 
+
+
+lets-encrypt-issuer:
+  acme-server: https://acme-v02.api.letsencrypt.org/directory
+  email: youremail@gmail.com
+  solvers:
+    - http01:
+        ingress:
+          class: traefik
+
+certificate:
+  dns-names:
+    - https-nginx.localhost  # change to public domain
+    - https-grafana.localhost  # change to public domain
+
+ingress:
+  class: traefik
+  tls:
+    hosts:
+      - nginx.localhost  # change to public domain
+      - grafana.localhost  # change to public domain
+  rules:
+    - host: nginx.localhost
+      path: "/"
+      service:
+        name: nginx
+        port: 80
+
+    - host: grafana.localhost 
+      path: "/"
+      service:
+        name: grafana
+        port: 3000

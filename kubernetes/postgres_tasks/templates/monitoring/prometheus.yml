@@ -1,0 +1,43 @@
+{{- $module := .Values.prometheus -}}
+{{- $module_name := "prometheus" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $module_name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ $module_name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $module_name }}
+    spec:
+      serviceAccount: {{ $module_name }}-account
+      containers:
+        - name: {{ $module_name }}
+          image: {{ $module.image }}:{{ $module.tag }}
+          resources:
+            {{- toYaml $module.resources | nindent 12 }}
+          ports:
+            - containerPort: 9090
+          volumeMounts: 
+            - name: prometheus-volume
+              mountPath: /etc/prometheus/
+      volumes:
+        - name: prometheus-volume
+          configMap:
+            name: {{ $module_name }}-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $module_name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: {{ $module_name }}
+  ports:
+    - port: 9090
+      targetPort: 9090

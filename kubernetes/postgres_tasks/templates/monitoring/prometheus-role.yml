@@ -1,0 +1,39 @@
+{{- $module := .Values.prometheus -}}
+{{- $module_name := "prometheus" -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ $module_name }}-role
+  namespace: {{ .Values.namespace }}
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - services
+      - endpoints
+      - pods
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - configmaps
+    verbs: ["get"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $module_name }}-account
+  namespace: {{ .Values.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $module_name }}-role-binding
+  namespace: {{ .Values.namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ $module_name }}-role
+subjects:
+  - kind: ServiceAccount
+    name: {{ $module_name }}-account
+    namespace: {{ .Values.namespace }}

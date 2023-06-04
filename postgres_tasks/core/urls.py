@@ -3,8 +3,7 @@ from rest_framework import routers
 from django.urls import path
 from core.viewsets.database_viewset import DatabaseViewSet
 from core.viewsets.task_viewset import TaskViewSet
-
-from core.viewsets.email import EmaillApiView
+from core.viewsets.email_view import EmaillApiView
 
 
 router = routers.DefaultRouter()

@@ -1,0 +1,38 @@
+{{- $module := .Values.grafana -}}
+{{- $module_name := "grafana" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $module_name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ $module_name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $module_name }}
+    spec:
+      containers:
+        - name: {{ $module_name }}
+          image: {{ $module.image }}:{{ $module.tag }}
+          resources:
+            {{- toYaml $module.resources | nindent 12 }}
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: {{ $module_name }}-secret-env
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $module_name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: {{ $module_name }}
+  ports:
+    - port: 3000
+      targetPort: 3000
