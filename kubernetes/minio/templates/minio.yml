@@ -1,0 +1,52 @@
+{{- $module := .Values.minio -}}
+{{- $module_name := "minio" -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $module_name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ $module_name }}
+  serviceName: {{ $module_name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ $module_name }}
+    spec:
+      containers:
+        - name: {{ $module_name }}
+          image: {{ $module.image }}:{{ $module.tag }}
+          ports:
+            - containerPort: 9000
+            - containerPort: 9001
+          volumeMounts:
+            - name: minio-data
+              mountPath: /data
+          envFrom:
+            - secretRef:
+                name: {{ $module_name }}-secret-env
+  volumeClaimTemplates:
+    - metadata:
+        name: minio-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $module_name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: {{ $module_name }}
+  ports:
+    - port: 9000
+      targetPort: 9000
+    - port: 9001
+      targetPort: 9001

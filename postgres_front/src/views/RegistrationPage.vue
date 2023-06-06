@@ -156,7 +156,6 @@ export default defineComponent({
                 router.push({ name: 'accountValdidation' })
             } else {
                 emit('login', accountForm.value.email, accountForm.value.password)
-                router.push({ name: 'account' })
             }
         }
 

@@ -17,6 +17,8 @@ django:
     VERIFICATE_EMAIL: 0
     EMAIL_HOST_USER: change_me
     EMAIL_HOST_PASSWORD: change_me
+    MINIO_STORAGE_ACCESS_KEY: very_secret_key
+    MINIO_STORAGE_SECRET_KEY: very_secret_key
 
 django-postgres:
   image: postgres
