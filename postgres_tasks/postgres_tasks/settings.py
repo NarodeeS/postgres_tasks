@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "djoser",
     "rest_framework",
+    "minio_storage",
     "core",
 ]
 
@@ -97,6 +98,15 @@ CACHES = {
         'LOCATION': BASE_DIR / 'cache'
     }
 }
+
+# minio configuration
+DEFAULT_FILE_STORAGE = "minio_storage.storage.MinioMediaStorage"
+MINIO_STORAGE_ENDPOINT = "minio:9000"
+MINIO_STORAGE_ACCESS_KEY = config.MINIO_STORAGE_ACCESS_KEY
+MINIO_STORAGE_SECRET_KEY = config.MINIO_STORAGE_SECRET_KEY
+MINIO_STORAGE_USE_HTTPS = False
+MINIO_STORAGE_MEDIA_BUCKET_NAME = 'local-media'
+MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET = True
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

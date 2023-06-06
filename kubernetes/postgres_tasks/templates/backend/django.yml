@@ -3,9 +3,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  labels:
+    app.kubernetes.io/component: backend
   name: {{ $module_name }}
   namespace: {{ .Values.namespace }}
 spec:
+  replicas: 2
   selector:
     matchLabels:
       app: {{ $module_name }}
@@ -13,6 +16,7 @@ spec:
     metadata:
       labels:
         app: {{ $module_name }}
+        app.kubernetes.io/component: backend
     spec:
       containers:
         - name: {{ $module_name }}

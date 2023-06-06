@@ -1,0 +1,1 @@
+docker compose -f ./minio-compose.yml up -d
