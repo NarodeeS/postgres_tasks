@@ -2,7 +2,7 @@ from typing import TypedDict
 
 from psycopg2 import Error as SQLError
 
-from config import SANDBOX_POSTGRES_DB
+from config import SANDBOX_POSTGRES_DB0
 from domain import commands, events, errors
 from domain.database_status import DatabaseStatus
 from core.models import Task, CompletedTask, DatabaseInfo, User
@@ -21,7 +21,7 @@ def create_user_task(command: commands.CreateUserTask,
         raise errors.NoSuchTaskError(task)
     
     db_name = f"{'_'.join(task.title.split(' ')).lower()}_{command.user_id}"
-    if not (db_info := database_exists(db_name)):
+    if not (db_info := database_exists(command.user_id)):
         creds = create_db(command.user_id, task.id, db_name)
         message_queue.append(events.DbCreated(db_name, *creds))
     else:
