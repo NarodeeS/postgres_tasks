@@ -15,6 +15,7 @@ services:
       - rabbit-network
       - monitoring-network
     volumes:
+      - django_static_volume:/server/static
       - logs_volume:/var/log
     command: supervisord
 
@@ -28,6 +29,8 @@ services:
       - backend-network
     env_file:
       - ./.env
+    volumes:
+      - django_postgres_volume:/var/lib/postgresql/data 
 
   sandbox-postgres:
     container_name: sandbox-postgres
@@ -39,6 +42,8 @@ services:
       - backend-network
     env_file:
       - ./.env
+    volumes:
+      - sandbox_volume:/var/lib/postgresql/data 
 
 networks:
   monitoring-network:
@@ -48,4 +53,6 @@ networks:
 
 volumes:
   django_static_volume:
+  sandbox_volume:
+  django_postgres_volume:
   logs_volume:

@@ -2,7 +2,7 @@ from typing import TypedDict
 
 from psycopg2 import Error as SQLError
 
-from config import SANDBOX_POSTGRES_DB
+from config import SANDBOX_POSTGRES_DB0
 from domain import commands, events, errors
 from domain.database_status import DatabaseStatus
 from core.models import Task, CompletedTask, DatabaseInfo, User
@@ -21,7 +21,7 @@ def create_user_task(command: commands.CreateUserTask,
         raise errors.NoSuchTaskError(task)
     
     db_name = f"{'_'.join(task.title.split(' ')).lower()}_{command.user_id}"
-    if not (db_info := database_exists(db_name)):
+    if not (db_info := database_exists(command.user_id)):
         creds = create_db(command.user_id, task.id, db_name)
         message_queue.append(events.DbCreated(db_name, *creds))
     else:
@@ -95,8 +95,7 @@ def send_sql_command(command: commands.SendSqlCommand,
 def check_task(command: commands.CheckTask, 
                message_queue: list) -> bool:
     db_info = get_db_info(command.db_name)    
-    check_script_path = db_info.task.check_script.path
-    check_script = load_file(check_script_path)
+    check_script = load_file(db_info.task.check_script.file)
     connection = get_admin_connection(command.db_name)
     
     with DbConnectionManager(connection):
@@ -116,7 +115,7 @@ def fill_task_db(event: events.DbCreated,
     username, password = event.username, event.password
         
     task = db_info.task
-    filling_command = load_file(task.creation_script.path)
+    filling_command = load_file(task.creation_script.file)
     
     user_creation_command = f'''
         CREATE ROLE {username} WITH LOGIN PASSWORD '{password}';

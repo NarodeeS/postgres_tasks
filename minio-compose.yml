@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  minio:
+    container_name: minio
+    image: bitnami/minio
+    ports:
+      - 9000:9000
+      - 9001:9001
+    env_file:
+      - ./.env
+    networks:
+      - backend-network
+    volumes:
+      - minio-data:/data
+
+networks:
+  backend-network:
+
+volumes:
+  minio-data: 

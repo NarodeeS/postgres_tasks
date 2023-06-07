@@ -51,7 +51,7 @@ export default defineComponent({
     },
     mounted() {
         const cookie = useCookie()
-        let token = cookie.getCookie('token')
+        let token = cookie.getCookie('utoken')
 
         if (token) {
             this.isAuthenticated = true
@@ -64,7 +64,7 @@ export default defineComponent({
     setup() {
         const cookie = useCookie()
         const headers = {
-            Authorization: 'Token ' + cookie.getCookie('token')
+            Authorization: 'Token ' + cookie.getCookie('utoken')
         }
 
         const resultForTask = ref<ResponseType>(ResponseType.Moves_over)
@@ -106,7 +106,7 @@ export default defineComponent({
                 await axios.delete(`api/databases/${dbName.value}/`, { headers: headers })
                 postgresResponseHistory.value = []
             } catch (err) {
-                return
+                console.log(err)
             }
         }
 
@@ -115,6 +115,7 @@ export default defineComponent({
                 alert('Вы не еще завешили начатое задание')
                 return
             }
+
             prepareFieldsBeforeDeployingTask(id)
             let selectedTask = tasksList.value.find((x) => x.id === taskId.value)
             if (typeof selectedTask === 'undefined') {
@@ -133,7 +134,9 @@ export default defineComponent({
                     { headers: headers }
                 )
                 dbName.value = response.data.db_name
+                console.log(dbName.value)
             } catch (err) {
+                console.log(err)
                 alert('Ошибка при создании базы данных')
                 return
             }
@@ -192,7 +195,15 @@ export default defineComponent({
                     updatePostgresResponseFields(response, command)
 
                     if (movesLeft.value === 0) {
-                        await sendTaskForChecking()
+                        let result = await makeRequestForTaskChecking()
+                        if (result === true) {
+                            resultForTask.value = ResponseType.Success_passed
+                        }
+                        else {
+                            resultForTask.value = ResponseType.Moves_over
+                        }
+                        await makeRequestForDelitingdb()
+                        taskId.value = null
                     }
                 } catch (err: any) {
                     alert('Ошибка при выполнении команды')
@@ -238,34 +249,48 @@ export default defineComponent({
         }
 
         async function sendTaskForChecking() {
+                // deleteTaskIfTurnOut(response)
+                let result = await makeRequestForTaskChecking()
+                if (result === true) {
+                    cleanFieldsAfterSuccess()
+                    await makeRequestForDelitingdb()
+                    return
+                }
+ 
+                resultForTask.value = ResponseType.Error_while_passing
+        }
+
+        async function makeRequestForTaskChecking(): Promise<boolean>{
             try {
                 const response = await axios.post(
                     `/api/databases/${dbName.value}/check/`,
                     {},
                     { headers: headers }
                 )
+                return true
 
-                deleteTaskIfTurnOut(response)
-                cleanFieldsAfterSuccess()
+                // deleteTaskIfTurnOut(response)
+                // cleanFieldsAfterSuccess()
             } catch (err) {
                 console.log(err)
-                resultForTask.value = ResponseType.Error_while_passing
+                // resultForTask.value = ResponseType.Error_while_passing
             }
+            return false
         }
 
-        async function deleteTaskIfTurnOut(response: AxiosResponse) {
-            if (response.data.detail === 'Check error') {
-                if (movesLeft.value == 0) {
-                    postgresResponseHistory.value = []
-                    taskId.value = null
-                    resultForTask.value = ResponseType.Moves_over
-                    await makeRequestForDelitingdb()
-                } else {
-                    resultForTask.value = ResponseType.Error_while_passing
-                }
-                return
-            }
-        }
+        // async function deleteTaskIfTurnOut(response: AxiosResponse) {
+        //     if (response.data.detail === 'Check error') {
+        //         if (movesLeft.value == 0) {
+        //             postgresResponseHistory.value = []
+        //             taskId.value = null
+        //             resultForTask.value = ResponseType.Moves_over
+        //             await makeRequestForDelitingdb()
+        //         } else {
+        //             resultForTask.value = ResponseType.Error_while_passing
+        //         }
+        //         return
+        //     }
+        // }
 
         function cleanFieldsAfterSuccess() {
             let selectedTask = tasksList.value.find((x) => x.id === taskId.value)

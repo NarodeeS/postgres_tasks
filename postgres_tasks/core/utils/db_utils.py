@@ -20,8 +20,8 @@ class DbConnectionManager:
         self.psycopg_connection.close()
 
 
-def database_exists(db_name: str) -> DatabaseInfo | None:
-    return DatabaseInfo.objects.filter(db_name=db_name).first()
+def database_exists(user_id: int) -> DatabaseInfo | None:
+    return DatabaseInfo.objects.filter(user__id=user_id).first()
 
 
 def get_db_info(db_name: str) -> DatabaseInfo:

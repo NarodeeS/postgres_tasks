@@ -34,3 +34,5 @@ djoser==2.1.0
 django-prometheus==2.2.0
 prometheus-client==0.16.0
 supervisor==4.2.5
+minio==7.1.15
+django-minio-storage==0.5.5

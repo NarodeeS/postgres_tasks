@@ -114,7 +114,6 @@ export default defineComponent({
             ) {
                 return false
             }
-            console.log("dfdfd")
             if (accountForm.value.password !== accountForm.value.repeatPassword) {
                 errorInRegistrartion.value = 'Passwords are not equal !'
                 return false
@@ -130,7 +129,16 @@ export default defineComponent({
                 return
             }
             try {
-                await axios.post('api/auth/users/', accountForm.value)
+                await axios.post('api/auth/users/',
+                                {     
+                                    "first_name": accountForm.value.firstName,
+                                    "last_name": accountForm.value.lastName,
+                                    "student_group": accountForm.value.studentGroup,
+                                    "email": accountForm.value.email,
+                                    "password": accountForm.value.password
+                                }
+                )
+                // accountForm.value)
                 if (accountForm.value.email == '' || accountForm.value.password == '') {
                     errorInRegistrartion.value = 'Login or password is empty'
                     return
@@ -148,7 +156,6 @@ export default defineComponent({
                 router.push({ name: 'accountValdidation' })
             } else {
                 emit('login', accountForm.value.email, accountForm.value.password)
-                router.push({ name: 'account' })
             }
         }
 

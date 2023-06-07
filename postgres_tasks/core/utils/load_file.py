@@ -1,3 +1,3 @@
-def load_file(path: str) -> str:
-    with open(path, 'r', encoding='utf8') as file:
-        return file.read()
+def load_file(file) -> str:
+    with file.open('r') as opened_file:
+        return opened_file.read()

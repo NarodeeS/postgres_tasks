@@ -17,6 +17,8 @@ django:
     VERIFICATE_EMAIL: 0
     EMAIL_HOST_USER: change_me
     EMAIL_HOST_PASSWORD: change_me
+    MINIO_STORAGE_ACCESS_KEY: very_secret_key
+    MINIO_STORAGE_SECRET_KEY: very_secret_key
 
 django-postgres:
   image: postgres
@@ -25,7 +27,7 @@ django-postgres:
     limits:
       memory: "128Mi"
       cpu: "500m"
-  data-volume:
+  data:
     resources:
       requests:
         storage: "500Mi"
@@ -40,7 +42,7 @@ sandbox-postgres:
     limits:
       memory: "1Gi"
       cpu: "250m"
-  data-volume:
+  data:
     resources:
       requests:
         storage: "500Mi"

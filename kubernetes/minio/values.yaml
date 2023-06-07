@@ -1,0 +1,9 @@
+namespace: postgres-tasks
+
+minio:
+  image: bitnami/minio
+  tag: latest
+
+  env:
+    MINIO_ROOT_USER: adminka1
+    MINIO_ROOT_PASSWORD: adminka1

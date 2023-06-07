@@ -69,6 +69,7 @@ class DatabaseViewSet(mixins.CreateModelMixin,
             response_message = 'Task completed sucessfully'
             bus.handle(commands.FinishUserTask(db_name))
         else:
+            response_status = 400
             response_message = 'Check error'
         
         return Response(data={'detail': response_message}, 

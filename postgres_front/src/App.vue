@@ -33,7 +33,7 @@ export default defineComponent({
     setup() {
         const cookie = useCookie()
 
-        let token = ref(cookie.getCookie('token'))
+        let token = ref(cookie.getCookie('utoken'))
         let isAuntificated = ref(false)
         const errorInLogin = ref<null | string>(null)
 
@@ -44,8 +44,8 @@ export default defineComponent({
         }
 
         async function Logout() {
-            const token = cookie.getCookie('token')
-            cookie.removeCookie('token')
+            const token = cookie.getCookie('utoken')
+            cookie.removeCookie('utoken')
             isAuntificated.value = false
             router.push({ name: 'mainPage' })
             try {
@@ -70,9 +70,11 @@ export default defineComponent({
                     email: email,
                     password: password
                 })
+                console.log(response)
 
                 if (response.status == 200) {
-                    cookie.setCookie('token', response.data.auth_token)
+                    cookie.removeCookie('utoken')
+                    cookie.setCookie('utoken', response.data.auth_token)
                     isAuntificated.value = true
                     router.push({ name: 'account' })
                 }
