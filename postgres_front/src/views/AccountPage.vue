@@ -61,7 +61,11 @@ export default defineComponent({
             router.push({ name: 'login' })
         }
     },
-    setup() {
+    emits: {
+        get_email: () => true,
+    },
+
+    setup(_, { emit }) {
         const cookie = useCookie()
         const headers = {
             Authorization: 'Token ' + cookie.getCookie('token')
@@ -90,6 +94,7 @@ export default defineComponent({
                 response.data.forEach((element: Task) => {
                     tasksList.value.push(element)
                 })
+                emit('get_email')
             } catch (err) {
                 router.push({ name: 'login' })
             }

@@ -1,18 +1,12 @@
 <template>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">PostgreSQL</a>
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-toggle="collapse"
-                data-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            ></button>
 
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="col-4">
+                <a class="navbar-brand" href="#">PostgreSQL</a>
+            </div>
+
+            <div class="col-8 collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
                         <a class="nav-link" @click="$router.push({ name: 'mainPage' })" href="#"
@@ -37,7 +31,7 @@
                         <a class="nav-link" @click="$emit('logout')">Logout</a>
                     </li>
                     <li v-if="isAuthenticated == true" class="nav-item">
-                        <a class="nav-link" @click="$router.push({ name: 'account' })">Account</a>
+                        <a class="nav-link" @click="$router.push({ name: 'account' })">{{ userEmail }}</a>
                     </li>
                     <li v-else class="nav-item">
                         <a class="nav-link" @click="$router.push({ name: 'login' })">Login</a>
@@ -48,13 +42,17 @@
     </nav>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
 
 export default defineComponent({
     props: {
         isAuthenticated: {
             required: true,
             type: Boolean
+        },
+        userEmail: {
+            required: false,
+            type: String as PropType<string | null> 
         }
     },
     emits: {

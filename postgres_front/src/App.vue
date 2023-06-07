@@ -1,8 +1,16 @@
 <template>
     <div class="layout">
-        <NavBarComponent :isAuthenticated="isAuntificated" @logout="Logout"></NavBarComponent>
+        <NavBarComponent :isAuthenticated="isAuntificated" 
+                :userEmail="email" 
+                @logout="Logout"
+            >
+        </NavBarComponent>
         <main class="layout-content">
-            <router-view :error="errorInLogin" @login="Login" />
+            <router-view 
+                :error="errorInLogin" 
+                @login="Login"
+                @get_email="getEmail"
+            />
         </main>
     </div>
 </template>
@@ -35,6 +43,7 @@ export default defineComponent({
 
         let token = ref(cookie.getCookie('token'))
         let isAuntificated = ref(false)
+        let email = ref<null | string>(null)
         const errorInLogin = ref<null | string>(null)
 
         if (token.value == null) {
@@ -47,6 +56,7 @@ export default defineComponent({
             const token = cookie.getCookie('token')
             cookie.removeCookie('token')
             isAuntificated.value = false
+            email.value = null
             router.push({ name: 'mainPage' })
             try {
                 await axios.post(
@@ -74,6 +84,8 @@ export default defineComponent({
                 if (response.status == 200) {
                     cookie.setCookie('token', response.data.auth_token)
                     isAuntificated.value = true
+
+                    console.log(cookie.getCookie('token'))
                     router.push({ name: 'account' })
                 }
             } catch (error: any) {
@@ -81,7 +93,22 @@ export default defineComponent({
                 return
             }
         }
-        return { Logout, Login, errorInLogin, isAuntificated }
+
+        async function getEmail(){
+            try {
+                const response = await axios.get('api/auth/users/me/',{
+                    headers: { Authorization: 'Token ' + cookie.getCookie('token')}
+                })
+
+                if (response.status == 200) {
+                    email.value = response.data.email
+                }
+            } catch (error: any) {
+                return
+            }
+        }
+
+        return { Logout, Login, getEmail,  errorInLogin, isAuntificated, email }
     }
 })
 </script>
