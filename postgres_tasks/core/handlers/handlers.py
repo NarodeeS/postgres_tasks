@@ -2,7 +2,7 @@ from typing import TypedDict
 
 from psycopg2 import Error as SQLError
 
-from config import SANDBOX_POSTGRES_DB0
+from config import SANDBOX_POSTGRES_DB
 from domain import commands, events, errors
 from domain.database_status import DatabaseStatus
 from core.models import Task, CompletedTask, DatabaseInfo, User

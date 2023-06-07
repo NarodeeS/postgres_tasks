@@ -100,7 +100,11 @@ CACHES = {
 }
 
 # minio configuration
-DEFAULT_FILE_STORAGE = "minio_storage.storage.MinioMediaStorage"
+if config.TESTING:
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+else:
+    DEFAULT_FILE_STORAGE = 'minio_storage.storage.MinioMediaStorage'
+
 MINIO_STORAGE_ENDPOINT = "minio:9000"
 MINIO_STORAGE_ACCESS_KEY = config.MINIO_STORAGE_ACCESS_KEY
 MINIO_STORAGE_SECRET_KEY = config.MINIO_STORAGE_SECRET_KEY
