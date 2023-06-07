@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3 
-      - name: 'Create backend env file for testing'
+      - name: 'Create backend .env file for testing'
         run: |
           echo "${{ secrets.ENV_FILE_TESTS }}" > .env
-      - name: 'Create frontend env file for testing'
+      - name: 'Create frontend .env file for testing'
         run: |
           echo "${{ secrets.FRONT_ENV_TEST }}" > ./postgres_front/.env.production
       - name: Setup Python
@@ -36,10 +36,10 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v3
-      - name: 'Create env file'
+      - name: 'Create backend .env file'
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
-      - name: 'Create frontend env file for testing'
+      - name: 'Create frontend .env file'
         run: |
           echo "${{ secrets.FRONT_ENV }}" > ./postgres_front/.env.production
       - name: Set up Docker Buildx

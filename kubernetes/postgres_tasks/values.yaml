@@ -2,7 +2,7 @@ namespace: postgres-tasks
 
 django:
   image: narodees/postgres_tasks-django
-  tag: 0.2
+  tag: latest
   resources:
     limits:
       memory: "500Mi"
@@ -53,7 +53,7 @@ sandbox-postgres:
 
 nginx:
   image: narodees/postgres_tasks-nginx
-  tag: 0.1
+  tag: latest
   resources:
     limits:
       memory: "1Gi"
@@ -168,7 +168,7 @@ loki:
 
 grafana:
   image: narodees/postgres_tasks-grafana
-  tag: 0.2
+  tag: latest
   resources:
     limits:
       memory: "128Mi"
