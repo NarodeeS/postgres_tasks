@@ -66,7 +66,9 @@ export default defineComponent({
     },
 
     setup(_, { emit }) {
-        const cookie = useCookie()
+        // shitty code
+       
+         const cookie = useCookie()
         const headers = {
             Authorization: 'Token ' + cookie.getCookie('utoken')
         }
