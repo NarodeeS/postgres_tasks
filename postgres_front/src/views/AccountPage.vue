@@ -66,7 +66,7 @@ export default defineComponent({
     },
 
     setup(_, { emit }) {
-        // shitty code
+        // welcome shitty code
        
          const cookie = useCookie()
         const headers = {
