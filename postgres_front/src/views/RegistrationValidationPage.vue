@@ -41,7 +41,7 @@ export default defineComponent({
         const errorInCodeValidation = ref<string | null>(null)
 
         function checkEmail() {
-            if (store.state.email === null) {
+            if (!store.state.email) {
                 router.push({ name: 'registration' })
             }
         }
@@ -59,6 +59,8 @@ export default defineComponent({
                 })
                 checkResponse(response)
             } catch (error: any) {
+                if (process.env.DEBUG)
+                    console.error(error)
                 return
             }
         }

@@ -3,7 +3,7 @@ import AccauntPage from '@/views/AccountPage.vue'
 import LoginPage from '@/views/LoginPage.vue'
 import MainPage from '@/views/MainPage.vue'
 import RegistrationPage from '@/views/RegistrationPage.vue'
-import RegistrationValidationPage from '@/views/ReistrationValidationPage.vue'
+import RegistrationValidationPage from '@/views/RegistrationValidationPage.vue'
 
 const routes = [
     {

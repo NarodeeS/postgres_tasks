@@ -4,10 +4,10 @@
             <div class="row">
                 <div class="col-4 tasks-control">
                     <h3>Задания:</h3>
-                    <TaskListControlerComponent
+                    <TaskListControllerComponent
                         :taskList="tasksList"
                         @deploy_task="deployTask"
-                    ></TaskListControlerComponent>
+                    ></TaskListControllerComponent>
                 </div>
                 <div class="col-8 console-control">
                     <ResultForTaskComponent :result="resultForTask"></ResultForTaskComponent>
@@ -36,7 +36,7 @@ import type Task from '@/types/interfaces/Task'
 import ResponseType from '@/types/enums/ResponesType'
 import type PostgresCommandResponse from '@/types/interfaces/PostgresCommandResponse'
 
-import TaskListControlerComponent from '@/components/TaskListControlerComponent.vue'
+import TaskListControllerComponent from '@/components/TaskListControllerComponent.vue'
 import ConsoleComponent from '@/components/ConsoleComponent.vue'
 import ResultForTaskComponent from '@/components/ResultForTaskComponent.vue'
 
@@ -46,7 +46,7 @@ export default defineComponent({
     name: 'App',
     components: {
         ResultForTaskComponent,
-        TaskListControlerComponent,
+        TaskListControllerComponent,
         ConsoleComponent
     },
     mounted() {
@@ -67,7 +67,7 @@ export default defineComponent({
 
     setup(_, { emit }) {
         // welcome to shitty code
-       
+
          const cookie = useCookie()
         const headers = {
             Authorization: 'Token ' + cookie.getCookie('utoken')
@@ -103,12 +103,12 @@ export default defineComponent({
         }
 
         function endTaskWithoutChecking() {
-            makeRequestForDelitingdb()
+            deleteDb()
             resultForTask.value = ResponseType.None
             taskId.value = null
         }
 
-        async function makeRequestForDelitingdb() {
+        async function deleteDb() {
             try {
                 await axios.delete(`api/databases/${dbName.value}/`, { headers: headers })
                 postgresResponseHistory.value = []
@@ -119,7 +119,7 @@ export default defineComponent({
 
         async function deployTask(id: number) {
             if (taskId.value != null) {
-                alert('Вы не еще завешили начатое задание')
+                alert('Вы еще не завершили начатое задание')
                 return
             }
 
@@ -129,11 +129,19 @@ export default defineComponent({
                 return
             }
 
-            await makeRequestIsDbStarted(selectedTask.id)
+            await createDatabase(selectedTask.id)
             checkIsDbStarted()
+                .then(() => {
+                    alert('БД создана')
+                })
+                .catch((err) => {
+                    alert('Произошла ошибка при создании БД')
+                    if (process.env.DEBUG)
+                        console.error(err)
+                })
         }
 
-        async function makeRequestIsDbStarted(taskId: number) {
+        async function createDatabase(taskId: number) {
             try {
                 const response = await axios.post(
                     `/api/tasks/`,
@@ -155,21 +163,22 @@ export default defineComponent({
             dbIsStarting.value = true
         }
 
-        async function checkIsDbStarted() {
-            await delay(1000)
-
-            let max_retries = 5
-            let try_number = 0
-            while (max_retries !== try_number || dbIsStarting.value === false) {
-                try_number += 1
-                await isDbStartedRequest()
-
-                if (dbIsStarting.value === false) {
-                    return
-                }
+        function checkIsDbStarted() {
+            return new Promise<void>(async (resolve, reject) => {
                 await delay(1000)
 
-            }
+                let max_retries = 5
+                let try_number = 0
+                while (max_retries !== try_number || dbIsStarting.value === false) {
+                    try_number += 1
+                    await isDbStartedRequest()
+
+                    if (dbIsStarting.value === false)
+                        resolve()
+                    await delay(1000)
+                }
+                reject("Ошибка с БД")
+            })
         }
 
         async function isDbStartedRequest() {
@@ -190,36 +199,34 @@ export default defineComponent({
         async function sendCommand(command: string) {
             resultForTask.value = ResponseType.None
             if (command === '') {
-                emptyComandWasSended()
-                return
-            } else {
-                try {
-                    const response = await axios.post(
-                        `/api/databases/${dbName.value}/command/`,
-                        { command: command },
-                        { headers: headers }
-                    )
-                    updatePostgresResponseFields(response, command)
+                return emptyCommandWasSent()
+            }
+            try {
+                const response = await axios.post(
+                    `/api/databases/${dbName.value}/command/`,
+                    { command: command },
+                    { headers: headers }
+                )
+                updatePostgresResponseFields(response, command)
 
-                    if (movesLeft.value === 0) {
-                        let result = await makeRequestForTaskChecking()
-                        if (result === true) {
+                if (movesLeft.value === 0) {
+                        let result = await sendTaskForChecking()
+                        if (result) {
                             resultForTask.value = ResponseType.Success_passed
                         }
                         else {
                             resultForTask.value = ResponseType.Moves_over
                         }
-                        await makeRequestForDelitingdb()
+                        await deleteDb()
                         taskId.value = null
-                    }
-                } catch (err: any) {
-                    alert('Ошибка при выполнении команды')
-                    return
                 }
+            } catch (err: any) {
+                alert('Ошибка при выполнении команды')
+                return
             }
         }
 
-        function emptyComandWasSended() {
+        function emptyCommandWasSent() {
             let newPostgresResponseHistory: PostgresCommandResponse = {
                 status: '',
                 result: [],
@@ -256,42 +263,48 @@ export default defineComponent({
         }
 
         async function sendTaskForChecking() {
-                // deleteTaskIfTurnOut(response)
-                let result = await makeRequestForTaskChecking()
-                if (result === true) {
-                    cleanFieldsAfterSuccess()
-                    await makeRequestForDelitingdb()
-                    return
-                }
- 
-                resultForTask.value = ResponseType.Error_while_passing
-        }
-
-        async function makeRequestForTaskChecking(): Promise<boolean>{
-            try {
-                const response = await axios.post(
-                    `/api/databases/${dbName.value}/check/`,
-                    {},
-                    { headers: headers }
-                )
+            // deleteTaskIfTurnOut(response)
+            let result = await makeRequestForTaskChecking()
+            if (result) {
+                cleanFieldsAfterSuccess()
+                await deleteDb()
+                // ??? Честно говоря, понимаю слабо
                 return true
-
-                // deleteTaskIfTurnOut(response)
-                // cleanFieldsAfterSuccess()
-            } catch (err) {
-                console.log(err)
-                // resultForTask.value = ResponseType.Error_while_passing
             }
+
+            resultForTask.value = ResponseType.Error_while_passing
             return false
         }
 
-        // async function deleteTaskIfTurnOut(response: AxiosResponse) {
+        async function makeRequestForTaskChecking(): Promise<boolean>{
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const response = await axios.post(
+                        `/api/databases/${dbName.value}/check/`,
+                        {},
+                        { headers: headers }
+                    )
+                    resolve(true)
+                    // await deleteTask(response)
+                    // cleanFieldsAfterSuccess()
+                } catch (err) {
+                    // TODO: Продумать логику ответов, при каких условиях использовать:
+                    // resolve(true), resolve(false) и reject(причина)
+                    // ОСОБЕННО вкупе с sendTaskForChecking()
+                    console.log(err)
+                    resolve(false)
+                    // resultForTask.value = ResponseType.Error_while_passing
+                }
+            })
+        }
+
+        // async function deleteTask(response: AxiosResponse) {
         //     if (response.data.detail === 'Check error') {
         //         if (movesLeft.value == 0) {
         //             postgresResponseHistory.value = []
         //             taskId.value = null
         //             resultForTask.value = ResponseType.Moves_over
-        //             await makeRequestForDelitingdb()
+        //             await deleteDb()
         //         } else {
         //             resultForTask.value = ResponseType.Error_while_passing
         //         }

@@ -1,13 +1,13 @@
 <template>
     <div class="layout">
-        <NavBarComponent :isAuthenticated="isAuntificated" 
-                :userEmail="email" 
+        <NavBarComponent :isAuthenticated="isAuthenticated"
+                :userEmail="email"
                 @logout="Logout"
             >
         </NavBarComponent>
         <main class="layout-content">
-            <router-view 
-                :error="errorInLogin" 
+            <router-view
+                :error="errorInLogin"
                 @login="Login"
                 @get_email="getEmail"
             />
@@ -42,20 +42,16 @@ export default defineComponent({
         const cookie = useCookie()
 
         let token = ref(cookie.getCookie('utoken'))
-        let isAuntificated = ref(false)
+        let isAuthenticated = ref(false)
         let email = ref<null | string>(null)
         const errorInLogin = ref<null | string>(null)
 
-        if (token.value == null) {
-            isAuntificated.value = false
-        } else {
-            isAuntificated.value = true
-        }
+        isAuthenticated.value = token.value != null;
 
         async function Logout() {
             const token = cookie.getCookie('utoken')
             cookie.removeCookie('utoken')
-            isAuntificated.value = false
+            isAuthenticated.value = false
             email.value = null
             router.push({ name: 'mainPage' })
             try {
@@ -85,7 +81,7 @@ export default defineComponent({
                 if (response.status == 200) {
                     cookie.removeCookie('utoken')
                     cookie.setCookie('utoken', response.data.auth_token)
-                    isAuntificated.value = true
+                    isAuthenticated.value = true
 
                     console.log(cookie.getCookie('token'))
                     router.push({ name: 'account' })
@@ -110,7 +106,7 @@ export default defineComponent({
             }
         }
 
-        return { Logout, Login, getEmail,  errorInLogin, isAuntificated, email }
+        return { Logout, Login, getEmail,  errorInLogin, isAuthenticated, email }
     }
 })
 </script>
