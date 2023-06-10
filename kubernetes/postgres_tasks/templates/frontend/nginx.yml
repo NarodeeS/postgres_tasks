@@ -17,12 +17,15 @@ spec:
     spec:
       containers:
         - name: {{ $module_name }}
-          image: {{ $module.image }}:{{ $module.tag }}
+          image: {{ $module.image.repository }}:{{ $module.image.tag }}
+          imagePullPolicy: {{ $module.image.pullPolicy }}
           resources:
             {{- toYaml $module.resources | nindent 12 }}
           ports:
             - containerPort: 80
           volumeMounts:
+            - name: config-volume
+              mountPath: /etc/nginx/conf.d
             - name: static-volume
               mountPath: /www/data/static
               readOnly: true
@@ -30,6 +33,9 @@ spec:
               mountPath: /var/log/nginx
         {{- include "promtail.container" . | nindent 8 }}
       volumes:
+        - name: config-volume
+          configMap:
+            name: {{ $module_name }}-configmap
         - name: static-volume
           persistentVolumeClaim:
             claimName: static-volume

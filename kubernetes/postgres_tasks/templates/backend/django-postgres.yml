@@ -25,7 +25,8 @@ spec:
     spec:
       containers:
         - name: {{ $module_name }}
-          image: {{ $module.image }}:{{ $module.tag }}
+          image: {{ $module.image.repository }}:{{ $module.image.tag }}
+          imagePullPolicy: {{ $module.image.pullPolicy }}
           resources:
             {{- $module.resources| toYaml | nindent 12 }}
           ports:

@@ -17,7 +17,8 @@ spec:
     spec:
       containers:
         - name: {{ $module_name }}
-          image: {{ $module.image }}:{{ $module.tag }}
+          image: {{ $module.image.repository }}:{{ $module.image.tag }}
+          imagePullPolicy: {{ $module.image.pullPolicy }}
           args: ["-nginx.scrape-uri", "http://nginx:80/metrics"]
           resources:
             {{- toYaml $module.resources | nindent 12 }}

@@ -19,6 +19,7 @@ spec:
       containers:
         - name: {{ $module_name }}
           image: {{ $module.image }}:{{ $module.tag }}
+          imagePullPolicy: {{ $module.pullPolicy }}
           ports:
             - containerPort: 9000
             - containerPort: 9001
@@ -34,8 +35,7 @@ spec:
       spec:
         accessModes: [ "ReadWriteOnce" ]
         resources:
-          requests:
-            storage: 1Gi
+          {{- $module.storageResources | toYaml | nindent 10 }}
 ---
 apiVersion: v1
 kind: Service
@@ -46,7 +46,9 @@ spec:
   selector:
     app: {{ $module_name }}
   ports:
-    - port: 9000
+    - name: data
+      port: 9000
       targetPort: 9000
-    - port: 9001
+    - name: web
+      port: 9001
       targetPort: 9001

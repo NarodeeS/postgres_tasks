@@ -1,28 +1,35 @@
 namespace: postgres-tasks
 
 django:
-  image: narodees/postgres_tasks-django
-  tag: latest
+  image:
+    repository: narodees/postgres_tasks-django
+    tag: latest
+    pullPolicy: Always
   resources:
     limits:
-      memory: "500Mi"
+      memory: "1Gi"
       cpu: "500m"
   env:
     DJANGO_SECRET_KEY: some_very_secret_key
     POSTGRES_USER: adminka
     POSTGRES_PASSWORD: qwerty
+    SANDBOX_POSTGRES_DB: postgres
+    SANDBOX_POSTGRES_HOST: sandbox-postgres
+    SANDBOX_POSTGRES_PORT: 5432
     RABBITMQ_DEFAULT_USER: rabbit
     RABBITMQ_DEFAULT_PASS: cool_rabbit
     POSTGRES_DB: sandbox
     VERIFICATE_EMAIL: 0
     EMAIL_HOST_USER: change_me
     EMAIL_HOST_PASSWORD: change_me
-    MINIO_STORAGE_ACCESS_KEY: very_secret_key
-    MINIO_STORAGE_SECRET_KEY: very_secret_key
+    MINIO_STORAGE_ACCESS_KEY: uQsrfmNzAfmYJNOJaWeQ
+    MINIO_STORAGE_SECRET_KEY: G9Q6RxdEHRIYx7y3e2kOee4TVhGOhK9i1gY137sm
 
 django-postgres:
-  image: postgres
-  tag: latest
+  image:
+    repository: postgres
+    tag: latest
+    pullPolicy: IfNotPresent
   resources:
     limits:
       memory: "128Mi"
@@ -36,8 +43,10 @@ django-postgres:
     POSTGRES_PASSWORD: qwerty
 
 sandbox-postgres:
-  image: postgres
-  tag: latest
+  image:
+    repository: postgres
+    tag: latest
+    pullPolicy: IfNotPresent
   resources:
     limits:
       memory: "1Gi"
@@ -52,35 +61,79 @@ sandbox-postgres:
     POSTGRES_DB: sandbox
 
 nginx:
-  image: narodees/postgres_tasks-nginx
-  tag: latest
+  image:
+    repository: narodees/postgres_tasks-nginx
+    tag: latest
+    pullPolicy: Always
   resources:
     limits:
-      memory: "1Gi"
-      cpu: "500m"
+      memory: "250Mi"
+      cpu: "250m"
+  config: |
+    upstream postgres-api {
+      server django:8000;
+    }
+
+    server {
+        listen 80;
+        server_name https-nginx.localhost;
+
+        location /api {
+            proxy_pass http://postgres-api/api;
+        }
+
+        location /admin {
+            proxy_pass http://postgres-api/admin;
+        }
+
+        location /metrics {
+            access_log off;
+            error_log off;
+            stub_status;
+        }
+
+        location /static {
+            access_log off;
+            error_log off;
+            alias /www/data/static;
+        }
+
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+            include  /etc/nginx/mime.types;
+            try_files $uri $uri/ /index.html;
+        }
+    }
 
 nginx-exporter:
-  image: nginx/nginx-prometheus-exporter
-  tag: latest
+  image:
+    repository: nginx/nginx-prometheus-exporter
+    tag: latest
+    pullPolicy: IfNotPresent
   resources:
     limits:
       memory: "128Mi"
       cpu: "250m"
 
 rabbitmq:
-  image: rabbitmq
-  tag: 3-management
+  image:
+    repository: rabbitmq
+    tag: 3-management
+    pullPolicy: IfNotPresent
   resources:
     limits:
-      memory: "2Gi"
-      cpu: "500m"
+      memory: "250Mi"
+      cpu: "250m"
   env:
     RABBITMQ_DEFAULT_USER: rabbit
     RABBITMQ_DEFAULT_PASS: cool_rabbit
 
 node-exporter:
-  image: prom/node-exporter
-  tag: latest
+  image:
+    repository: prom/node-exporter
+    tag: latest
+    pullPolicy: IfNotPresent
   resources:
     limits:
       memory: 200Mi
@@ -89,8 +142,10 @@ node-exporter:
       memory: 200Mi
 
 prometheus:
-  image: prom/prometheus
-  tag: latest
+  image:
+    repository: prom/prometheus
+    tag: latest
+    pullPolicy: IfNotPresent
   resources:
     limits:
       memory: "128Mi"
@@ -125,12 +180,14 @@ prometheus:
             action: keep
 
 loki:
-  image: grafana/loki
-  tag: latest
+  image:
+    repository: grafana/loki
+    tag: latest
+    pullPolicy: IfNotPresent
   resources:
     limits:
       memory: "128Mi"
-      cpu: "500m"
+      cpu: "128m"
   config: |
     auth_enabled: false
 
@@ -167,23 +224,27 @@ loki:
             period: 24h
 
 grafana:
-  image: narodees/postgres_tasks-grafana
-  tag: latest
+  image:
+    repository: narodees/postgres_tasks-grafana
+    tag: latest
+    pullPolicy: IfNotPresent
   resources:
     limits:
-      memory: "128Mi"
-      cpu: "250m"
+      memory: "256Mi"
+      cpu: "300m"
   env:
     GF_SECURITY_ADMIN_USER: admin
     GF_SECURITY_ADMIN_PASSWORD: admin
 
 promtail:
-  image: grafana/promtail
-  tag: latest
+  image:
+    repository: grafana/promtail
+    tag: latest
+    pullPolicy: IfNotPresent
   resources:
     limits:
       memory: "128Mi"
-      cpu: "500m"
+      cpu: "128m"
   config: |
     server:
       http_listen_port: 9080
@@ -224,7 +285,6 @@ promtail:
             __path__: "/var/log/error.log"
             app: nginx-error 
 
-
 lets-encrypt-issuer:
   acme-server: https://acme-v02.api.letsencrypt.org/directory
   email: youremail@gmail.com
@@ -242,16 +302,16 @@ ingress:
   class: traefik
   tls:
     hosts:
-      - nginx.localhost  # change to public domain
-      - grafana.localhost  # change to public domain
+      - https-nginx.localhost  # change to public domain
+      - https-grafana.localhost  # change to public domain
   rules:
-    - host: nginx.localhost
+    - host: https-nginx.localhost
       path: "/"
       service:
         name: nginx
         port: 80
 
-    - host: grafana.localhost 
+    - host: https-grafana.localhost
       path: "/"
       service:
         name: grafana

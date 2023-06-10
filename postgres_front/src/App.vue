@@ -83,7 +83,7 @@ export default defineComponent({
                     cookie.setCookie('utoken', response.data.auth_token)
                     isAuthenticated.value = true
 
-                    console.log(cookie.getCookie('token'))
+                    console.log(cookie.getCookie('utoken'))
                     router.push({ name: 'account' })
                 }
             } catch (error: any) {
@@ -95,7 +95,7 @@ export default defineComponent({
         async function getEmail(){
             try {
                 const response = await axios.get('api/auth/users/me/',{
-                    headers: { Authorization: 'Token ' + cookie.getCookie('token')}
+                    headers: { Authorization: 'Token ' + cookie.getCookie('utoken')}
                 })
 
                 if (response.status == 200) {

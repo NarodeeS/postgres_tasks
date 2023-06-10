@@ -8,7 +8,7 @@ metadata:
   name: {{ $module_name }}
   namespace: {{ .Values.namespace }}
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: {{ $module_name }}
@@ -20,14 +20,18 @@ spec:
     spec:
       containers:
         - name: {{ $module_name }}
-          image: {{ $module.image }}:{{ $module.tag }}
+          image: {{ $module.image.repository }}:{{ $module.image.tag }}
+          imagePullPolicy: {{ $module.image.pullPolicy }}
           command: ["supervisord"]
           resources:
             {{- toYaml $module.resources | nindent 12 }}
           ports:
             - containerPort: 8000
           volumeMounts:
-            {{- include "django.volumeMounts" . | nindent 12 }}
+            - name: static-volume
+              mountPath: /server/static
+            - name: logs
+              mountPath: /var/log
           envFrom:
             - secretRef:
                 name: {{ $module_name }}-secret-env
@@ -35,7 +39,12 @@ spec:
         {{- include "promtail.container" . | nindent 8 }}
 
       volumes:
-        {{- include "django.volumes" . | nindent 8 }}
+        - name: static-volume
+          persistentVolumeClaim:
+            claimName: static-volume
+        - name: logs
+          hostPath:
+            path: /var/log
         {{- include "promtail.volumes" . | nindent 8 }}
 ---
 apiVersion: v1

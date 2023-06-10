@@ -2,7 +2,8 @@
 {{- $module := .Values.promtail -}}
 {{- $module_name := "promtail" -}}
 - name: {{ $module_name }}
-  image: {{ $module.image }}:{{ $module.tag }}
+  image: {{ $module.image.repository }}:{{ $module.image.tag }}
+  imagePullPolicy: {{ $module.image.pullPolicy }}
   args: [--config.file=/etc/promtail/promtail.yml]
   resources:
     {{- toYaml $module.resources | nindent 4 }}

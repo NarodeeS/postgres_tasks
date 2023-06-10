@@ -3,6 +3,11 @@ namespace: postgres-tasks
 minio:
   image: bitnami/minio
   tag: latest
+  pullPolicy: IfNotPresent
+
+  storageResources:
+    requests:
+      storage: 1Gi
 
   env:
     MINIO_ROOT_USER: adminka1

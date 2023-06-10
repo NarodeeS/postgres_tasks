@@ -1,0 +1,10 @@
+{{- $module := .Values.nginx -}}
+{{- $module_name := "nginx" -}}
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ $module_name }}-configmap
+  namespace: {{ .Values.namespace }}
+data:
+  default.conf: |
+    {{- $module.config | toString | nindent 4 }}

@@ -17,7 +17,8 @@ spec:
       serviceAccount: {{ $module_name }}-account
       containers:
         - name: {{ $module_name }}
-          image: {{ $module.image }}:{{ $module.tag }}
+          image: {{ $module.image.repository }}:{{ $module.image.tag }}
+          imagePullPolicy: {{ $module.image.pullPolicy }}
           resources:
             {{- toYaml $module.resources | nindent 12 }}
           ports:
