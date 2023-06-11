@@ -41,7 +41,7 @@ class ServiceTestCase(TestCase):
 
     def tearDown(self) -> None:
         try:
-            bus.handle(commands.DeleteUserTaskDb('test_1'))
+            bus.handle(commands.DeleteUserTaskDb('db1_1'))
         except Exception:
             pass
 
