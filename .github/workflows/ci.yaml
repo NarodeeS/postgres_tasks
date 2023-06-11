@@ -23,8 +23,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
       - name: Run with Docker compose
         run: |
-          ./scripts/build_core.sh
-          ./scripts/start_core.sh
+          ./scripts/build_and_start_core.sh
       - name: Wait for startup
         run: sleep 3
       - name: Run Django tests

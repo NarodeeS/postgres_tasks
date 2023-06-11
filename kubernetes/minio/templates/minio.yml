@@ -18,8 +18,8 @@ spec:
     spec:
       containers:
         - name: {{ $module_name }}
-          image: {{ $module.image }}:{{ $module.tag }}
-          imagePullPolicy: {{ $module.pullPolicy }}
+          image: {{ $module.image.repository }}:{{ $module.image.tag }}
+          imagePullPolicy: {{ $module.image.pullPolicy }}
           ports:
             - containerPort: 9000
             - containerPort: 9001

@@ -131,9 +131,6 @@ export default defineComponent({
 
             await createDatabase(selectedTask.id)
             checkIsDbStarted()
-                .then(() => {
-                    alert('БД создана')
-                })
                 .catch((err) => {
                     alert('Произошла ошибка при создании БД')
                     if (process.env.DEBUG)

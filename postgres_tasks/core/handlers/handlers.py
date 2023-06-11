@@ -20,7 +20,7 @@ def create_user_task(command: commands.CreateUserTask,
     if not task:
         raise errors.NoSuchTaskError(task)
     
-    db_name = f"{'_'.join(task.title.split(' ')).lower()}_{command.user_id}"
+    db_name = f"db{task.id}_{command.user_id}"
     if not (db_info := database_exists(command.user_id)):
         creds = create_db(command.user_id, task.id, db_name)
         message_queue.append(events.DbCreated(db_name, *creds))

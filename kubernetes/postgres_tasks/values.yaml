@@ -76,7 +76,7 @@ nginx:
 
     server {
         listen 80;
-        server_name https-nginx.localhost;
+        server_name nginx.localhost;
 
         location /api {
             proxy_pass http://postgres-api/api;
@@ -285,33 +285,20 @@ promtail:
             __path__: "/var/log/error.log"
             app: nginx-error 
 
-lets-encrypt-issuer:
-  acme-server: https://acme-v02.api.letsencrypt.org/directory
-  email: youremail@gmail.com
-  solvers:
-    - http01:
-        ingress:
-          class: traefik
-
-certificate:
-  dns-names:
-    - https-nginx.localhost  # change to public domain
-    - https-grafana.localhost  # change to public domain
-
 ingress:
   class: traefik
   tls:
     hosts:
-      - https-nginx.localhost  # change to public domain
-      - https-grafana.localhost  # change to public domain
+      - nginx.localhost  # change to public domain
+      - grafana.localhost  # change to public domain
   rules:
-    - host: https-nginx.localhost
+    - host: nginx.localhost
       path: "/"
       service:
         name: nginx
         port: 80
 
-    - host: https-grafana.localhost
+    - host: grafana.localhost
       path: "/"
       service:
         name: grafana

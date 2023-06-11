@@ -4,15 +4,11 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ $module_name }}
-  namespace: postgres-tasks
+  namespace: {{ .Values.namespace }}
   labels:
     name: {{ $module_name }}
 spec:
   ingressClassName: {{ $module.class }}
-  tls:
-    - hosts:
-        {{- $module.tls.hosts | toYaml | nindent 8 }}
-      secretName: certificate-tls
   rules:
     {{- range $index, $rule := $module.rules }}
     - host: {{ $rule.host }}
