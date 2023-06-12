@@ -170,8 +170,10 @@ export default defineComponent({
                     try_number += 1
                     await isDbStartedRequest()
 
-                    if (dbIsStarting.value === false)
+                    if (dbIsStarting.value === false){
                         resolve()
+                        return
+                    }
                     await delay(1000)
                 }
                 reject("Ошибка с БД")
